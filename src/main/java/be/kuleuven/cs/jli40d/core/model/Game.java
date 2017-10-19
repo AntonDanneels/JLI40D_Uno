@@ -21,7 +21,34 @@ public class Game
         players = new ArrayList <Player>();
         deck = new ArrayList <Card>();
 
+        topCard = null;
+        ended = false;
+        currentPlayer = 0;
+    }
 
+    public void setPlayers( List <Player> players )
+    {
+        this.players = players;
+    }
+
+    public void setDeck( List <Card> deck )
+    {
+        this.deck = deck;
+    }
+
+    public void setEnded( boolean ended )
+    {
+        this.ended = ended;
+    }
+
+    public void setCurrentPlayer( int currentPlayer )
+    {
+        this.currentPlayer = currentPlayer;
+    }
+
+    public void setTopCard( Card topCard )
+    {
+        this.topCard = topCard;
     }
 
     public List <Player> getPlayers()
