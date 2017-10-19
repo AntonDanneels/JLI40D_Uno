@@ -1,4 +1,4 @@
-package be.kuleuven.cs.jli40d;
+package be.kuleuven.cs.jli40d.server;
 
 /**
  * @author Pieter
