@@ -15,4 +15,8 @@ import java.util.List;
 public interface LobbyHandler
 {
     List<Game> currentGames();
+
+    int makeGame();
+
+    Game joinGame();
 }
