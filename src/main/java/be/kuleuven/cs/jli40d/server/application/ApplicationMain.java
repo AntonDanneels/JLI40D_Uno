@@ -1,6 +1,7 @@
 package be.kuleuven.cs.jli40d.server.application;
 
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
+import be.kuleuven.cs.jli40d.core.UserHandler;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -21,6 +22,7 @@ public class ApplicationMain
             Registry registry = LocateRegistry.createRegistry( 1099 );
             // create a new service named CounterService
             registry.rebind( LobbyHandler.class.getName(), new Lobby() );
+            registry.rebind( UserHandler.class.getName(), new SimpleUserManager() );
         }
         catch ( Exception e )
         {

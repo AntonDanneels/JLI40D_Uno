@@ -26,8 +26,8 @@ public class SimpleUserManager extends UnicastRemoteObject implements UserHandle
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( SimpleUserManager.class );
 
-    private Map <String, String> tokens    = new HashMap <String, String>();
-    private Map <String, String> passwords = new HashMap <String, String>();
+    private Map <String, String> tokens    = new HashMap <>();
+    private Map <String, String> passwords = new HashMap <>();
 
     /**
      * Creates and exports a new UnicastRemoteObject object using an
