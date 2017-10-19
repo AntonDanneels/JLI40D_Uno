@@ -1,8 +1,22 @@
 package be.kuleuven.cs.jli40d.core;
 
+import be.kuleuven.cs.jli40d.core.model.exception.InvalidUsernameOrPasswordException;
+
 /**
- * Created by Anton D. on 19/10/2017 using IntelliJ IDEA 14.0
+ * The UserHandler provides three functions: creating an account, logging in and logging out.
  */
 public interface UserHandler
 {
+
+    /**
+     * Provide verification method to check a username and password against a persistence context.
+     *
+     * @param username The username as a string.
+     * @param password The password as a string.
+     * @return A token to use in further operations.
+     * @throws InvalidUsernameOrPasswordException Thrown if either password or username don't match/exist.
+     */
+    String login(String username, String password) throws InvalidUsernameOrPasswordException;
+
+
 }
