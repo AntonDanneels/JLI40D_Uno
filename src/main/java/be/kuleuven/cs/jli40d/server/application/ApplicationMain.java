@@ -2,6 +2,8 @@ package be.kuleuven.cs.jli40d.server.application;
 
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.UserHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -14,6 +16,8 @@ import java.rmi.registry.Registry;
  */
 public class ApplicationMain
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger( ApplicationMain.class );
+
     public static void main( String[] args )
     {
         try
@@ -23,12 +27,14 @@ public class ApplicationMain
             // create a new service named CounterService
             registry.rebind( LobbyHandler.class.getName(), new Lobby() );
             registry.rebind( UserHandler.class.getName(), new SimpleUserManager() );
+
+            LOGGER.info( "Application server started with following bindings: {}, {} ", LobbyHandler.class.getName(), UserHandler.class.getName() );
+
         }
         catch ( Exception e )
         {
             e.printStackTrace();
         }
-        System.out.println( "system is ready" );
     }
 
 }
