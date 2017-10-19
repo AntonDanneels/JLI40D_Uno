@@ -3,10 +3,15 @@ package be.kuleuven.cs.jli40d.server.application;
 import be.kuleuven.cs.jli40d.core.UserHandler;
 import be.kuleuven.cs.jli40d.core.model.exception.AccountAlreadyExistsException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidUsernameOrPasswordException;
+import org.mindrot.jbcrypt.BCrypt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
 import java.rmi.server.RMISocketFactory;
 import java.rmi.server.UnicastRemoteObject;
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +24,8 @@ import java.util.Map;
  */
 public class SimpleUserManager extends UnicastRemoteObject implements UserHandler
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger( SimpleUserManager.class );
+
     private Map <String, String> tokens    = new HashMap <String, String>();
     private Map <String, String> passwords = new HashMap <String, String>();
 
@@ -46,11 +53,20 @@ public class SimpleUserManager extends UnicastRemoteObject implements UserHandle
      */
     public String login( String username, String password ) throws InvalidUsernameOrPasswordException
     {
+        if ( passwords.containsKey( username ) && BCrypt.checkpw( password, passwords.get( username ) ) )
+        {
+            String token = generateRandomToken();
+
+            tokens.put( token, username );
+
+            return token;
+        }
+
         return null;
     }
 
     /**
-     * Register a user account.
+     * Register a user account. This creates a hash
      * <p>
      * Note: Checking the password by asking it twice should happen client side.
      *
@@ -62,6 +78,24 @@ public class SimpleUserManager extends UnicastRemoteObject implements UserHandle
      */
     public String register( String email, String username, String password ) throws AccountAlreadyExistsException
     {
+        if ( passwords.containsKey( username ) )
+        {
+            throw new AccountAlreadyExistsException();
+        }
+
+        passwords.put( username, BCrypt.hashpw( password, BCrypt.gensalt() ) );
+
+        LOGGER.info( "Created account for {} with username {}", email, username );
+
+        try
+        {
+            return login( username, password );
+        }
+        catch ( InvalidUsernameOrPasswordException e )
+        {
+            LOGGER.error( "This should never be thrown, since the method just created the account." );
+        }
+
         return null;
     }
 
@@ -73,5 +107,20 @@ public class SimpleUserManager extends UnicastRemoteObject implements UserHandle
     public void logout( String token )
     {
 
+    }
+
+    /**
+     * Generate a Base64 string.
+     *
+     * @return
+     */
+    private String generateRandomToken()
+    {
+        SecureRandom random  = new SecureRandom();
+        byte         bytes[] = new byte[ 24 ];
+
+        random.nextBytes( bytes );
+
+        return Base64.getEncoder().encodeToString( bytes );
     }
 }
