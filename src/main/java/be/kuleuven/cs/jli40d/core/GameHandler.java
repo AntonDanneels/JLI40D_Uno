@@ -5,4 +5,5 @@ package be.kuleuven.cs.jli40d.core;
  */
 public interface GameHandler
 {
+    boolean isStarted();
 }
