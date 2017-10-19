@@ -1,5 +1,9 @@
 package be.kuleuven.cs.jli40d.core;
 
+import be.kuleuven.cs.jli40d.core.model.Game;
+
+import java.util.List;
+
 /**
  * The lobby has three main functions:
  * <ul>
@@ -10,5 +14,5 @@ package be.kuleuven.cs.jli40d.core;
  */
 public interface LobbyHandler
 {
-
+    List<Game> currentGames();
 }
