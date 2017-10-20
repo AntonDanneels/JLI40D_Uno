@@ -35,7 +35,7 @@ public class ApplicationMain
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
+           LOGGER.error( "Error while creating a registry. {}", e.getMessage() );
         }
     }
 

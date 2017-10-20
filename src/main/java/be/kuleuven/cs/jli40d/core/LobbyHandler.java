@@ -6,6 +6,7 @@ import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import be.kuleuven.cs.jli40d.core.model.exception.UnableToCreateGameException;
 import be.kuleuven.cs.jli40d.core.model.exception.UnableToJoinGameException;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -16,7 +17,7 @@ import java.util.List;
  * <li>Joining a existing game (either as spectator or player).</li>
  * </ul>
  */
-public interface LobbyHandler
+public interface LobbyHandler extends Serializable
 {
 
     /**
@@ -26,7 +27,7 @@ public interface LobbyHandler
      * @return A list of all Game objects.
      * @throws InvalidTokenException When the token is invalid (expired or not found).
      */
-    List <Game> currentGames( String token ) throws InvalidTokenException;
+    List<Game> currentGames( String token ) throws InvalidTokenException;
 
     /**
      * @param token           Token received by the {@link UserHandler}.
