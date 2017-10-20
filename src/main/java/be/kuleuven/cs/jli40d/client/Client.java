@@ -1,6 +1,8 @@
 package be.kuleuven.cs.jli40d.client;
 
 import be.kuleuven.cs.jli40d.core.GameHandler;
+import be.kuleuven.cs.jli40d.core.logic.GameLogic;
+import be.kuleuven.cs.jli40d.core.model.Card;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.Player;
@@ -28,6 +30,7 @@ public class Client
             if( gameHandler.myTurn() )
             {
                 // Construct my GameMove & send it
+                move = new GameMove( game.getCurrentGameMoveID(), game.getPlayers().get( myID ), null, true  );
             }
             else
             {
@@ -35,8 +38,11 @@ public class Client
             }
 
             // apply the game move to the game
+            GameLogic gameLogic = new GameLogic();
 
+            gameLogic.applyMove( game, move );
 
+            game.setCurrentGameMoveID( game.getCurrentGameMoveID() + 1 );
         }
     }
 
