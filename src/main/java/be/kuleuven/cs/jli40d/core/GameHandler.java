@@ -11,6 +11,7 @@ import be.kuleuven.cs.jli40d.core.model.GameMove;
 public interface GameHandler extends Serializable
 {
     boolean isStarted();
-    GameMove getNextMove();
+    boolean myTurn();
+    GameMove getNextMove( int ID );
     void sendMove( GameMove move );
 }
