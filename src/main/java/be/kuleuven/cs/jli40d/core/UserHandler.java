@@ -4,11 +4,13 @@ import be.kuleuven.cs.jli40d.core.model.exception.AccountAlreadyExistsException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidUsernameOrPasswordException;
 
 import java.io.Serializable;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
 
 /**
  * The UserHandler provides three functions: creating an account, logging in and logging out.
  */
-public interface UserHandler extends Serializable
+public interface UserHandler extends Remote
 {
 
     /**
@@ -19,7 +21,7 @@ public interface UserHandler extends Serializable
      * @return A token to use in further operations.
      * @throws InvalidUsernameOrPasswordException Thrown if either password or username don't match/exist.
      */
-    String login( String username, String password ) throws InvalidUsernameOrPasswordException;
+    String login( String username, String password ) throws RemoteException, InvalidUsernameOrPasswordException;
 
     /**
      * Register a user account.
@@ -32,12 +34,12 @@ public interface UserHandler extends Serializable
      * @return
      * @throws AccountAlreadyExistsException
      */
-    String register( String email, String username, String password ) throws AccountAlreadyExistsException;
+    String register( String email, String username, String password ) throws RemoteException, AccountAlreadyExistsException;
 
     /**
      * Invalidates the token.
      *
      * @param token The token to invalidate.
      */
-    void logout( String token );
+    void logout( String token ) throws RemoteException;
 }

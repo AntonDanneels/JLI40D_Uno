@@ -78,9 +78,11 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
         //initial check for token and find username
         String username = userManager.findUserByToken( token );
 
-        Game game = new Game(); //TODO: get data from game like game id
+        Game game = new Game(games.size()); //TODO: get data from game like game id
 
-        return 0;
+        games.add( game );
+
+        return game.getGameID();
     }
 
     /**

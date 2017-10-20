@@ -6,7 +6,8 @@ import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import be.kuleuven.cs.jli40d.core.model.exception.UnableToCreateGameException;
 import be.kuleuven.cs.jli40d.core.model.exception.UnableToJoinGameException;
 
-import java.io.Serializable;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
 import java.util.List;
 
 /**
@@ -17,7 +18,7 @@ import java.util.List;
  * <li>Joining a existing game (either as spectator or player).</li>
  * </ul>
  */
-public interface LobbyHandler extends Serializable
+public interface LobbyHandler extends Remote
 {
 
     /**
@@ -27,7 +28,7 @@ public interface LobbyHandler extends Serializable
      * @return A list of all Game objects.
      * @throws InvalidTokenException When the token is invalid (expired or not found).
      */
-    List<Game> currentGames( String token ) throws InvalidTokenException;
+    List<Game> currentGames( String token ) throws RemoteException, InvalidTokenException;
 
     /**
      * @param token           Token received by the {@link UserHandler}.
@@ -37,7 +38,7 @@ public interface LobbyHandler extends Serializable
      * @throws InvalidTokenException       When the token is invalid (expired or not found).
      * @throws UnableToCreateGameException When the game cannot be created for some reason (like exceeded limits).
      */
-    int makeGame( String token, String gameName, int numberOfPlayers ) throws InvalidTokenException, UnableToCreateGameException;
+    int makeGame( String token, String gameName, int numberOfPlayers ) throws RemoteException, InvalidTokenException, UnableToCreateGameException;
 
     /**
      * Join a game with an id, either provided by the {@link #makeGame} or {@link #currentGames} method.
@@ -51,5 +52,5 @@ public interface LobbyHandler extends Serializable
      * @throws UnableToJoinGameException When the user cannot join the game for various reasons.
      * @throws InvalidTokenException     When the token is invalid (expired or not found).
      */
-    Game joinGame( String token, int gameId ) throws UnableToJoinGameException, InvalidTokenException;
+    Game joinGame( String token, int gameId ) throws RemoteException, UnableToJoinGameException, InvalidTokenException;
 }

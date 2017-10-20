@@ -10,6 +10,8 @@ import java.util.List;
  */
 public class Game implements Serializable
 {
+    private int gameID;
+
     private List <Player> players;
     private List <Card>   deck;
 
@@ -19,16 +21,18 @@ public class Game implements Serializable
     private int     currentGameMoveID;
     private boolean clockwise;
 
-    public Game()
+    public Game(int gameID)
     {
-        players = new ArrayList <Player>();
-        deck = new ArrayList <Card>();
+        this.gameID = gameID;
 
-        topCard = null;
-        ended = false;
-        currentPlayer = 0;
-        currentGameMoveID = 0;
-        clockwise = true;
+        this.players = new ArrayList <Player>();
+        this.deck = new ArrayList <Card>();
+
+        this.topCard = null;
+        this.ended = false;
+        this.currentPlayer = 0;
+        this.currentGameMoveID = 0;
+        this.clockwise = true;
     }
 
     public void setCurrentGameMoveID( int currentGameMoveID )
@@ -99,5 +103,15 @@ public class Game implements Serializable
     public Card getTopCard()
     {
         return topCard;
+    }
+
+    public void setGameID( int gameID )
+    {
+        this.gameID = gameID;
+    }
+
+    public int getGameID()
+    {
+        return gameID;
     }
 }

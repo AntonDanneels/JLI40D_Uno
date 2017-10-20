@@ -2,9 +2,11 @@ package be.kuleuven.cs.jli40d.client;
 
 import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
+import be.kuleuven.cs.jli40d.core.UserHandler;
 import be.kuleuven.cs.jli40d.core.logic.GameLogic;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
+import be.kuleuven.cs.jli40d.core.model.exception.AccountAlreadyExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,9 +23,12 @@ public class Client
     private Game game;
     private int myID = 0;
 
+    //Token received by the server
+    private String token;
+
     private Client()
     {
-        game = new Game();
+        game = new Game(0);
     }
 
     public void run()
@@ -58,11 +63,40 @@ public class Client
         {
             Registry myRegistry = LocateRegistry.getRegistry( host, port );
 
-            LobbyHandler lobbyHandler = ( LobbyHandler )myRegistry.lookup( "LobbyHandler" );
+            LobbyHandler lobbyHandler = ( LobbyHandler )myRegistry.lookup( LobbyHandler.class.getName() );
+            UserHandler  userManager  = ( UserHandler )myRegistry.lookup( UserHandler.class.getName() );
 
 
-            //System.out.println( userManager.register( "test@test", "test", "test" ) );
+            try
+            {
+                token = userManager.register( "test@test", "test", "test" );
+                LOGGER.info( "Connected to server and received token {} after creating account.", token );
 
+            } catch ( AccountAlreadyExistsException e) {
+                LOGGER.warn( "Account already exists." );
+
+                token = userManager.login( "test", "test" );
+                LOGGER.info( "Connected to server and received token {} after logging in.", token );
+
+            }
+
+
+
+            LOGGER.info( "Requesting current games." );
+
+            for ( Game game : lobbyHandler.currentGames( token ) ) {
+                LOGGER.info("Game {}", game );
+            }
+
+            LOGGER.info( "Creating new game." );
+
+            game.setGameID( lobbyHandler.makeGame( token, "Bob's game", 4));
+
+            LOGGER.info( "Requesting current games." );
+
+            for ( Game game : lobbyHandler.currentGames( token ) ) {
+                LOGGER.info("Game {}", game );
+            }
 
         }
         catch ( Exception e )
