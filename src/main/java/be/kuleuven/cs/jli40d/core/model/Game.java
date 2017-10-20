@@ -15,7 +15,8 @@ public class Game
     private boolean ended;
     private int     currentPlayer;
     private Card    topCard;
-    private int currentGameMoveID;
+    private int     currentGameMoveID;
+    private boolean clockwise;
 
     public Game()
     {
@@ -26,16 +27,27 @@ public class Game
         ended = false;
         currentPlayer = 0;
         currentGameMoveID = 0;
+        clockwise = true;
+    }
+
+    public void setCurrentGameMoveID( int currentGameMoveID )
+    {
+        this.currentGameMoveID = currentGameMoveID;
+    }
+
+    public boolean isClockwise()
+    {
+        return clockwise;
+    }
+
+    public void setClockwise( boolean clockwise )
+    {
+        this.clockwise = clockwise;
     }
 
     public void setPlayers( List <Player> players )
     {
         this.players = players;
-    }
-
-    public void increment()
-    {
-        currentGameMoveID++;
     }
 
     public int getCurrentGameMoveID()

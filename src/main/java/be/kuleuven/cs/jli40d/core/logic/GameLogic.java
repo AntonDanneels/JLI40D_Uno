@@ -31,6 +31,9 @@ public class GameLogic
 
     public void applyMove( Game game, GameMove move )
     {
+        if( move.isCardDrawn() )
+        {
 
+        }
     }
 }
