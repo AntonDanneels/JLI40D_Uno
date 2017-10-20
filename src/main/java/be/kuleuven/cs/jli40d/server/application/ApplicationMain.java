@@ -22,11 +22,13 @@ public class ApplicationMain
     {
         try
         {
+            SimpleUserManager userManager = new SimpleUserManager();
+
             // create on port 1099
             Registry registry = LocateRegistry.createRegistry( 1099 );
             // create a new service named CounterService
-            registry.rebind( LobbyHandler.class.getName(), new Lobby() );
-            registry.rebind( UserHandler.class.getName(), new SimpleUserManager() );
+            registry.rebind( LobbyHandler.class.getName(), new Lobby(userManager) );
+            registry.rebind( UserHandler.class.getName(), userManager );
 
             LOGGER.info( "Application server started with following bindings: {}, {} ", LobbyHandler.class.getName(), UserHandler.class.getName() );
 

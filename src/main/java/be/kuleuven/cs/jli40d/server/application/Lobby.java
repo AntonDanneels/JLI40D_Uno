@@ -11,14 +11,23 @@ import be.kuleuven.cs.jli40d.core.model.exception.UnableToJoinGameException;
 import java.rmi.RemoteException;
 import java.rmi.server.RMISocketFactory;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Implementation of a {@link LobbyHandler} interface.
+ * <p>
+ * Validation of tokens happens in a implementation of the {@link UserTokenHandler}.
+ *
  * @author Pieter
  * @version 1.0
  */
 public class Lobby extends UnicastRemoteObject implements LobbyHandler
 {
+    UserTokenHandler userManager;
+
+    private List <Game> games;
+
     /**
      * Creates and exports a new UnicastRemoteObject object using an
      * anonymous port.
@@ -26,11 +35,15 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
      * <p>The object is exported with a server socket
      * created using the {@link RMISocketFactory} class.
      *
+     * @param userManager A {@link UserTokenHandler} implementation that keeps track of all tokens.
      * @throws RemoteException if failed to export object
      * @since JDK1.1
      */
-    protected Lobby() throws RemoteException
+    protected Lobby( UserTokenHandler userManager ) throws RemoteException
     {
+        this.userManager = userManager;
+
+        games = new ArrayList <>();
     }
 
     /**
@@ -42,7 +55,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
      */
     public List <Game> currentGames( String token ) throws InvalidTokenException
     {
-        return null;
+        return games;
     }
 
     /**
@@ -55,6 +68,8 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
      */
     public int makeGame( String token, String gameName, int numberOfPlayers ) throws InvalidTokenException, UnableToCreateGameException
     {
+        Game game = new Game();
+
         return 0;
     }
 

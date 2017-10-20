@@ -2,6 +2,7 @@ package be.kuleuven.cs.jli40d.server.application;
 
 import be.kuleuven.cs.jli40d.core.UserHandler;
 import be.kuleuven.cs.jli40d.core.model.exception.AccountAlreadyExistsException;
+import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidUsernameOrPasswordException;
 import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
@@ -22,7 +23,7 @@ import java.util.Map;
  * @author Pieter
  * @version 0.1
  */
-public class SimpleUserManager extends UnicastRemoteObject implements UserHandler
+public class SimpleUserManager extends UnicastRemoteObject implements UserHandler, UserTokenHandler
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( SimpleUserManager.class );
 
@@ -122,5 +123,20 @@ public class SimpleUserManager extends UnicastRemoteObject implements UserHandle
         random.nextBytes( bytes );
 
         return Base64.getEncoder().encodeToString( bytes );
+    }
+
+    /**
+     * Obtains the username using the token.
+     *
+     * @param token The provided token.
+     * @return A username as a string.
+     * @throws InvalidTokenException Thrown if the token doesn't match.
+     */
+    @Override
+    public String findUserByToken( String token ) throws InvalidTokenException
+    {
+
+
+        return null;
     }
 }
