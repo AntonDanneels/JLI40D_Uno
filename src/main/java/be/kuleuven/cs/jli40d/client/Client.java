@@ -20,42 +20,23 @@ public class Client
 
     public void run()
     {
-        GameHandler gameHandler = new GameHandler()
-        {
-            public boolean isStarted()
-            {
-                return false;
-            }
-
-            public GameMove getNextMove()
-            {
-                return null;
-            }
-
-            public void sendMove( GameMove move )
-            {
-            }
-        };
+        GameHandler gameHandler = null;
 
         while ( !game.isEnded() )
         {
-            if(game.getCurrentPlayer() == myID )
+            GameMove move;
+            if( gameHandler.myTurn() )
             {
-
+                // Construct my GameMove & send it
             }
             else
             {
-                GameMove move = gameHandler.getNextMove();
-                if( move.isCardDrawn() )
-                {
-
-                }
-                else
-                {
-                    game.setTopCard( move.getPlayedCard() );
-                }
-
+                move = gameHandler.getNextMove( game.getCurrentGameMoveID() );
             }
+
+            // apply the game move to the game
+
+
         }
     }
 

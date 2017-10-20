@@ -5,5 +5,5 @@ package be.kuleuven.cs.jli40d.core.model;
  */
 public enum CardColour
 {
-    GREEN, RED, YELLOW, BLUE
+    GREEN, RED, YELLOW, BLUE, NO_COLOUR
 }

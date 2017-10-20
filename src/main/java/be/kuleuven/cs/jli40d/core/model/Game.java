@@ -15,6 +15,7 @@ public class Game
     private boolean ended;
     private int     currentPlayer;
     private Card    topCard;
+    private int currentGameMoveID;
 
     public Game()
     {
@@ -24,11 +25,22 @@ public class Game
         topCard = null;
         ended = false;
         currentPlayer = 0;
+        currentGameMoveID = 0;
     }
 
     public void setPlayers( List <Player> players )
     {
         this.players = players;
+    }
+
+    public void increment()
+    {
+        currentGameMoveID++;
+    }
+
+    public int getCurrentGameMoveID()
+    {
+        return currentGameMoveID;
     }
 
     public void setDeck( List <Card> deck )
