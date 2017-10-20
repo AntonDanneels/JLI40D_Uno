@@ -1,5 +1,6 @@
 package be.kuleuven.cs.jli40d.core.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,7 +8,7 @@ import java.util.List;
  * @author Pieter
  * @version 1.0
  */
-public class Game
+public class Game implements Serializable
 {
     private List <Player> players;
     private List <Card>   deck;

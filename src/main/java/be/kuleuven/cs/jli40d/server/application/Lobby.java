@@ -43,7 +43,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
      * @throws RemoteException if failed to export object
      * @since JDK1.1
      */
-    protected Lobby( UserTokenHandler userManager ) throws RemoteException
+    Lobby( UserTokenHandler userManager ) throws RemoteException
     {
         this.userManager = userManager;
 

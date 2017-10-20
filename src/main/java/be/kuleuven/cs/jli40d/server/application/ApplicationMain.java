@@ -27,8 +27,8 @@ public class ApplicationMain
             // create on port 1099
             Registry registry = LocateRegistry.createRegistry( 1099 );
             // create a new service named CounterService
-            registry.rebind( LobbyHandler.class.getName(), new Lobby(userManager) );
-            registry.rebind( UserHandler.class.getName(), userManager );
+            registry.rebind( "LobbyHandler", new Lobby(userManager) );
+            registry.rebind( "UserHandler", userManager );
 
             LOGGER.info( "Application server started with following bindings: {}, {} ", LobbyHandler.class.getName(), UserHandler.class.getName() );
 

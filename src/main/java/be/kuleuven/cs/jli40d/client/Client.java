@@ -1,17 +1,23 @@
 package be.kuleuven.cs.jli40d.client;
 
 import be.kuleuven.cs.jli40d.core.GameHandler;
+import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.logic.GameLogic;
-import be.kuleuven.cs.jli40d.core.model.Card;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
-import be.kuleuven.cs.jli40d.core.model.Player;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 
 /**
  * Created by Anton D. on 19/10/2017 using IntelliJ IDEA 14.0
  */
 public class Client
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger( Client.class );
+
     private Game game;
     private int myID = 0;
 
@@ -27,10 +33,10 @@ public class Client
         while ( !game.isEnded() )
         {
             GameMove move;
-            if( gameHandler.myTurn() )
+            if ( gameHandler.myTurn() )
             {
                 // Construct my GameMove & send it
-                move = new GameMove( game.getCurrentGameMoveID(), game.getPlayers().get( myID ), null, true  );
+                move = new GameMove( game.getCurrentGameMoveID(), game.getPlayers().get( myID ), null, true );
             }
             else
             {
@@ -46,9 +52,29 @@ public class Client
         }
     }
 
+    public void connectToLobby( String host, int port )
+    {
+        try
+        {
+            Registry myRegistry = LocateRegistry.getRegistry( host, port );
+
+            LobbyHandler lobbyHandler = ( LobbyHandler )myRegistry.lookup( "LobbyHandler" );
+
+
+            //System.out.println( userManager.register( "test@test", "test", "test" ) );
+
+
+        }
+        catch ( Exception e )
+        {
+            LOGGER.error( "Error: {}", e.getMessage() );
+        }
+    }
+
     public static void main( String args[] )
     {
         Client client = new Client();
+        client.connectToLobby( "localhost", 1099 );
         client.run();
     }
 
