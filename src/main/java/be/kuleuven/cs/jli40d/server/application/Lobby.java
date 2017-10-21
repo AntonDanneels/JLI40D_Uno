@@ -78,7 +78,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
         //initial check for token and find username
         String username = userManager.findUserByToken( token );
 
-        Game game = new Game(games.size()); //TODO: get data from game like game id
+        Game game = new Game(games.size());
 
         games.add( game );
 
@@ -92,19 +92,19 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
      * already have joined, the more general {@link UnableToJoinGameException} is thrown.
      *
      * @param token  Token received by the {@link UserHandler}.
-     * @param gameId The id of the game to join.
+     * @param gameID The id of the game to join.
      * @return A Game object.
      * @throws UnableToJoinGameException When the user cannot join the game for various reasons.
      * @throws InvalidTokenException     When the token is invalid (expired or not found).
      */
-    public Game joinGame( String token, int gameId ) throws UnableToJoinGameException, InvalidTokenException
+    public Game joinGame( String token, int gameID ) throws UnableToJoinGameException, InvalidTokenException
     {
         //initial check for token and find username
         String username = userManager.findUserByToken( token );
 
         //if the game is not in the list, throw an error
-        if (games.get( gameId ) == null) {
-            LOGGER.warn( "joinGame method called by {} with gameId = {}, but game not found. ", username, gameId );
+        if (games.get( gameID ) == null) {
+            LOGGER.warn( "joinGame method called by {} with gameId = {}, but game not found. ", username, gameID );
 
             throw new UnableToJoinGameException( "Game not found in the list" );
         }
