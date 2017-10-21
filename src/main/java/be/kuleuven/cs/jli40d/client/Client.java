@@ -6,10 +6,7 @@ import be.kuleuven.cs.jli40d.core.UserHandler;
 import be.kuleuven.cs.jli40d.core.logic.GameLogic;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
-import be.kuleuven.cs.jli40d.core.model.exception.AccountAlreadyExistsException;
-import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
-import be.kuleuven.cs.jli40d.core.model.exception.InvalidUsernameOrPasswordException;
-import be.kuleuven.cs.jli40d.core.model.exception.UnableToCreateGameException;
+import be.kuleuven.cs.jli40d.core.model.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -185,7 +182,7 @@ public class Client extends JFrame implements ActionListener
         lobbyListPanel.add( buttonPanel, BorderLayout.NORTH );
 
         JPanel listPanel = new JPanel();
-        listPanel.setLayout( new GridLayout( games.size(), 1 ) );
+        listPanel.setLayout( new BoxLayout( listPanel, BoxLayout.PAGE_AXIS) );
 
         for( int i = 0; i < games.size(); i++ )
         {
@@ -201,6 +198,7 @@ public class Client extends JFrame implements ActionListener
             {
                 public void actionPerformed( ActionEvent e )
                 {
+                    joinGame( game.getGameID() );
                 }
             } );
 
@@ -224,6 +222,26 @@ public class Client extends JFrame implements ActionListener
         remove( loginPanel );
         add( lobbyListPanel );
         validate();
+    }
+
+    private void joinGame( int id )
+    {
+        try
+        {
+            game = lobbyHandler.joinGame( token, id );
+        }
+        catch ( RemoteException e )
+        {
+            e.printStackTrace();
+        }
+        catch ( UnableToJoinGameException e )
+        {
+            e.printStackTrace();
+        }
+        catch ( InvalidTokenException e )
+        {
+            e.printStackTrace();
+        }
     }
 
     public void run()
