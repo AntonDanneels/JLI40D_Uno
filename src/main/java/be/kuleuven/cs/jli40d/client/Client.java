@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * Created by Anton D. on 19/10/2017 using IntelliJ IDEA 14.0
  */
-public class Client
+public class Client extends JFrame implements ActionListener
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( Client.class );
 
@@ -35,10 +35,116 @@ public class Client
 
     //Token received by the server
     private String token;
+    private JPanel loginPanel;
 
-    private Client()
+    private JTextField usernameField;
+    private JPasswordField passwordField;
+    private JButton login;
+    private JButton register;
+
+    private UserHandler userManager;
+    private LobbyHandler lobbyHandler;
+
+    private Client( UserHandler userManager, LobbyHandler lobbyHandler )
     {
+        this.userManager = userManager;
+        this.lobbyHandler = lobbyHandler;
+
         game = new Game(0);
+
+        setTitle( "Uno" );
+        setSize( 900, 600 );
+        setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+        setResizable( false );
+
+        loginPanel = new JPanel();
+
+        usernameField = new JTextField( "Username" );
+        passwordField = new JPasswordField( "password" );
+        login = new JButton( "Login" );
+        register = new JButton( "Register" );
+
+
+        register.addActionListener( this );
+
+        login.addActionListener( this );
+
+        loginPanel.add( usernameField );
+        loginPanel.add( passwordField );
+        loginPanel.add( register );
+        loginPanel.add( login );
+
+        add( loginPanel );
+        setVisible( true );
+    }
+
+    public void actionPerformed( ActionEvent e )
+    {
+        try
+        {
+            if( e.getSource().equals( register ) )
+                token = userManager.register( "test@test", "test", "test" );
+            else
+                token = userManager.login( "test", "test" );
+        }
+        catch ( RemoteException | InvalidUsernameOrPasswordException | AccountAlreadyExistsException e1 )
+        {
+            e1.printStackTrace();
+        }
+
+        try
+        {
+            JPanel lobbyListPanel = new JPanel();
+
+            // fetch list here
+            List<Game> games = lobbyHandler.currentGames( token );
+            games.add( new Game(0) );
+
+            lobbyListPanel.setLayout( new GridLayout( games.size(), 1 ) );
+
+            for( int i = 0; i < games.size(); i++ )
+            {
+                Game game = games.get( i );
+                JPanel panel = new JPanel();
+                panel.add( new JLabel( "Game " + game.getGameID() ) );
+                panel.add( new JLabel( "Players: " + game.getNumberOfJoinedPlayers()  ) );
+
+                JButton join = new JButton( "Join" );
+                JButton spectate = new JButton( "View" );
+
+                join.addActionListener( new ActionListener()
+                {
+                    public void actionPerformed( ActionEvent e )
+                    {
+                    }
+                } );
+
+                spectate.addActionListener( new ActionListener()
+                {
+                    public void actionPerformed( ActionEvent e )
+                    {
+                        // TODO Spectate game here
+                    }
+                } );
+
+                panel.add( join );
+                panel.add( spectate );
+
+                lobbyListPanel.add( panel );
+            }
+
+            remove( loginPanel );
+            add( lobbyListPanel );
+            validate();
+        }
+        catch ( RemoteException e1 )
+        {
+            e1.printStackTrace();
+        }
+        catch ( InvalidTokenException e1 )
+        {
+            e1.printStackTrace();
+        }
     }
 
     public void run()
@@ -67,11 +173,6 @@ public class Client
         }
     }
 
-    public void connectToLobby( String host, int port )
-    {
-        //game.setGameID( lobbyHandler.makeGame( token, "Bob's game", 4));
-    }
-
     public static void main( String args[] )
     {
         String host = "localhost";
@@ -79,130 +180,20 @@ public class Client
 
         Registry myRegistry;
 
-        Client client = new Client();
-
         try
         {
+            UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
+
             myRegistry = LocateRegistry.getRegistry( host, port );
             final LobbyHandler lobbyHandler = ( LobbyHandler )myRegistry.lookup( LobbyHandler.class.getName() );
             final UserHandler userManager  = ( UserHandler )myRegistry.lookup( UserHandler.class.getName() );
 
-            UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
-
-            final JFrame frame = new JFrame( "Uno" );
-            frame.setSize( 900, 600 );
-            frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
-            frame.setResizable( false );
-
-            final JPanel loginPanel = new JPanel();
-
-            JTextField usernameField = new JTextField( "Username" );
-            JPasswordField passwordField = new JPasswordField( "password" );
-            JButton login = new JButton( "Login" );
-            JButton register = new JButton( "Register" );
-
-            register.addActionListener( new ActionListener()
-            {
-                public void actionPerformed( ActionEvent e )
-                {
-                    // TODO Join game here
-                    try
-                    {
-                        String token = userManager.register( "test@test", "test", "test" );
-                        LOGGER.info( "Connected to server and received token {} after creating account.", token );
-
-                    } catch ( AccountAlreadyExistsException ex) {
-                        LOGGER.warn( "Account already exists." );
-                    }
-                    catch ( RemoteException e1 )
-                    {
-                        e1.printStackTrace();
-                    }
-
-                }
-            } );
-
-            login.addActionListener( new ActionListener()
-            {
-                @Override
-                public void actionPerformed( ActionEvent e )
-                {
-                    String token = null;
-                    try
-                    {
-                        token = userManager.login( "test", "test" );
-
-                        JPanel lobbyListPanel = new JPanel();
-
-                        // fetch list here
-                        List<Game> games = lobbyHandler.currentGames( token );
-                        games.add( new Game(0) );
-
-                        lobbyListPanel.setLayout( new GridLayout( games.size(), 1 ) );
-
-                        for( int i = 0; i < games.size(); i++ )
-                        {
-                            Game game = games.get( i );
-                            JPanel panel = new JPanel();
-                            panel.add( new JLabel( "Game " + i ) );
-                            panel.add( new JLabel( "Players: " + game.getPlayers().size()  ) );
-
-                            JButton join = new JButton( "Join" );
-                            JButton spectate = new JButton( "View" );
-
-                            join.addActionListener( new ActionListener()
-                            {
-                                public void actionPerformed( ActionEvent e )
-                                {
-                                }
-                            } );
-
-                            spectate.addActionListener( new ActionListener()
-                            {
-                                public void actionPerformed( ActionEvent e )
-                                {
-                                    // TODO Spectate game here
-                                }
-                            } );
-
-                            panel.add( join );
-                            panel.add( spectate );
-
-                            lobbyListPanel.add( panel );
-                        }
-
-                        frame.remove( loginPanel );
-                        frame.add( lobbyListPanel );
-                        frame.validate();
-                    }
-                    catch ( RemoteException e1 )
-                    {
-                        e1.printStackTrace();
-                    }
-                    catch ( InvalidUsernameOrPasswordException e1 )
-                    {
-                        e1.printStackTrace();
-                    }
-                    catch ( InvalidTokenException e1 )
-                    {
-                        e1.printStackTrace();
-                    }
-                    LOGGER.info( "Connected to server and received token {} after logging in.", token );
-                }
-            } );
-
-            loginPanel.add( usernameField );
-            loginPanel.add( passwordField );
-            loginPanel.add( register );
-            loginPanel.add( login );
-
-            frame.add( loginPanel );
-            frame.setVisible( true );
+            Client client = new Client( userManager, lobbyHandler );
         }
         catch ( Exception e )
         {
             // :no-words:
+            e.printStackTrace();
         }
     }
-
 }
