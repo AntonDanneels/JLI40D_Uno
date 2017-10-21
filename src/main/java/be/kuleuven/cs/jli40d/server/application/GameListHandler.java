@@ -1,6 +1,7 @@
 package be.kuleuven.cs.jli40d.server.application;
 
 import be.kuleuven.cs.jli40d.core.model.Game;
+import be.kuleuven.cs.jli40d.core.model.exception.UnableToJoinGameException;
 
 import java.io.Serializable;
 import java.util.List;
@@ -15,7 +16,7 @@ public interface GameListHandler extends Serializable
 
     int nextID();
 
-    Game getGameByID( int id );
+    Game getGameByID( int id ) throws UnableToJoinGameException;
 
     List<Game> getAllGames();
 }

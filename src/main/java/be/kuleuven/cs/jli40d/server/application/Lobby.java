@@ -108,14 +108,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
         //initial check for token and find username
         String username = userManager.findUserByToken( token );
 
-        //if the game is not in the list, throw an error
-        if ( games.getGameByID( gameID ) == null )
-        {
-            LOGGER.warn( "joinGame method called by {} with gameId = {}, but game not found. ", username, gameID );
-
-            throw new UnableToJoinGameException( "Game not found in the list" );
-        }
-
+        //throws an error if the game is not in the list
         Game requestedGame = games.getGameByID( gameID );
 
         //check if the game is not full or has ended

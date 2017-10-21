@@ -1,10 +1,16 @@
 package be.kuleuven.cs.jli40d.server.application;
 
 import be.kuleuven.cs.jli40d.core.GameHandler;
+import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
+import be.kuleuven.cs.jli40d.core.model.exception.UnableToJoinGameException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Pieter
@@ -12,6 +18,15 @@ import java.rmi.RemoteException;
  */
 public class GameManager implements GameHandler, GameListHandler
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger( GameManager.class );
+
+    private List<Game> games;
+
+    public GameManager()
+    {
+        this.games = new ArrayList<>();
+    }
+
     /**
      * Returns if a game is started (can also be finished) or not.
      *
@@ -76,5 +91,37 @@ public class GameManager implements GameHandler, GameListHandler
     public void sendMove( String token, int gameID, GameMove move ) throws InvalidTokenException, RemoteException
     {
 
+    }
+
+    @Override
+    public void add( Game game )
+    {
+        games.add( game );
+    }
+
+    @Override
+    public int nextID()
+    {
+        return games.size();
+    }
+
+    @Override
+    public Game getGameByID( int id ) throws UnableToJoinGameException
+    {
+        //if the game is not in the list, throw an error
+        if ( games.get( id ) == null )
+        {
+            LOGGER.warn( "joinGame method called with gameId = {}, but game not found. ", id );
+
+            throw new UnableToJoinGameException( "Game not found in the list" );
+        }
+
+        return games.get( id );
+    }
+
+    @Override
+    public List<Game> getAllGames()
+    {
+        return games;
     }
 }
