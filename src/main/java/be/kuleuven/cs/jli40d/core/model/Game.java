@@ -1,5 +1,6 @@
 package be.kuleuven.cs.jli40d.core.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,8 +8,10 @@ import java.util.List;
  * @author Pieter
  * @version 1.0
  */
-public class Game
+public class Game implements Serializable
 {
+    private int gameID;
+
     private List <Player> players;
     private List <Card>   deck;
 
@@ -18,16 +21,18 @@ public class Game
     private int     currentGameMoveID;
     private boolean clockwise;
 
-    public Game()
+    public Game(int gameID)
     {
-        players = new ArrayList <Player>();
-        deck = new ArrayList <Card>();
+        this.gameID = gameID;
 
-        topCard = null;
-        ended = false;
-        currentPlayer = 0;
-        currentGameMoveID = 0;
-        clockwise = true;
+        this.players = new ArrayList <Player>();
+        this.deck = new ArrayList <Card>();
+
+        this.topCard = null;
+        this.ended = false;
+        this.currentPlayer = 0;
+        this.currentGameMoveID = 0;
+        this.clockwise = true;
     }
 
     public void setCurrentGameMoveID( int currentGameMoveID )
@@ -98,5 +103,25 @@ public class Game
     public Card getTopCard()
     {
         return topCard;
+    }
+
+    public void setGameID( int gameID )
+    {
+        this.gameID = gameID;
+    }
+
+    public int getGameID()
+    {
+        return gameID;
+    }
+
+    /**
+     * Util function that tells us how many players are currently joined.
+     *
+     * @return An int with the size of the payer list.
+     */
+    public int getNumberOfJoinedPlayers()
+    {
+        return players.size();
     }
 }
