@@ -185,6 +185,7 @@ public class Client extends JFrame implements ActionListener
         lobbyListPanel.add( buttonPanel, BorderLayout.NORTH );
 
         JPanel listPanel = new JPanel();
+        listPanel.setLayout( new GridLayout( games.size(), 1 ) );
 
         for( int i = 0; i < games.size(); i++ )
         {
