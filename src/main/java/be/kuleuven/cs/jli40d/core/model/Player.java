@@ -8,9 +8,12 @@ public class Player
     private int ID;
     private int nrOfCards;
 
-    public Player( int ID )
+    private String username;
+
+    public Player( int ID, String username )
     {
         this.ID = ID;
+        this.username = username;
     }
 
     public int getID()
@@ -26,5 +29,10 @@ public class Player
     public void setNrOfCards( int nrOfCards )
     {
         this.nrOfCards = nrOfCards;
+    }
+
+    public String getUsername()
+    {
+        return username;
     }
 }

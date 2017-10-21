@@ -114,4 +114,14 @@ public class Game implements Serializable
     {
         return gameID;
     }
+
+    /**
+     * Util function that tells us how many players are currently joined.
+     *
+     * @return An int with the size of the payer list.
+     */
+    public int getNumberOfJoinedPlayers()
+    {
+        return players.size();
+    }
 }
