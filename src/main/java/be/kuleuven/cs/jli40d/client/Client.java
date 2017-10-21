@@ -48,7 +48,7 @@ public class Client extends JFrame implements ActionListener
         this.userManager = userManager;
         this.lobbyHandler = lobbyHandler;
 
-        game = new Game(0);
+        game = new Game(0, 4);
 
         setTitle( "Uno" );
         setSize( 900, 600 );
@@ -244,21 +244,21 @@ public class Client extends JFrame implements ActionListener
         }
     }
 
-    public void run()
+    public void run() throws InvalidTokenException, RemoteException
     {
         GameHandler gameHandler = null;
 
         while ( !game.isEnded() )
         {
             GameMove move;
-            if ( gameHandler.myTurn() )
+            if ( gameHandler.myTurn(token, game.getGameID()) )
             {
                 // Construct my GameMove & send it
                 move = new GameMove( game.getCurrentGameMoveID(), game.getPlayers().get( myID ), null, true );
             }
             else
             {
-                move = gameHandler.getNextMove( game.getCurrentGameMoveID() );
+                move = gameHandler.getNextMove(token, game.getGameID(), game.getCurrentGameMoveID() );
             }
 
             // apply the game move to the game
