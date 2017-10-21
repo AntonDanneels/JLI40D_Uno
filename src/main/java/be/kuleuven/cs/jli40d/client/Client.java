@@ -37,14 +37,14 @@ public class Client
         while ( !game.isEnded() )
         {
             GameMove move;
-            if ( gameHandler.myTurn() )
+            if ( gameHandler.myTurn( token ) )
             {
                 // Construct my GameMove & send it
                 move = new GameMove( game.getCurrentGameMoveID(), game.getPlayers().get( myID ), null, true );
             }
             else
             {
-                move = gameHandler.getNextMove( game.getCurrentGameMoveID() );
+                move = gameHandler.getNextMove( token, game.getCurrentGameMoveID() );
             }
 
             // apply the game move to the game
@@ -71,7 +71,9 @@ public class Client
                 token = userManager.register( "test@test", "test", "test" );
                 LOGGER.info( "Connected to server and received token {} after creating account.", token );
 
-            } catch ( AccountAlreadyExistsException e) {
+            }
+            catch ( AccountAlreadyExistsException e )
+            {
                 LOGGER.warn( "Account already exists." );
 
                 token = userManager.login( "test", "test" );
@@ -80,21 +82,22 @@ public class Client
             }
 
 
-
             LOGGER.info( "Requesting current games." );
 
-            for ( Game game : lobbyHandler.currentGames( token ) ) {
-                LOGGER.info("Game {}", game );
+            for ( Game game : lobbyHandler.currentGames( token ) )
+            {
+                LOGGER.info( "Game {}", game );
             }
 
             LOGGER.info( "Creating new game." );
 
-            game.setGameID( lobbyHandler.makeGame( token, "Bob's game", 4));
+            game.setGameID( lobbyHandler.makeGame( token, "Bob's game", 4 ) );
 
             LOGGER.info( "Requesting current games." );
 
-            for ( Game game : lobbyHandler.currentGames( token ) ) {
-                LOGGER.info("Game {}", game );
+            for ( Game game : lobbyHandler.currentGames( token ) )
+            {
+                LOGGER.info( "Game {}", game );
             }
 
         }
