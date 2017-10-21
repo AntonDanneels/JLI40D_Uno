@@ -9,6 +9,7 @@ import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.exception.AccountAlreadyExistsException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidUsernameOrPasswordException;
+import be.kuleuven.cs.jli40d.core.model.exception.UnableToCreateGameException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +91,9 @@ public class Client extends JFrame implements ActionListener
         catch ( RemoteException | InvalidUsernameOrPasswordException | AccountAlreadyExistsException e1 )
         {
             e1.printStackTrace();
+            return;
         }
+
         try
         {
             updateLobbyList();
@@ -111,9 +114,11 @@ public class Client extends JFrame implements ActionListener
 
         List<Game> games = lobbyHandler.currentGames( token );
 
-        lobbyListPanel.setLayout( new GridLayout( games.size() + 1, 1 ) );
+        lobbyListPanel.setLayout( new BorderLayout() );
 
+        JPanel buttonPanel = new JPanel();
         JButton refresh = new JButton( "Refresh" );
+        JButton newGame = new JButton( "New game" );
 
         refresh.addActionListener( new ActionListener()
         {
@@ -135,7 +140,51 @@ public class Client extends JFrame implements ActionListener
             }
         } );
 
-        lobbyListPanel.add( refresh );
+        final JFrame frame = this;
+
+        newGame.addActionListener( new ActionListener()
+        {
+            public void actionPerformed( ActionEvent e )
+            {
+                JTextField gameNameField = new JTextField();
+                JTextField nrOfPlayersField = new JTextField();
+                Object[] message = {
+                        "Game name:", gameNameField,
+                        "Nr of players:", nrOfPlayersField,
+                };
+                int option = JOptionPane.showConfirmDialog(frame, message, "Enter all your values", JOptionPane.OK_CANCEL_OPTION);
+
+                if (option == JOptionPane.OK_OPTION)
+                {
+                    String gameName = gameNameField.getText();
+                    String value2 = nrOfPlayersField.getText();
+                    try
+                    {
+                        int nrOfPlayers = Integer.valueOf( value2 );
+                        int id = lobbyHandler.makeGame( token, gameName, nrOfPlayers  );
+                        updateLobbyList();
+                    }
+                    catch ( RemoteException e1 )
+                    {
+                        e1.printStackTrace();
+                    }
+                    catch ( InvalidTokenException e1 )
+                    {
+                        e1.printStackTrace();
+                    }
+                    catch ( UnableToCreateGameException e1 )
+                    {
+                        e1.printStackTrace();
+                    }
+                }
+            }
+        } );
+
+        buttonPanel.add( refresh );
+        buttonPanel.add( newGame );
+        lobbyListPanel.add( buttonPanel, BorderLayout.NORTH );
+
+        JPanel listPanel = new JPanel();
 
         for( int i = 0; i < games.size(); i++ )
         {
@@ -165,8 +214,10 @@ public class Client extends JFrame implements ActionListener
             panel.add( join );
             panel.add( spectate );
 
-            lobbyListPanel.add( panel );
+            listPanel.add( panel );
         }
+
+        lobbyListPanel.add( listPanel, BorderLayout.CENTER );
 
         remove( lobbyListPanel );
         remove( loginPanel );
