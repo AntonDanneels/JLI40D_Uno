@@ -22,6 +22,9 @@ import java.util.List;
  * <p>
  * Validation of tokens happens in a implementation of the {@link UserTokenHandler}.
  *
+ * This is a local implementation, meaning every application server has its own list
+ * of games in memory. It's not persisted in any way.
+ *
  * @author Pieter
  * @version 1.0
  */
