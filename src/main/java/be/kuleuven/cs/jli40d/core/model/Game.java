@@ -125,6 +125,16 @@ public class Game implements Serializable
         return gameID;
     }
 
+    public int getMaximumNumberOfPlayers()
+    {
+        return maximumNumberOfPlayers;
+    }
+
+    public void setMaximumNumberOfPlayers( int maximumNumberOfPlayers )
+    {
+        this.maximumNumberOfPlayers = maximumNumberOfPlayers;
+    }
+
     /**
      * Util function that tells us how many players are currently joined.
      *

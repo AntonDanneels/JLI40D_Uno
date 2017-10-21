@@ -113,10 +113,24 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
 
         Game requestedGame = games.get( gameID );
 
+        //check if the game is not full or has ended
+        if ( requestedGame.getNumberOfJoinedPlayers() >= requestedGame.getMaximumNumberOfPlayers() )
+        {
+            LOGGER.info( "{} tried to join a full game ( {} ).", username, gameID );
+
+            throw new UnableToJoinGameException( "Game full." );
+        }
+        else if ( requestedGame.isEnded() )
+        {
+            LOGGER.info( "{} tried to join a game ( {} ) that has ended.", username, gameID );
+
+            throw new UnableToJoinGameException( "Game has ended." );
+        }
+
         //create a new player with the next id of the list
         Player player = new Player( requestedGame.getNumberOfJoinedPlayers(), username );
 
-        requestedGame.getPlayers().add(player);
+        requestedGame.getPlayers().add( player );
 
         return requestedGame;
     }
