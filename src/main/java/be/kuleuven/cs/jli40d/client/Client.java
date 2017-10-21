@@ -83,59 +83,17 @@ public class Client extends JFrame implements ActionListener
         try
         {
             if( e.getSource().equals( register ) )
-                token = userManager.register( "test@test", "test", "test" );
+                token = userManager.register( "test@test", usernameField.getText(), passwordField.getPassword().toString() );
             else
-                token = userManager.login( "test", "test" );
+                token = userManager.login( usernameField.getText(), passwordField.getPassword().toString() );
         }
         catch ( RemoteException | InvalidUsernameOrPasswordException | AccountAlreadyExistsException e1 )
         {
             e1.printStackTrace();
         }
-
         try
         {
-            JPanel lobbyListPanel = new JPanel();
-
-            // fetch list here
-            List<Game> games = lobbyHandler.currentGames( token );
-            games.add( new Game(0) );
-
-            lobbyListPanel.setLayout( new GridLayout( games.size(), 1 ) );
-
-            for( int i = 0; i < games.size(); i++ )
-            {
-                Game game = games.get( i );
-                JPanel panel = new JPanel();
-                panel.add( new JLabel( "Game " + game.getGameID() ) );
-                panel.add( new JLabel( "Players: " + game.getNumberOfJoinedPlayers()  ) );
-
-                JButton join = new JButton( "Join" );
-                JButton spectate = new JButton( "View" );
-
-                join.addActionListener( new ActionListener()
-                {
-                    public void actionPerformed( ActionEvent e )
-                    {
-                    }
-                } );
-
-                spectate.addActionListener( new ActionListener()
-                {
-                    public void actionPerformed( ActionEvent e )
-                    {
-                        // TODO Spectate game here
-                    }
-                } );
-
-                panel.add( join );
-                panel.add( spectate );
-
-                lobbyListPanel.add( panel );
-            }
-
-            remove( loginPanel );
-            add( lobbyListPanel );
-            validate();
+            updateLobbyList();
         }
         catch ( RemoteException e1 )
         {
@@ -145,6 +103,75 @@ public class Client extends JFrame implements ActionListener
         {
             e1.printStackTrace();
         }
+    }
+
+    private void updateLobbyList() throws RemoteException, InvalidTokenException
+    {
+        JPanel lobbyListPanel = new JPanel();
+
+        List<Game> games = lobbyHandler.currentGames( token );
+
+        lobbyListPanel.setLayout( new GridLayout( games.size() + 1, 1 ) );
+
+        JButton refresh = new JButton( "Refresh" );
+
+        refresh.addActionListener( new ActionListener()
+        {
+            @Override
+            public void actionPerformed( ActionEvent e )
+            {
+                try
+                {
+                    updateLobbyList();
+                }
+                catch ( RemoteException e1 )
+                {
+                    e1.printStackTrace();
+                }
+                catch ( InvalidTokenException e1 )
+                {
+                    e1.printStackTrace();
+                }
+            }
+        } );
+
+        lobbyListPanel.add( refresh );
+
+        for( int i = 0; i < games.size(); i++ )
+        {
+            Game game = games.get( i );
+            JPanel panel = new JPanel();
+            panel.add( new JLabel( "Game " + game.getGameID() ) );
+            panel.add( new JLabel( "Players: " + game.getNumberOfJoinedPlayers()  ) );
+
+            JButton join = new JButton( "Join" );
+            JButton spectate = new JButton( "View" );
+
+            join.addActionListener( new ActionListener()
+            {
+                public void actionPerformed( ActionEvent e )
+                {
+                }
+            } );
+
+            spectate.addActionListener( new ActionListener()
+            {
+                public void actionPerformed( ActionEvent e )
+                {
+                    // TODO Spectate game here
+                }
+            } );
+
+            panel.add( join );
+            panel.add( spectate );
+
+            lobbyListPanel.add( panel );
+        }
+
+        remove( lobbyListPanel );
+        remove( loginPanel );
+        add( lobbyListPanel );
+        validate();
     }
 
     public void run()
