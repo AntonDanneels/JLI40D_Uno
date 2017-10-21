@@ -3,7 +3,6 @@ package be.kuleuven.cs.jli40d.core;
 import be.kuleuven.cs.jli40d.core.model.exception.AccountAlreadyExistsException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidUsernameOrPasswordException;
 
-import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 

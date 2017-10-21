@@ -13,7 +13,7 @@ public interface GameHandler extends Remote
 
     boolean myTurn( String token );
 
-    GameMove getNextMove( String token, int ID );
+    GameMove getNextMove( String token, int id );
 
     void sendMove( String token, GameMove move );
 }

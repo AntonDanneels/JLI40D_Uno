@@ -59,11 +59,13 @@ public class SimpleUserManager extends UnicastRemoteObject implements UserHandle
         if ( passwords.containsKey( username ) && BCrypt.checkpw( password, passwords.get( username ) ) )
         {
             String token = generateRandomToken();
-
             tokens.put( token, username );
+            LOGGER.info( "Logging user {} in and activating token {}", username, token );
 
             return token;
         }
+
+        LOGGER.info( "Failed to authenticate user {}", username );
 
         throw new InvalidUsernameOrPasswordException();
     }
@@ -137,8 +139,12 @@ public class SimpleUserManager extends UnicastRemoteObject implements UserHandle
     @Override
     public String findUserByToken( String token ) throws InvalidTokenException
     {
+        if ( !tokens.containsKey( token ) )
+        {
+            LOGGER.warn( "Token {} requested, but not found.", token );
+            throw new InvalidTokenException( "Token not found." );
+        }
 
-
-        return null;
+        return tokens.get( token );
     }
 }
