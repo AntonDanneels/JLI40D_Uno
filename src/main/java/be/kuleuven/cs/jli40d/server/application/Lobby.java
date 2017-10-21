@@ -3,6 +3,7 @@ package be.kuleuven.cs.jli40d.server.application;
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.UserHandler;
 import be.kuleuven.cs.jli40d.core.model.Game;
+import be.kuleuven.cs.jli40d.core.model.Player;
 import be.kuleuven.cs.jli40d.core.model.exception.GameFullException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import be.kuleuven.cs.jli40d.core.model.exception.UnableToCreateGameException;
@@ -26,7 +27,7 @@ import java.util.List;
  */
 public class Lobby extends UnicastRemoteObject implements LobbyHandler
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Lobby.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger( Lobby.class );
 
     private UserTokenHandler userManager;
 
@@ -43,7 +44,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
      * @throws RemoteException if failed to export object
      * @since JDK1.1
      */
-    protected Lobby( UserTokenHandler userManager ) throws RemoteException
+    Lobby( UserTokenHandler userManager ) throws RemoteException
     {
         this.userManager = userManager;
 
@@ -78,9 +79,11 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
         //initial check for token and find username
         String username = userManager.findUserByToken( token );
 
-        Game game = new Game(); //TODO: get data from game like game id
+        Game game = new Game( games.size() );
 
-        return 0;
+        games.add( game );
+
+        return game.getGameID();
     }
 
     /**
@@ -90,23 +93,31 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
      * already have joined, the more general {@link UnableToJoinGameException} is thrown.
      *
      * @param token  Token received by the {@link UserHandler}.
-     * @param gameId The id of the game to join.
+     * @param gameID The id of the game to join.
      * @return A Game object.
      * @throws UnableToJoinGameException When the user cannot join the game for various reasons.
      * @throws InvalidTokenException     When the token is invalid (expired or not found).
      */
-    public Game joinGame( String token, int gameId ) throws UnableToJoinGameException, InvalidTokenException
+    public Game joinGame( String token, int gameID ) throws UnableToJoinGameException, InvalidTokenException
     {
         //initial check for token and find username
         String username = userManager.findUserByToken( token );
 
         //if the game is not in the list, throw an error
-        if (games.get( gameId ) == null) {
-            LOGGER.warn( "joinGame method called by {} with gameId = {}, but game not found. ", username, gameId );
+        if ( games.get( gameID ) == null )
+        {
+            LOGGER.warn( "joinGame method called by {} with gameId = {}, but game not found. ", username, gameID );
 
             throw new UnableToJoinGameException( "Game not found in the list" );
         }
 
-        return null;
+        Game requestedGame = games.get( gameID );
+
+        //create a new player with the next id of the list
+        Player player = new Player( requestedGame.getNumberOfJoinedPlayers(), username );
+
+        requestedGame.getPlayers().add(player);
+
+        return requestedGame;
     }
 }

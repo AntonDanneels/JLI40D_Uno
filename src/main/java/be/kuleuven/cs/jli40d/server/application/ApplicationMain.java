@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.Arrays;
 
 /**
  * The class with the main method needed to launch the application server.
@@ -27,15 +28,15 @@ public class ApplicationMain
             // create on port 1099
             Registry registry = LocateRegistry.createRegistry( 1099 );
             // create a new service named CounterService
-            registry.rebind( LobbyHandler.class.getName(), new Lobby(userManager) );
+            registry.rebind( LobbyHandler.class.getName(), new Lobby( userManager ) );
             registry.rebind( UserHandler.class.getName(), userManager );
 
-            LOGGER.info( "Application server started with following bindings: {}, {} ", LobbyHandler.class.getName(), UserHandler.class.getName() );
+            LOGGER.info( "Application server started with following bindings: {} ", Arrays.toString( registry.list() ) );
 
         }
         catch ( Exception e )
         {
-           LOGGER.error( "Error while creating a registry. {}", e.getMessage() );
+            LOGGER.error( "Error while creating a registry. {}", e.getMessage() );
         }
     }
 

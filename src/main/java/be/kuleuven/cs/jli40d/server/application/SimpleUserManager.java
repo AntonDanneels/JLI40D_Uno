@@ -56,8 +56,6 @@ public class SimpleUserManager extends UnicastRemoteObject implements UserHandle
      */
     public String login( String username, String password ) throws InvalidUsernameOrPasswordException
     {
-        System.out.println("contains " + passwords.containsKey( username ) );
-
         if ( passwords.containsKey( username ) && BCrypt.checkpw( password, passwords.get( username ) ) )
         {
             String token = generateRandomToken();
