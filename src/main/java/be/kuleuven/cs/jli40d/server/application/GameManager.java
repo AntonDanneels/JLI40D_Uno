@@ -10,7 +10,7 @@ import java.rmi.RemoteException;
  * @author Pieter
  * @version 1.0
  */
-public class GameManager implements GameHandler
+public class GameManager implements GameHandler, GameListHandler
 {
     /**
      * Returns if a game is started (can also be finished) or not.

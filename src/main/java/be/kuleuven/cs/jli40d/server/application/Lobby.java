@@ -14,14 +14,13 @@ import org.slf4j.LoggerFactory;
 import java.rmi.RemoteException;
 import java.rmi.server.RMISocketFactory;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Implementation of a {@link LobbyHandler} interface.
  * <p>
  * Validation of tokens happens in a implementation of the {@link UserTokenHandler}.
- *
+ * <p>
  * This is a local implementation, meaning every application server has its own list
  * of games in memory. It's not persisted in any way.
  *
@@ -34,24 +33,25 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
 
     private UserTokenHandler userManager;
 
-    private List<Game> games;
+    private GameListHandler games;
 
     /**
      * Creates and exports a new UnicastRemoteObject object using an
      * anonymous port.
      * <p>
-     * <p>The object is exported with a server socket
+     * The object is exported with a server socket
      * created using the {@link RMISocketFactory} class.
      *
      * @param userManager A {@link UserTokenHandler} implementation that keeps track of all tokens.
+     * @param games       A {@link GameListHandler} implementation.
      * @throws RemoteException if failed to export object
      * @since JDK1.1
      */
-    Lobby( UserTokenHandler userManager ) throws RemoteException
+    Lobby( UserTokenHandler userManager, GameListHandler games ) throws RemoteException
     {
         this.userManager = userManager;
+        this.games = games;
 
-        games = new ArrayList<>();
     }
 
     /**
@@ -63,10 +63,12 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
      */
     public List<Game> currentGames( String token ) throws InvalidTokenException
     {
-        //initial check for token and find username
-        String username = userManager.findUserByToken( token );
+        LOGGER.debug( "Requested list of games by {}", token );
 
-        return games;
+        //Check authentication, throws error if token is invalid
+        userManager.findUserByToken( token );
+
+        return games.getAllGames();
     }
 
     /**
@@ -82,7 +84,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
         //initial check for token and find username
         String username = userManager.findUserByToken( token );
 
-        Game game = new Game( games.size(), numberOfPlayers );
+        Game game = new Game( games.nextID(), numberOfPlayers );
 
         games.add( game );
 
@@ -107,14 +109,14 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
         String username = userManager.findUserByToken( token );
 
         //if the game is not in the list, throw an error
-        if ( games.get( gameID ) == null )
+        if ( games.getGameByID( gameID ) == null )
         {
             LOGGER.warn( "joinGame method called by {} with gameId = {}, but game not found. ", username, gameID );
 
             throw new UnableToJoinGameException( "Game not found in the list" );
         }
 
-        Game requestedGame = games.get( gameID );
+        Game requestedGame = games.getGameByID( gameID );
 
         //check if the game is not full or has ended
         if ( requestedGame.getNumberOfJoinedPlayers() >= requestedGame.getMaximumNumberOfPlayers() )
