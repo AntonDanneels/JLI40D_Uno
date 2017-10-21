@@ -114,7 +114,8 @@ public class Client
 
     public static void main( String args[] )
     {
-        //Client client = new Client();
+        Client client = new Client();
+        client.connectToLobby( "localhost", 2222 );
         //client.run();
 
         try
@@ -145,7 +146,7 @@ public class Client
 
                 // fetch list here
                 List<Game> games = new ArrayList<Game>();
-                games.add( new Game() );
+                games.add( new Game(0) );
 
                 lobbyListPanel.setLayout( new GridLayout( games.size(), 1 ) );
 
@@ -194,10 +195,6 @@ public class Client
 
         frame.add( loginPanel );
         frame.setVisible( true );
-
-        Client client = new Client();
-        client.connectToLobby( "localhost", 1099 );
-        client.run();
     }
 
 }
