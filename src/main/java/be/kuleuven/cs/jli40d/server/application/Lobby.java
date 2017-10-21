@@ -22,6 +22,9 @@ import java.util.List;
  * <p>
  * Validation of tokens happens in a implementation of the {@link UserTokenHandler}.
  *
+ * This is a local implementation, meaning every application server has its own list
+ * of games in memory. It's not persisted in any way.
+ *
  * @author Pieter
  * @version 1.0
  */
@@ -79,7 +82,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
         //initial check for token and find username
         String username = userManager.findUserByToken( token );
 
-        Game game = new Game( games.size() );
+        Game game = new Game( games.size(), numberOfPlayers );
 
         games.add( game );
 
@@ -113,10 +116,24 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
 
         Game requestedGame = games.get( gameID );
 
+        //check if the game is not full or has ended
+        if ( requestedGame.getNumberOfJoinedPlayers() >= requestedGame.getMaximumNumberOfPlayers() )
+        {
+            LOGGER.info( "{} tried to join a full game ( {} ).", username, gameID );
+
+            throw new UnableToJoinGameException( "Game full." );
+        }
+        else if ( requestedGame.isEnded() )
+        {
+            LOGGER.info( "{} tried to join a game ( {} ) that has ended.", username, gameID );
+
+            throw new UnableToJoinGameException( "Game has ended." );
+        }
+
         //create a new player with the next id of the list
         Player player = new Player( requestedGame.getNumberOfJoinedPlayers(), username );
 
-        requestedGame.getPlayers().add(player);
+        requestedGame.getPlayers().add( player );
 
         return requestedGame;
     }

@@ -5,6 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * A Game is a collection of {@link Player} objects, specially created for
+ * this game by their username. The game also has a set of cards and a few
+ * status variables.
+ *
+ * When a Game is created, the creator specifies the number of players.
+ *
  * @author Pieter
  * @version 1.0
  */
@@ -15,15 +21,19 @@ public class Game implements Serializable
     private List <Player> players;
     private List <Card>   deck;
 
+    private int maximumNumberOfPlayers;
+
     private boolean ended;
     private int     currentPlayer;
     private Card    topCard;
     private int     currentGameMoveID;
     private boolean clockwise;
 
-    public Game(int gameID)
+    public Game(int gameID, int maximumNumberOfPlayers)
     {
         this.gameID = gameID;
+
+        this.maximumNumberOfPlayers = maximumNumberOfPlayers;
 
         this.players = new ArrayList <Player>();
         this.deck = new ArrayList <Card>();
@@ -113,6 +123,16 @@ public class Game implements Serializable
     public int getGameID()
     {
         return gameID;
+    }
+
+    public int getMaximumNumberOfPlayers()
+    {
+        return maximumNumberOfPlayers;
+    }
+
+    public void setMaximumNumberOfPlayers( int maximumNumberOfPlayers )
+    {
+        this.maximumNumberOfPlayers = maximumNumberOfPlayers;
     }
 
     /**

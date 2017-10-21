@@ -28,7 +28,6 @@ public class Client
 
     private Client()
     {
-        game = new Game(0);
     }
 
     public void run()
