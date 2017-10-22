@@ -6,6 +6,7 @@ import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import be.kuleuven.cs.jli40d.core.model.exception.UnableToCreateGameException;
 import be.kuleuven.cs.jli40d.core.model.exception.UnableToJoinGameException;
 
+import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.List;
  * <li>Joining a existing game (either as spectator or player).</li>
  * </ul>
  */
-public interface LobbyHandler extends Remote
+public interface LobbyHandler extends Remote, Serializable
 {
 
     /**
@@ -27,6 +28,7 @@ public interface LobbyHandler extends Remote
      * @param token Token received by the {@link UserHandler}.
      * @return A list of all Game objects.
      * @throws InvalidTokenException When the token is invalid (expired or not found).
+     * @throws RemoteException
      */
     List<Game> currentGames( String token ) throws RemoteException, InvalidTokenException;
 
@@ -37,6 +39,7 @@ public interface LobbyHandler extends Remote
      * @return
      * @throws InvalidTokenException       When the token is invalid (expired or not found).
      * @throws UnableToCreateGameException When the game cannot be created for some reason (like exceeded limits).
+     * @throws RemoteException
      */
     int makeGame( String token, String gameName, int numberOfPlayers ) throws RemoteException, InvalidTokenException, UnableToCreateGameException;
 
@@ -45,12 +48,16 @@ public interface LobbyHandler extends Remote
      * <p>
      * If the game is full, a {@link GameFullException} is thrown. In other cases, like when the player should
      * already have joined, the more general {@link UnableToJoinGameException} is thrown.
+     * <p>
+     * This method is blocking. This means that if no exception is thrown, the method will return a {@link Game}
+     * object only when all players have joined.
      *
      * @param token  Token received by the {@link UserHandler}.
      * @param gameId The id of the game to join.
      * @return A Game object.
      * @throws UnableToJoinGameException When the user cannot join the game for various reasons.
      * @throws InvalidTokenException     When the token is invalid (expired or not found).
+     * @throws RemoteException
      */
     Game joinGame( String token, int gameId ) throws RemoteException, UnableToJoinGameException, InvalidTokenException;
 }

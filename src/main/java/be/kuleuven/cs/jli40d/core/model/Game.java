@@ -5,6 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * A Game is a collection of {@link Player} objects, specially created for
+ * this game by their username. The game also has a set of cards and a few
+ * status variables.
+ * <p>
+ * When a Game is created, the creator specifies the number of players.
+ *
  * @author Pieter
  * @version 1.0
  */
@@ -12,8 +18,10 @@ public class Game implements Serializable
 {
     private int gameID;
 
-    private List <Player> players;
-    private List <Card>   deck;
+    private List<Player> players;
+    private List<Card>   deck;
+
+    private int maximumNumberOfPlayers;
 
     private boolean ended;
     private int     currentPlayer;
@@ -21,12 +29,14 @@ public class Game implements Serializable
     private int     currentGameMoveID;
     private boolean clockwise;
 
-    public Game(int gameID)
+    public Game( int gameID, int maximumNumberOfPlayers )
     {
         this.gameID = gameID;
 
-        this.players = new ArrayList <Player>();
-        this.deck = new ArrayList <Card>();
+        this.maximumNumberOfPlayers = maximumNumberOfPlayers;
+
+        this.players = new ArrayList<>();
+        this.deck = new ArrayList<>();
 
         this.topCard = null;
         this.ended = false;
@@ -50,7 +60,7 @@ public class Game implements Serializable
         this.clockwise = clockwise;
     }
 
-    public void setPlayers( List <Player> players )
+    public void setPlayers( List<Player> players )
     {
         this.players = players;
     }
@@ -60,7 +70,7 @@ public class Game implements Serializable
         return currentGameMoveID;
     }
 
-    public void setDeck( List <Card> deck )
+    public void setDeck( List<Card> deck )
     {
         this.deck = deck;
     }
@@ -80,12 +90,12 @@ public class Game implements Serializable
         this.topCard = topCard;
     }
 
-    public List <Player> getPlayers()
+    public List<Player> getPlayers()
     {
         return players;
     }
 
-    public List <Card> getDeck()
+    public List<Card> getDeck()
     {
         return deck;
     }
@@ -113,6 +123,16 @@ public class Game implements Serializable
     public int getGameID()
     {
         return gameID;
+    }
+
+    public int getMaximumNumberOfPlayers()
+    {
+        return maximumNumberOfPlayers;
+    }
+
+    public void setMaximumNumberOfPlayers( int maximumNumberOfPlayers )
+    {
+        this.maximumNumberOfPlayers = maximumNumberOfPlayers;
     }
 
     /**

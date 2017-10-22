@@ -10,7 +10,7 @@ import java.rmi.RemoteException;
 /**
  * The UserHandler provides three functions: creating an account, logging in and logging out.
  */
-public interface UserHandler extends Remote
+public interface UserHandler extends Remote, Serializable
 {
 
     /**
@@ -20,6 +20,7 @@ public interface UserHandler extends Remote
      * @param password The password as a string.
      * @return A token to use in further operations.
      * @throws InvalidUsernameOrPasswordException Thrown if either password or username don't match/exist.
+     * @throws RemoteException
      */
     String login( String username, String password ) throws RemoteException, InvalidUsernameOrPasswordException;
 
@@ -33,6 +34,7 @@ public interface UserHandler extends Remote
      * @param password The password chosen by the user.
      * @return
      * @throws AccountAlreadyExistsException
+     * @throws RemoteException
      */
     String register( String email, String username, String password ) throws RemoteException, AccountAlreadyExistsException;
 
@@ -40,6 +42,7 @@ public interface UserHandler extends Remote
      * Invalidates the token.
      *
      * @param token The token to invalidate.
+     * @throws RemoteException
      */
     void logout( String token ) throws RemoteException;
 }

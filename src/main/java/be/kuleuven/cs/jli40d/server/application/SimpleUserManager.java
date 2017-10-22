@@ -59,11 +59,13 @@ public class SimpleUserManager extends UnicastRemoteObject implements UserHandle
         if ( passwords.containsKey( username ) && BCrypt.checkpw( password, passwords.get( username ) ) )
         {
             String token = generateRandomToken();
-
             tokens.put( token, username );
+            LOGGER.info( "Logging user {} in and activating token {}", username, token );
 
             return token;
         }
+
+        LOGGER.info( "Failed to authenticate user {}", username );
 
         throw new InvalidUsernameOrPasswordException();
     }
@@ -119,8 +121,8 @@ public class SimpleUserManager extends UnicastRemoteObject implements UserHandle
      */
     private String generateRandomToken()
     {
-        SecureRandom random  = new SecureRandom();
-        byte         bytes[] = new byte[ 24 ];
+        SecureRandom random = new SecureRandom();
+        byte[]       bytes  = new byte[ 24 ];
 
         random.nextBytes( bytes );
 
@@ -137,8 +139,34 @@ public class SimpleUserManager extends UnicastRemoteObject implements UserHandle
     @Override
     public String findUserByToken( String token ) throws InvalidTokenException
     {
+        if ( !tokens.containsKey( token ) )
+        {
+            LOGGER.warn( "Token {} requested, but not found.", token );
+            throw new InvalidTokenException( "Token not found." );
+        }
 
+        return tokens.get( token );
+    }
 
-        return null;
+    @Override
+    public boolean equals( Object o )
+    {
+        if ( this == o ) return true;
+        if ( o == null || getClass() != o.getClass() ) return false;
+        if ( !super.equals( o ) ) return false;
+
+        SimpleUserManager manager = ( SimpleUserManager )o;
+
+        if ( tokens != null ? !tokens.equals( manager.tokens ) : manager.tokens != null ) return false;
+        return passwords != null ? passwords.equals( manager.passwords ) : manager.passwords == null;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = super.hashCode();
+        result = 31 * result + ( tokens != null ? tokens.hashCode() : 0 );
+        result = 31 * result + ( passwords != null ? passwords.hashCode() : 0 );
+        return result;
     }
 }
