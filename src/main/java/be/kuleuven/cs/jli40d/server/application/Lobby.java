@@ -140,7 +140,9 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
 
         requestedGame.getPlayers().add( player );
 
-        //blocking
+        LOGGER.info( "Player {} added to game {}.", username, gameID );
+
+        //blocking until all players joined
         while ( requestedGame.getNumberOfJoinedPlayers() < requestedGame.getMaximumNumberOfPlayers() ) {
             try
             {
@@ -153,6 +155,8 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
         }
 
         notifyAll();
+
+        LOGGER.debug( "Returning joinGame method calls." );
 
         return requestedGame;
     }
