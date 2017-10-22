@@ -17,8 +17,6 @@ import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -302,7 +300,7 @@ public class Client extends JFrame implements ActionListener
         }
         catch ( Exception e )
         {
-            // :no-words:
+            // :no-words: :marvelous:
             e.printStackTrace();
         }
     }
