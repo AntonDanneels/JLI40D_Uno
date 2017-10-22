@@ -83,9 +83,9 @@ public class Client extends JFrame implements ActionListener
         try
         {
             if( e.getSource().equals( register ) )
-                token = userManager.register( "test@test", usernameField.getText(), Arrays.toString( passwordField.getPassword() ) );
+                token = userManager.register( "test@test", usernameField.getText(), new String( passwordField.getPassword() ) );
             else
-                token = userManager.login( usernameField.getText(), Arrays.toString( passwordField.getPassword() ) );
+                token = userManager.login( usernameField.getText(), new String( passwordField.getPassword() ) );
         }
         catch ( RemoteException | InvalidUsernameOrPasswordException | AccountAlreadyExistsException e1 )
         {
