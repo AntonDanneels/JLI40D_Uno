@@ -46,6 +46,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
      */
     Lobby( UserTokenHandler userManager, GameListHandler games ) throws RemoteException
     {
+        super();
         this.userManager = userManager;
         this.games = games;
 
@@ -78,8 +79,8 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
      */
     public int makeGame( String token, String gameName, int numberOfPlayers ) throws InvalidTokenException, UnableToCreateGameException
     {
-        //initial check for token and find username
-        String username = userManager.findUserByToken( token );
+        //initial check for token
+        userManager.findUserByToken( token );
 
         Game game = new Game( games.nextID(), numberOfPlayers );
 
@@ -159,5 +160,28 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
         LOGGER.debug( "Returning joinGame method calls." );
 
         return requestedGame;
+    }
+
+
+    @Override
+    public boolean equals( Object o )
+    {
+        if ( this == o ) return true;
+        if ( o == null || getClass() != o.getClass() ) return false;
+        if ( !super.equals( o ) ) return false;
+
+        Lobby lobby = ( Lobby )o;
+
+        if ( userManager != null ? !userManager.equals( lobby.userManager ) : lobby.userManager != null ) return false;
+        return games != null ? games.equals( lobby.games ) : lobby.games == null;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = super.hashCode();
+        result = 31 * result + ( userManager != null ? userManager.hashCode() : 0 );
+        result = 31 * result + ( games != null ? games.hashCode() : 0 );
+        return result;
     }
 }

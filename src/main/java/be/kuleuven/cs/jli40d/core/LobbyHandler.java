@@ -6,6 +6,7 @@ import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import be.kuleuven.cs.jli40d.core.model.exception.UnableToCreateGameException;
 import be.kuleuven.cs.jli40d.core.model.exception.UnableToJoinGameException;
 
+import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.List;
  * <li>Joining a existing game (either as spectator or player).</li>
  * </ul>
  */
-public interface LobbyHandler extends Remote
+public interface LobbyHandler extends Remote, Serializable
 {
 
     /**
