@@ -144,4 +144,14 @@ public class Game implements Serializable
     {
         return players.size();
     }
+
+    /**
+     * Util function that returns the username (instead of an int at {@link #getCurrentPlayer()}).
+     *
+     * @return The username of the current player.
+     */
+    public String getCurrentPlayerUsername()
+    {
+        return players.get( currentPlayer ).getUsername();
+    }
 }

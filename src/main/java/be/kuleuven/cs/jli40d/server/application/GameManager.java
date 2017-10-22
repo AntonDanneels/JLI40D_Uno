@@ -22,9 +22,13 @@ public class GameManager implements GameHandler, GameListHandler
 
     private List<Game> games;
 
-    public GameManager()
+    private UserTokenHandler userManager;
+
+    public GameManager( UserTokenHandler userManager )
     {
         this.games = new ArrayList<>();
+
+        this.userManager = userManager;
     }
 
     /**
@@ -41,26 +45,35 @@ public class GameManager implements GameHandler, GameListHandler
     public boolean isStarted( String token, int gameID ) throws InvalidTokenException, RemoteException, GameNotFoundException
     {
         Game game = getGameByID( gameID );
+        userManager.findUserByToken( token );
+
 
         //If the game has ended or all players have joined it
         return game.isEnded() || game.getNumberOfJoinedPlayers() == game.getMaximumNumberOfPlayers();
 
     }
 
-    /**
-     * Returns true if it's the server determines the players (identified
-     * by the provided token) turn.
-     *
-     * @param token  The token given to the user for authentication.
-     * @param gameID The id of the game.
-     * @return True if the player that invoked the function has its turn.
-     * @throws InvalidTokenException When the token is invalid (expired or not found).
-     * @throws RemoteException
-     */
     @Override
-    public boolean myTurn( String token, int gameID ) throws InvalidTokenException, RemoteException
+    public synchronized boolean myTurn( String token, int gameID ) throws InvalidTokenException, RemoteException, GameNotFoundException
     {
-        return false;
+        Game   game     = getGameByID( gameID );
+        String username = userManager.findUserByToken( token );
+
+        while ( game.getCurrentPlayerUsername().equals( username ) )
+        {
+            try
+            {
+                wait();
+            }
+            catch ( InterruptedException e )
+            {
+                LOGGER.error( "Thread interrupted while waiting for turn" );
+            }
+        }
+
+        notifyAll();
+
+        return true;
     }
 
     /**
