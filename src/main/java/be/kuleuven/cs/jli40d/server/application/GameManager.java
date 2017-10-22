@@ -3,8 +3,8 @@ package be.kuleuven.cs.jli40d.server.application;
 import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
+import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
-import be.kuleuven.cs.jli40d.core.model.exception.UnableToJoinGameException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,10 +35,17 @@ public class GameManager implements GameHandler, GameListHandler
      * @return False if the game is not yet started, true otherwise.
      * @throws InvalidTokenException When the token is invalid (expired or not found).
      * @throws RemoteException
+     * @throws GameNotFoundException When the game is not found.
      */
     @Override
-    public boolean isStarted( String token, int gameID ) throws InvalidTokenException, RemoteException
+    public boolean isStarted( String token, int gameID ) throws InvalidTokenException, RemoteException, GameNotFoundException
     {
+        Game game = getGameByID( gameID );
+
+        if (game.isEnded()) {
+            return true;
+        }
+
         return false;
     }
 
@@ -106,14 +113,14 @@ public class GameManager implements GameHandler, GameListHandler
     }
 
     @Override
-    public Game getGameByID( int id ) throws UnableToJoinGameException
+    public Game getGameByID( int id ) throws GameNotFoundException
     {
         //if the game is not in the list, throw an error
         if ( games.get( id ) == null )
         {
             LOGGER.warn( "joinGame method called with gameId = {}, but game not found. ", id );
 
-            throw new UnableToJoinGameException( "Game not found in the list" );
+            throw new GameNotFoundException( "Game not found in the list" );
         }
 
         return games.get( id );

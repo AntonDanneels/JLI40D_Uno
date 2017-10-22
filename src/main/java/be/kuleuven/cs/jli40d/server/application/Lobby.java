@@ -4,10 +4,7 @@ import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.UserHandler;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.Player;
-import be.kuleuven.cs.jli40d.core.model.exception.GameFullException;
-import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
-import be.kuleuven.cs.jli40d.core.model.exception.UnableToCreateGameException;
-import be.kuleuven.cs.jli40d.core.model.exception.UnableToJoinGameException;
+import be.kuleuven.cs.jli40d.core.model.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,7 +106,17 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
         String username = userManager.findUserByToken( token );
 
         //throws an error if the game is not in the list
-        Game requestedGame = games.getGameByID( gameID );
+        Game requestedGame;
+        try
+        {
+            requestedGame = games.getGameByID( gameID );
+        }
+        catch ( GameNotFoundException e )
+        {
+            LOGGER.info( "User {} tried to join a non-existing game with id = {}.", username, gameID );
+
+            throw new UnableToJoinGameException( "Game not found" );
+        }
 
         //check if the game is not full or has ended
         if ( requestedGame.getNumberOfJoinedPlayers() >= requestedGame.getMaximumNumberOfPlayers() )

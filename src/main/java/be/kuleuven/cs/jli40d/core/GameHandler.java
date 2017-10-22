@@ -1,6 +1,7 @@
 package be.kuleuven.cs.jli40d.core;
 
 import be.kuleuven.cs.jli40d.core.model.GameMove;
+import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 
 import java.rmi.Remote;
@@ -20,7 +21,7 @@ public interface GameHandler extends Remote
      * @throws InvalidTokenException When the token is invalid (expired or not found).
      * @throws RemoteException
      */
-    boolean isStarted( String token, int gameID ) throws InvalidTokenException, RemoteException;
+    boolean isStarted( String token, int gameID ) throws InvalidTokenException, RemoteException, GameNotFoundException;
 
     /**
      * Returns true if it's the server determines the players (identified
