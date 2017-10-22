@@ -19,6 +19,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -82,9 +83,9 @@ public class Client extends JFrame implements ActionListener
         try
         {
             if( e.getSource().equals( register ) )
-                token = userManager.register( "test@test", usernameField.getText(), passwordField.getPassword().toString() );
+                token = userManager.register( "test@test", usernameField.getText(), Arrays.toString( passwordField.getPassword() ) );
             else
-                token = userManager.login( usernameField.getText(), passwordField.getPassword().toString() );
+                token = userManager.login( usernameField.getText(), Arrays.toString( passwordField.getPassword() ) );
         }
         catch ( RemoteException | InvalidUsernameOrPasswordException | AccountAlreadyExistsException e1 )
         {
