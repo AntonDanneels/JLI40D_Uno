@@ -47,6 +47,9 @@ public interface LobbyHandler extends Remote
      * <p>
      * If the game is full, a {@link GameFullException} is thrown. In other cases, like when the player should
      * already have joined, the more general {@link UnableToJoinGameException} is thrown.
+     * <p>
+     * This method is blocking. This means that if no exception is thrown, the method will return a {@link Game}
+     * object only when all players have joined.
      *
      * @param token  Token received by the {@link UserHandler}.
      * @param gameId The id of the game to join.
