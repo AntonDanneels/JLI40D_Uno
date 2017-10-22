@@ -4,13 +4,14 @@ import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 
+import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 /**
  * All methods expect a token to identify and authenticate the user.
  */
-public interface GameHandler extends Remote
+public interface GameHandler extends Remote, Serializable
 {
     /**
      * Returns if a game is started (can also be finished) or not.

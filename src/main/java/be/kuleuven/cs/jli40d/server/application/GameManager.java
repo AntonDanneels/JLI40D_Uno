@@ -129,4 +129,21 @@ public class GameManager implements GameHandler, GameListHandler
     {
         return games;
     }
+
+    @Override
+    public boolean equals( Object o )
+    {
+        if ( this == o ) return true;
+        if ( o == null || getClass() != o.getClass() ) return false;
+
+        GameManager manager = ( GameManager )o;
+
+        return games != null ? games.equals( manager.games ) : manager.games == null;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return games != null ? games.hashCode() : 0;
+    }
 }

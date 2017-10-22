@@ -46,6 +46,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
      */
     Lobby( UserTokenHandler userManager, GameListHandler games ) throws RemoteException
     {
+        super();
         this.userManager = userManager;
         this.games = games;
 
@@ -78,8 +79,8 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
      */
     public int makeGame( String token, String gameName, int numberOfPlayers ) throws InvalidTokenException, UnableToCreateGameException
     {
-        //initial check for token and find username
-        String username = userManager.findUserByToken( token );
+        //initial check for token
+        userManager.findUserByToken( token );
 
         Game game = new Game( games.nextID(), numberOfPlayers );
 
@@ -93,6 +94,9 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
      * <p>
      * If the game is full, a {@link GameFullException} is thrown. In other cases, like when the player should
      * already have joined, the more general {@link UnableToJoinGameException} is thrown.
+     * <p>
+     * This method is blocking. This means that if no exception is thrown, the method will return a {@link Game}
+     * object only when all players have joined.
      *
      * @param token  Token received by the {@link UserHandler}.
      * @param gameID The id of the game to join.
@@ -100,7 +104,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
      * @throws UnableToJoinGameException When the user cannot join the game for various reasons.
      * @throws InvalidTokenException     When the token is invalid (expired or not found).
      */
-    public Game joinGame( String token, int gameID ) throws UnableToJoinGameException, InvalidTokenException
+    public synchronized Game joinGame( String token, int gameID ) throws UnableToJoinGameException, InvalidTokenException
     {
         //initial check for token and find username
         String username = userManager.findUserByToken( token );
@@ -137,6 +141,47 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
 
         requestedGame.getPlayers().add( player );
 
+        LOGGER.info( "Player {} added to game {}.", username, gameID );
+
+        //blocking until all players joined
+        while ( requestedGame.getNumberOfJoinedPlayers() < requestedGame.getMaximumNumberOfPlayers() ) {
+            try
+            {
+                wait();
+            }
+            catch ( InterruptedException e )
+            {
+                LOGGER.error( "Thread interrupted. SAD. {}", e.getMessage() );
+            }
+        }
+
+        notifyAll();
+
+        LOGGER.debug( "Returning joinGame method calls." );
+
         return requestedGame;
+    }
+
+
+    @Override
+    public boolean equals( Object o )
+    {
+        if ( this == o ) return true;
+        if ( o == null || getClass() != o.getClass() ) return false;
+        if ( !super.equals( o ) ) return false;
+
+        Lobby lobby = ( Lobby )o;
+
+        if ( userManager != null ? !userManager.equals( lobby.userManager ) : lobby.userManager != null ) return false;
+        return games != null ? games.equals( lobby.games ) : lobby.games == null;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = super.hashCode();
+        result = 31 * result + ( userManager != null ? userManager.hashCode() : 0 );
+        result = 31 * result + ( games != null ? games.hashCode() : 0 );
+        return result;
     }
 }
