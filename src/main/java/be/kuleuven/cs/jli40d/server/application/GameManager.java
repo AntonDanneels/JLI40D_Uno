@@ -42,11 +42,9 @@ public class GameManager implements GameHandler, GameListHandler
     {
         Game game = getGameByID( gameID );
 
-        if (game.isEnded()) {
-            return true;
-        }
+        //If the game has ended or all players have joined it
+        return game.isEnded() || game.getNumberOfJoinedPlayers() == game.getMaximumNumberOfPlayers();
 
-        return false;
     }
 
     /**

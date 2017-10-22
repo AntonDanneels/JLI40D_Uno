@@ -14,12 +14,15 @@ public interface GameHandler extends Remote
 {
     /**
      * Returns if a game is started (can also be finished) or not.
+     * <p>
+     * This is not a blocking call.
      *
      * @param token  The token given to the user for authentication.
      * @param gameID The id of the game.
      * @return False if the game is not yet started, true otherwise.
      * @throws InvalidTokenException When the token is invalid (expired or not found).
      * @throws RemoteException
+     * @throws GameNotFoundException When the game is not found.
      */
     boolean isStarted( String token, int gameID ) throws InvalidTokenException, RemoteException, GameNotFoundException;
 
@@ -33,7 +36,7 @@ public interface GameHandler extends Remote
      * @throws InvalidTokenException When the token is invalid (expired or not found).
      * @throws RemoteException
      */
-    boolean myTurn( String token, int gameID ) throws InvalidTokenException, RemoteException;
+    boolean myTurn( String token, int gameID ) throws InvalidTokenException, RemoteException, GameNotFoundException;
 
 
     /**
@@ -49,8 +52,9 @@ public interface GameHandler extends Remote
      * @return The next GameMove when one is ready.
      * @throws InvalidTokenException When the token is invalid (expired or not found).
      * @throws RemoteException
+     * @throws GameNotFoundException When the game is not found.
      */
-    GameMove getNextMove( String token, int gameID, int nextGameMoveID ) throws InvalidTokenException, RemoteException;
+    GameMove getNextMove( String token, int gameID, int nextGameMoveID ) throws InvalidTokenException, RemoteException, GameNotFoundException;
 
     /**
      * Send a {@link GameMove} object to update the state of a certain game.
@@ -60,6 +64,7 @@ public interface GameHandler extends Remote
      * @param move   The {@link GameMove}.
      * @throws InvalidTokenException
      * @throws RemoteException
+     * @throws GameNotFoundException When the game is not found.
      */
-    void sendMove( String token, int gameID, GameMove move ) throws InvalidTokenException, RemoteException;
+    void sendMove( String token, int gameID, GameMove move ) throws InvalidTokenException, RemoteException, GameNotFoundException;
 }

@@ -10,15 +10,13 @@ import be.kuleuven.cs.jli40d.core.model.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.List;
 
 /**
@@ -244,7 +242,7 @@ public class Client extends JFrame implements ActionListener
         }
     }
 
-    public void run() throws InvalidTokenException, RemoteException
+    public void run() throws InvalidTokenException, RemoteException, GameNotFoundException
     {
         GameHandler gameHandler = null;
 
