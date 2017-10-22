@@ -34,6 +34,7 @@ public class Client extends JFrame implements ActionListener
     //Token received by the server
     private String token;
     private JPanel loginPanel;
+    private JPanel lobbyListPanel;
 
     private JTextField usernameField;
     private JPasswordField passwordField;
@@ -107,7 +108,11 @@ public class Client extends JFrame implements ActionListener
 
     private void updateLobbyList() throws RemoteException, InvalidTokenException
     {
-        JPanel lobbyListPanel = new JPanel();
+        remove( loginPanel );
+        if( lobbyListPanel != null )
+            remove( lobbyListPanel );
+
+        lobbyListPanel = new JPanel();
 
         List<Game> games = lobbyHandler.currentGames( token );
 
@@ -218,10 +223,11 @@ public class Client extends JFrame implements ActionListener
 
         lobbyListPanel.add( listPanel, BorderLayout.CENTER );
 
-        remove( lobbyListPanel );
-        remove( loginPanel );
         add( lobbyListPanel );
-        validate();
+        revalidate();
+        repaint();
+
+        System.out.println( getComponentCount() );
     }
 
     private void joinGame( int id )
