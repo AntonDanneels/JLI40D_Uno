@@ -36,6 +36,7 @@ public class Client extends JFrame implements ActionListener
     private String token;
     private JPanel loginPanel;
     private JPanel lobbyListPanel;
+    private Canvas gameCanvas;
 
     private JTextField usernameField;
     private JPasswordField passwordField;
@@ -228,26 +229,32 @@ public class Client extends JFrame implements ActionListener
         revalidate();
         repaint();
 
-        System.out.println( getComponentCount() );
     }
 
     private void joinGame( int id )
     {
+        remove( loginPanel );
+        if( lobbyListPanel != null )
+            remove( lobbyListPanel );
+
+        gameCanvas = new Canvas();
+
+        add( gameCanvas );
+        revalidate();
+        repaint();
+
         try
         {
+            Graphics g = gameCanvas.getGraphics();
+
+            g.drawString( "Joining.." , 50,50 );
+
             game = lobbyHandler.joinGame( token, id );
         }
-        catch ( RemoteException e )
+        catch ( RemoteException | InvalidTokenException | UnableToJoinGameException e )
         {
             e.printStackTrace();
-        }
-        catch ( UnableToJoinGameException e )
-        {
-            e.printStackTrace();
-        }
-        catch ( InvalidTokenException e )
-        {
-            e.printStackTrace();
+            add( loginPanel );
         }
     }
 
