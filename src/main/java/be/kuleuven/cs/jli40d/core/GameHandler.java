@@ -32,9 +32,7 @@ public interface GameHandler extends Remote, Serializable
      * Returns true if it's the server determines the players (identified
      * by the provided token) turn.
      * <p>
-     * This method is blocking, only returning true when the server hands the next
-     * turn to the player invoking the method. If either the token or the game are
-     * not found/invalid, this will be returned without blocking however.
+     * This method is not blocking.
      *
      * @param token  The token given to the user for authentication.
      * @param gameID The id of the game.

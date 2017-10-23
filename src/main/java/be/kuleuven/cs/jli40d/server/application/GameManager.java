@@ -68,20 +68,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
         Game   game     = getGameByID( gameID );
         String username = userManager.findUserByToken( token );
 
-        while ( game.getCurrentPlayerUsername().equals( username ) )
-        {
-            try
-            {
-                wait();
-            }
-            catch ( InterruptedException e )
-            {
-                LOGGER.error( "Thread interrupted while waiting for turn" );
-                Thread.currentThread().interrupt();
-            }
-        }
-
-        return true;
+        return  game.getCurrentPlayerUsername().equals( username );
     }
 
     /**
