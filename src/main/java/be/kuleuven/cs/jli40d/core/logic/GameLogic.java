@@ -7,7 +7,7 @@ import be.kuleuven.cs.jli40d.core.model.*;
  */
 public class GameLogic
 {
-    public boolean testMove( Game game, GameMove move )
+    public static boolean testMove( Game game, GameMove move )
     {
         if( move.isCardDrawn() )
             return true;
@@ -26,7 +26,16 @@ public class GameLogic
         return true;
     }
 
-    public void applyMove( Game game, GameMove move )
+    /**
+     * Static method that applies the necessary state changes to a {@link Game} object,
+     * given a {@link GameMove}.
+     *
+     * This also adds the {@link GameMove} to the list of moves in the {@link Game}.
+     *
+     * @param game
+     * @param move
+     */
+    public static void applyMove( Game game, GameMove move )
     {
         if( move.isCardDrawn() )
         {
@@ -59,9 +68,12 @@ public class GameLogic
 
             game.setCurrentPlayer( wrap( game.getCurrentPlayer(), game.isClockwise(), game.getPlayers().size() ) );
         }
+
+        //finally add the move
+        game.addLatestMove( move );
     }
 
-    private int wrap( int current, boolean clockwise, int max )
+    private static int wrap( int current, boolean clockwise, int max )
     {
         int step = (clockwise ? 1 : -1 );
         int result = current + step;
