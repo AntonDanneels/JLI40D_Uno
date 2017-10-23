@@ -2,6 +2,7 @@ package be.kuleuven.cs.jli40d.core;
 
 import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
+import be.kuleuven.cs.jli40d.core.model.exception.InvalidGameMoveException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 
 import java.io.Serializable;
@@ -30,7 +31,7 @@ public interface GameHandler extends Remote, Serializable
     /**
      * Returns true if it's the server determines the players (identified
      * by the provided token) turn.
-     *
+     * <p>
      * This method is blocking, only returning true when the server hands the next
      * turn to the player invoking the method. If either the token or the game are
      * not found/invalid, this will be returned without blocking however.
@@ -40,6 +41,7 @@ public interface GameHandler extends Remote, Serializable
      * @return True if the player that invoked the function has its turn.
      * @throws InvalidTokenException When the token is invalid (expired or not found).
      * @throws RemoteException
+     * @throws GameNotFoundException When the game is not found.
      */
     boolean myTurn( String token, int gameID ) throws InvalidTokenException, RemoteException, GameNotFoundException;
 
@@ -59,17 +61,28 @@ public interface GameHandler extends Remote, Serializable
      * @throws RemoteException
      * @throws GameNotFoundException When the game is not found.
      */
-    GameMove getNextMove( String token, int gameID, int nextGameMoveID ) throws InvalidTokenException, RemoteException, GameNotFoundException;
+    GameMove getNextMove( String token, int gameID, int nextGameMoveID ) throws
+            InvalidTokenException,
+            RemoteException,
+            GameNotFoundException;
 
     /**
      * Send a {@link GameMove} object to update the state of a certain game.
+     * <p>
+     * This method also checks if the player was authorised and it was his/her
+     * turn to make a move.
      *
      * @param token  The token given to the user for authentication.
      * @param gameID The id of the game.
      * @param move   The {@link GameMove}.
      * @throws InvalidTokenException
      * @throws RemoteException
-     * @throws GameNotFoundException When the game is not found.
+     * @throws GameNotFoundException    When the game is not found.
+     * @throws InvalidGameMoveException When the move is invalid.
      */
-    void sendMove( String token, int gameID, GameMove move ) throws InvalidTokenException, RemoteException, GameNotFoundException;
+    void sendMove( String token, int gameID, GameMove move ) throws
+            InvalidTokenException,
+            RemoteException,
+            GameNotFoundException,
+            InvalidGameMoveException;
 }

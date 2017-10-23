@@ -1,9 +1,11 @@
 package be.kuleuven.cs.jli40d.server.application;
 
 import be.kuleuven.cs.jli40d.core.GameHandler;
+import be.kuleuven.cs.jli40d.core.logic.GameLogic;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
+import be.kuleuven.cs.jli40d.core.model.exception.InvalidGameMoveException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +44,10 @@ public class GameManager implements GameHandler, GameListHandler
      * @throws GameNotFoundException When the game is not found.
      */
     @Override
-    public boolean isStarted( String token, int gameID ) throws InvalidTokenException, RemoteException, GameNotFoundException
+    public boolean isStarted( String token, int gameID ) throws
+            InvalidTokenException,
+            RemoteException,
+            GameNotFoundException
     {
         Game game = getGameByID( gameID );
         userManager.findUserByToken( token );
@@ -54,7 +59,10 @@ public class GameManager implements GameHandler, GameListHandler
     }
 
     @Override
-    public synchronized boolean myTurn( String token, int gameID ) throws InvalidTokenException, RemoteException, GameNotFoundException
+    public synchronized boolean myTurn( String token, int gameID ) throws
+            InvalidTokenException,
+            RemoteException,
+            GameNotFoundException
     {
         Game   game     = getGameByID( gameID );
         String username = userManager.findUserByToken( token );
@@ -87,25 +95,65 @@ public class GameManager implements GameHandler, GameListHandler
      * @return The next GameMove when one is ready.
      * @throws InvalidTokenException When the token is invalid (expired or not found).
      * @throws RemoteException
+     * @throws GameNotFoundException When the game is not found.
      */
     @Override
-    public GameMove getNextMove( String token, int gameID, int nextGameMoveID ) throws InvalidTokenException, RemoteException
+    public synchronized GameMove getNextMove( String token, int gameID, int nextGameMoveID ) throws
+            InvalidTokenException,
+            RemoteException,
+            GameNotFoundException
     {
-        return null;
+        Game   game     = getGameByID( gameID );
+        userManager.findUserByToken( token ); //TODO check if authenticated for game
+
+        while ( game.getMoves().size() < nextGameMoveID )
+        {
+            try
+            {
+                wait();
+            }
+            catch ( InterruptedException e )
+            {
+                LOGGER.error( "Thread interrupted while waiting for next game move." );
+            }
+        }
+
+        notifyAll();
+
+        return game.getMoves().get( nextGameMoveID );
     }
 
     /**
      * Send a {@link GameMove} object to update the state of a certain game.
+     * <p>
+     * This method also checks if the player was authorised and it was his/her
+     * turn to make a move.
      *
      * @param token  The token given to the user for authentication.
      * @param gameID The id of the game.
      * @param move   The {@link GameMove}.
      * @throws InvalidTokenException
      * @throws RemoteException
+     * @throws GameNotFoundException    When the game is not found.
+     * @throws InvalidGameMoveException When the move is invalid.
      */
     @Override
-    public void sendMove( String token, int gameID, GameMove move ) throws InvalidTokenException, RemoteException
+    public void sendMove( String token, int gameID, GameMove move ) throws
+            InvalidTokenException,
+            RemoteException,
+            GameNotFoundException,
+            InvalidGameMoveException
     {
+        Game   game     = getGameByID( gameID );
+        String username = userManager.findUserByToken( token );
+
+        if ( game.getCurrentPlayerUsername().equals( username )
+                || GameLogic.testMove( game, move ) )
+        {
+            throw new InvalidGameMoveException( "Either not your turn or invalid move" );
+        }
+
+        GameLogic.applyMove( game, move );
 
         notifyAll();
     }
