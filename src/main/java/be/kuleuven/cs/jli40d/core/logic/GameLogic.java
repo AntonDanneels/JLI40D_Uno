@@ -7,6 +7,39 @@ import be.kuleuven.cs.jli40d.core.model.*;
  */
 public class GameLogic
 {
+    public static void generateDeck( Game game )
+    {
+        game.getDeck().clear();
+
+        CardType [] types = CardType.values();
+        CardColour [] colours = CardColour.values();
+        for( int i = 0; i < types.length; i++ )
+        {
+            for( int j = 0; j < colours.length; j++ )
+            {
+                if( colours[j] != CardColour.NO_COLOUR && types[i] != CardType.OTHER_COLOUR && types[i] != CardType.PLUS4 )
+                {
+                    CardType type = types[i];
+                    CardColour colour = colours[j];
+                    Card card = new Card( type, colour );
+                    game.getDeck().add( card );
+
+                    if( types[i] != CardType.ZERO )
+                    {
+                        Card extra = new Card( type, colour );
+                        game.getDeck().add( extra );
+                    }
+                }
+            }
+        }
+
+        for( int i = 0; i < 4; i++ )
+        {
+            game.getDeck().add( new Card( CardType.OTHER_COLOUR, CardColour.NO_COLOUR ) );
+            game.getDeck().add( new Card( CardType.PLUS4, CardColour.NO_COLOUR ) );
+        }
+    }
+
     public static boolean testMove( Game game, GameMove move )
     {
         if( move.isCardDrawn() )
