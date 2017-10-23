@@ -2,6 +2,11 @@ package be.kuleuven.cs.jli40d.core.logic;
 
 import be.kuleuven.cs.jli40d.core.model.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Created by Anton D.
  */
@@ -38,6 +43,22 @@ public class GameLogic
             game.getDeck().add( new Card( CardType.OTHER_COLOUR, CardColour.NO_COLOUR ) );
             game.getDeck().add( new Card( CardType.PLUS4, CardColour.NO_COLOUR ) );
         }
+
+        Collections.shuffle( game.getDeck() );
+    }
+
+    public static void distributeCards( Game game )
+    {
+        int index = 0;
+        Map<Player, List<Card>> cardsPerPlayer = game.getCardsPerPlayer();
+        for( int j = 0; j < game.getPlayers().size(); j++ )
+            cardsPerPlayer.put( game.getPlayers().get( j ), new ArrayList<>() );
+        for( int i = 0; i < 7; i++ )
+        {
+            for( int j = 0; j < game.getPlayers().size(); j++ )
+                cardsPerPlayer.get( game.getPlayers().get( j ) ).add( game.getDeck().get( index++ ) );
+        }
+        game.setDeck( game.getDeck().subList( 0, index ) );
     }
 
     public static boolean testMove( Game game, GameMove move )

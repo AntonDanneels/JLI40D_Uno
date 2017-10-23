@@ -159,6 +159,8 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
             }
         }
 
+        GameLogic.distributeCards( requestedGame );
+
         notifyAll();
 
         LOGGER.debug( "Returning joinGame method calls." );

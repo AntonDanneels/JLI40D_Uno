@@ -2,7 +2,9 @@ package be.kuleuven.cs.jli40d.core.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A Game is a collection of {@link Player} objects, specially created for
@@ -21,6 +23,7 @@ public class Game implements Serializable
     private List<Player>   players;
     private List<Card>     deck;
     private List<GameMove> moves;
+    private Map<Player,List<Card>> cardsPerPlayer;
 
     private int maximumNumberOfPlayers;
 
@@ -40,11 +43,18 @@ public class Game implements Serializable
         this.deck = new ArrayList<>();
         this.moves = new ArrayList<>();
 
+        this.cardsPerPlayer = new HashMap <>();
+
         this.topCard = null;
         this.ended = false;
         this.currentPlayer = 0;
         this.currentGameMoveID = 0;
         this.clockwise = true;
+    }
+
+    public Map <Player, List <Card>> getCardsPerPlayer()
+    {
+        return cardsPerPlayer;
     }
 
     public void setCurrentGameMoveID( int currentGameMoveID )

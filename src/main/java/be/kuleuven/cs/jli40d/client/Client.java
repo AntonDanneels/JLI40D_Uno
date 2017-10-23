@@ -4,8 +4,10 @@ import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.UserHandler;
 import be.kuleuven.cs.jli40d.core.logic.GameLogic;
+import be.kuleuven.cs.jli40d.core.model.Card;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
+import be.kuleuven.cs.jli40d.core.model.Player;
 import be.kuleuven.cs.jli40d.core.model.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -265,23 +267,16 @@ public class Client extends JFrame implements ActionListener
             repaint();
             e.printStackTrace();
         }
+        catch ( InvalidGameMoveException e )
+        {
+            e.printStackTrace();
+        }
     }
 
-    public void run() throws InvalidTokenException, RemoteException, GameNotFoundException
+    public void run() throws InvalidTokenException, RemoteException, GameNotFoundException, InvalidGameMoveException
     {
         while ( !game.isEnded() )
         {
-            GameMove move;
-            if ( gameHandler.myTurn(token, game.getGameID()) )
-            {
-                // Construct my GameMove & send it
-                move = new GameMove( game.getCurrentGameMoveID(), game.getPlayers().get( myID ), null, true );
-            }
-            else
-            {
-                move = gameHandler.getNextMove(token, game.getGameID(), game.getCurrentGameMoveID() );
-            }
-
             Graphics g = gameCanvas.getGraphics();
             g.clearRect( 0,0,getWidth(), getHeight() );
 
@@ -291,10 +286,31 @@ public class Client extends JFrame implements ActionListener
                 g.drawString( "Cards " + game.getPlayers().get( i ).getNrOfCards() , 60, 60 + 25 * i );
             }
 
-            // apply the game move to the game
-            GameLogic gameLogic = new GameLogic();
+            GameMove move;
+            if ( gameHandler.myTurn(token, game.getGameID()) )
+            {
+                g.drawString( "It is my turn", 250, 50 );
 
-            gameLogic.applyMove( game, move );
+                // This is temporary until we've decided how to keep track of a players card.
+                Player me;
+                for( int i = 0; i < game.getPlayers().size(); i++ )
+                {
+                    if( game.getPlayers().get( i ).getUsername().equals( usernameField.getText( ) ) )
+                        me = game.getPlayers().get( i );
+                }
+
+
+
+                // Construct my GameMove & send it
+                move = new GameMove( game.getCurrentGameMoveID(), game.getPlayers().get( myID ), null, true );
+                gameHandler.sendMove( token, game.getGameID(), move );
+            }
+            else
+            {
+                move = gameHandler.getNextMove(token, game.getGameID(), game.getCurrentGameMoveID() );
+            }
+
+            GameLogic.applyMove( game, move );
 
             game.setCurrentGameMoveID( game.getCurrentGameMoveID() + 1 );
         }
