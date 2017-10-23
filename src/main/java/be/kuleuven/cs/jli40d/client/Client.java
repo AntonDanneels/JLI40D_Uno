@@ -42,11 +42,13 @@ public class Client extends JFrame implements ActionListener
 
     private UserHandler userManager;
     private LobbyHandler lobbyHandler;
+    private GameHandler gameHandler;
 
-    private Client( UserHandler userManager, LobbyHandler lobbyHandler )
+    private Client( UserHandler userManager, LobbyHandler lobbyHandler, GameHandler gameHandler )
     {
         this.userManager = userManager;
         this.lobbyHandler = lobbyHandler;
+        this.gameHandler = gameHandler;
 
         game = new Game(0, 4);
 
@@ -267,8 +269,6 @@ public class Client extends JFrame implements ActionListener
 
     public void run() throws InvalidTokenException, RemoteException, GameNotFoundException
     {
-        GameHandler gameHandler = null;
-
         while ( !game.isEnded() )
         {
             GameMove move;
@@ -314,8 +314,9 @@ public class Client extends JFrame implements ActionListener
             myRegistry = LocateRegistry.getRegistry( host, port );
             final LobbyHandler lobbyHandler = ( LobbyHandler )myRegistry.lookup( LobbyHandler.class.getName() );
             final UserHandler userManager  = ( UserHandler )myRegistry.lookup( UserHandler.class.getName() );
+            final GameHandler gameHandler  = ( GameHandler )myRegistry.lookup( GameHandler.class.getName() );
 
-            Client client = new Client( userManager, lobbyHandler );
+            Client client = new Client( userManager, lobbyHandler, gameHandler );
         }
         catch ( Exception e )
         {

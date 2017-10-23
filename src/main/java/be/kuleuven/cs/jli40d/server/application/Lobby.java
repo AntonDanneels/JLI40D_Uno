@@ -2,6 +2,7 @@ package be.kuleuven.cs.jli40d.server.application;
 
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.UserHandler;
+import be.kuleuven.cs.jli40d.core.logic.GameLogic;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.Player;
 import be.kuleuven.cs.jli40d.core.model.exception.*;
@@ -83,6 +84,8 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
         userManager.findUserByToken( token );
 
         Game game = new Game( games.nextID(), numberOfPlayers );
+
+        GameLogic.generateDeck( game );
 
         games.add( game );
 

@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +19,7 @@ import java.util.List;
  * @author Pieter
  * @version 1.0
  */
-public class GameManager implements GameHandler, GameListHandler
+public class GameManager extends UnicastRemoteObject implements GameHandler, GameListHandler
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( GameManager.class );
 
@@ -26,7 +27,7 @@ public class GameManager implements GameHandler, GameListHandler
 
     private UserTokenHandler userManager;
 
-    public GameManager( UserTokenHandler userManager )
+    public GameManager( UserTokenHandler userManager ) throws RemoteException
     {
         this.games = new ArrayList<>();
 
