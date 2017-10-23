@@ -9,6 +9,7 @@ import be.kuleuven.cs.jli40d.core.model.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.RMISocketFactory;
 import java.rmi.server.UnicastRemoteObject;
@@ -25,7 +26,7 @@ import java.util.List;
  * @author Pieter
  * @version 1.0
  */
-public class Lobby extends UnicastRemoteObject implements LobbyHandler
+public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializable
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( Lobby.class );
 

@@ -292,18 +292,27 @@ public class Client extends JFrame implements ActionListener
                 g.drawString( "It is my turn", 250, 50 );
 
                 // This is temporary until we've decided how to keep track of a players card.
-                Player me;
+                Player me = null;
                 for( int i = 0; i < game.getPlayers().size(); i++ )
                 {
                     if( game.getPlayers().get( i ).getUsername().equals( usernameField.getText( ) ) )
                         me = game.getPlayers().get( i );
                 }
 
+                List<Card> cards = game.getCardsPerPlayer().get( me );
 
+                for( int i = 0; i < cards.size(); i++)
+                {
+                    Card c = cards.get( i );
+                    g.drawString( "" + c.getColour() + ":" + c.getType(), 250, 75 * i );
+                }
+
+                while ( true )
+                {}
 
                 // Construct my GameMove & send it
-                move = new GameMove( game.getCurrentGameMoveID(), game.getPlayers().get( myID ), null, true );
-                gameHandler.sendMove( token, game.getGameID(), move );
+                //move = new GameMove( game.getCurrentGameMoveID(), game.getPlayers().get( myID ), null, true );
+                //gameHandler.sendMove( token, game.getGameID(), move );
             }
             else
             {
