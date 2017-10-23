@@ -152,6 +152,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler
             catch ( InterruptedException e )
             {
                 LOGGER.error( "Thread interrupted. SAD. {}", e.getMessage() );
+                Thread.currentThread().interrupt();
             }
         }
 

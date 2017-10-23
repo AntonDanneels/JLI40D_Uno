@@ -76,6 +76,7 @@ public class GameManager implements GameHandler, GameListHandler
             catch ( InterruptedException e )
             {
                 LOGGER.error( "Thread interrupted while waiting for turn" );
+                Thread.currentThread().interrupt();
             }
         }
 
@@ -115,6 +116,7 @@ public class GameManager implements GameHandler, GameListHandler
             catch ( InterruptedException e )
             {
                 LOGGER.error( "Thread interrupted while waiting for next game move." );
+                Thread.currentThread().interrupt();
             }
         }
 

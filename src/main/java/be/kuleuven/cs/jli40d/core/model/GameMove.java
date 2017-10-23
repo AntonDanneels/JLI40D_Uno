@@ -1,9 +1,11 @@
 package be.kuleuven.cs.jli40d.core.model;
 
+import java.io.Serializable;
+
 /**
  * Created by Anton D.
  */
-public class GameMove
+public class GameMove implements Serializable
 {
     private int id;
     private Player player;
