@@ -230,28 +230,38 @@ public class Client extends JFrame implements ActionListener
 
     private void joinGame( int id )
     {
-        remove( loginPanel );
-        if( lobbyListPanel != null )
-            remove( lobbyListPanel );
-
-        gameCanvas = new Canvas();
-
-        add( gameCanvas );
-        revalidate();
-        repaint();
-
         try
         {
-            Graphics g = gameCanvas.getGraphics();
+            remove( loginPanel );
+            if( lobbyListPanel != null )
+                remove( lobbyListPanel );
 
+            gameCanvas = new Canvas();
+
+            add( gameCanvas );
+            revalidate();
+            repaint();
+
+            Graphics g = gameCanvas.getGraphics();
             g.drawString( "Joining.." , 50,50 );
 
             game = lobbyHandler.joinGame( token, id );
+
+            run();
         }
         catch ( RemoteException | InvalidTokenException | UnableToJoinGameException e )
         {
             e.printStackTrace();
             add( loginPanel );
+            revalidate();
+            repaint();
+        }
+        catch ( GameNotFoundException e )
+        {
+            add( lobbyListPanel );
+            revalidate();
+            repaint();
+            e.printStackTrace();
         }
     }
 
@@ -270,6 +280,15 @@ public class Client extends JFrame implements ActionListener
             else
             {
                 move = gameHandler.getNextMove(token, game.getGameID(), game.getCurrentGameMoveID() );
+            }
+
+            Graphics g = gameCanvas.getGraphics();
+            g.clearRect( 0,0,getWidth(), getHeight() );
+
+            for ( int i = 0; i < game.getPlayers().size(); i++ )
+            {
+                g.drawString( "Player " + game.getPlayers().get( i ).getUsername() , 50, 50 + 25 * i );
+                g.drawString( "Cards " + game.getPlayers().get( i ).getNrOfCards() , 60, 60 + 25 * i );
             }
 
             // apply the game move to the game
