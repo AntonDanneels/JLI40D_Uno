@@ -18,8 +18,9 @@ public class Game implements Serializable
 {
     private int gameID;
 
-    private List<Player> players;
-    private List<Card>   deck;
+    private List<Player>   players;
+    private List<Card>     deck;
+    private List<GameMove> moves;
 
     private int maximumNumberOfPlayers;
 
@@ -37,6 +38,7 @@ public class Game implements Serializable
 
         this.players = new ArrayList<>();
         this.deck = new ArrayList<>();
+        this.moves = new ArrayList<>();
 
         this.topCard = null;
         this.ended = false;
@@ -153,5 +155,20 @@ public class Game implements Serializable
     public String getCurrentPlayerUsername()
     {
         return players.get( currentPlayer ).getUsername();
+    }
+
+    public List<GameMove> getMoves()
+    {
+        return moves;
+    }
+
+    public void setMoves( List<GameMove> moves )
+    {
+        this.moves = moves;
+    }
+
+    public void addLatestMove( GameMove gameMove )
+    {
+        this.moves.add( gameMove );
     }
 }

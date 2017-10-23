@@ -71,8 +71,6 @@ public class GameManager implements GameHandler, GameListHandler
             }
         }
 
-        notifyAll();
-
         return true;
     }
 
@@ -109,6 +107,7 @@ public class GameManager implements GameHandler, GameListHandler
     public void sendMove( String token, int gameID, GameMove move ) throws InvalidTokenException, RemoteException
     {
 
+        notifyAll();
     }
 
     @Override
