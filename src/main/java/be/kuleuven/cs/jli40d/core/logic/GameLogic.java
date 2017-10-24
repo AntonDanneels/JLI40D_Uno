@@ -2,10 +2,7 @@ package be.kuleuven.cs.jli40d.core.logic;
 
 import be.kuleuven.cs.jli40d.core.model.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Anton D.
@@ -58,7 +55,15 @@ public class GameLogic
             for( int j = 0; j < game.getPlayers().size(); j++ )
                 cardsPerPlayer.get( game.getPlayers().get( j ) ).add( game.getDeck().get( index++ ) );
         }
-        game.setDeck( game.getDeck().subList( 0, index ) );
+        //game.setDeck( game.getDeck().subList( 0, index ) );
+        Iterator it = game.getDeck().iterator();
+        int removed = 0;
+        while ( removed < index )
+        {
+            it.next();
+            it.remove();
+            removed++;
+        }
     }
 
     public static boolean testMove( Game game, GameMove move )
