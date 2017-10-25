@@ -20,6 +20,11 @@ public class GameMove implements Serializable
         this.cardDrawn = cardDrawn;
     }
 
+    public void setPlayedCard( Card playedCard )
+    {
+        this.playedCard = playedCard;
+    }
+
     public Player getPlayer()
     {
         return player;

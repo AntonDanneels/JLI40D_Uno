@@ -78,7 +78,7 @@ public interface GameHandler extends Remote, Serializable
      * @throws GameNotFoundException    When the game is not found.
      * @throws InvalidGameMoveException When the move is invalid.
      */
-    void sendMove( String token, int gameID, GameMove move ) throws
+    GameMove sendMove( String token, int gameID, GameMove move ) throws
             InvalidTokenException,
             RemoteException,
             GameNotFoundException,

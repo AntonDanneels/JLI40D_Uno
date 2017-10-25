@@ -129,12 +129,19 @@ public class GameLogic
     {
         if ( move.isCardDrawn() )
         {
-
+            Card c = game.getDeck().remove( 0 );
+            move.setPlayedCard( c );
+            for( Player p : game.getCardsPerPlayer().keySet() )
+            {
+                if( p.getUsername().equals( move.getPlayer().getUsername() ) )
+                    game.getCardsPerPlayer().get( p ).add( c );
+            }
         }
         else
         {
             Card playedCard = move.getPlayedCard();
             game.getDeck().add( game.getTopCard() );
+            Collections.shuffle( game.getDeck() );
             game.setTopCard( playedCard );
 
             // Note: game.getCardsPerPlayer().get( move.getPlayer() ) does not works bc of

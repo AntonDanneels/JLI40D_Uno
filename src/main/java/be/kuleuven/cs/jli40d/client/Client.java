@@ -279,12 +279,18 @@ public class Client extends JFrame implements ActionListener
 
     private void setCard(int index, Player player, List<Card> cards )
     {
-        GameMove move = new GameMove( game.getCurrentGameMoveID(), player, cards.get( index ), false );
+        GameMove move;
+        if( index < 0 )
+            move = new GameMove( game.getCurrentGameMoveID(), player, null, true );
+        else
+            move = new GameMove( game.getCurrentGameMoveID(), player, cards.get( index ), false );
         if( GameLogic.testMove(game, move ) )
         {
             try
             {
-                gameHandler.sendMove( token, game.getGameID(), move );
+                GameMove result = gameHandler.sendMove( token, game.getGameID(), move );
+                if( index == -1 )
+                    game.getCardsPerPlayer().get( player ).add( result.getPlayedCard() );
                 GameLogic.applyMove( game, move );
                 game.setCurrentGameMoveID( game.getCurrentGameMoveID() + 1 );
                 run();
@@ -335,6 +341,11 @@ public class Client extends JFrame implements ActionListener
 
                 gamePanel.add( button );
             }
+
+            JButton drawCardButton = new JButton( "Draw card" );
+            drawCardButton.addActionListener( e -> { setCard( -1, meP, cards );} );
+
+            gamePanel.add( drawCardButton );
 
             Card topCard = game.getTopCard();
             gamePanel.add( new JLabel( "TopCard: " + topCard.getColour() + ":" + topCard.getType() ) );
