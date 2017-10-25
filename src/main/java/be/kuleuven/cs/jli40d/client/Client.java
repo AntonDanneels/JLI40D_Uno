@@ -285,6 +285,7 @@ public class Client extends JFrame implements ActionListener
             try
             {
                 gameHandler.sendMove( token, game.getGameID(), move );
+                GameLogic.applyMove( game, move );
                 game.setCurrentGameMoveID( game.getCurrentGameMoveID() + 1 );
                 run();
             }
@@ -312,6 +313,7 @@ public class Client extends JFrame implements ActionListener
         GameMove move;
         if ( gameHandler.myTurn( token, game.getGameID() ) )
         {
+            gamePanel.removeAll();
             // This is temporary until we've decided how to keep track of a players card.
             Player me = null;
             for ( int i = 0; i < game.getPlayers().size(); i++ )

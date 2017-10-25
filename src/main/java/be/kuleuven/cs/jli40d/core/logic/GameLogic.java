@@ -53,9 +53,9 @@ public class GameLogic
     {
         int index = 0;
 
-        Map<Player, List<Card>> cardsPerPlayer = game.getCardsPerPlayer();
+        Map <Player, List <Card>> cardsPerPlayer = game.getCardsPerPlayer();
         for ( int j = 0; j < game.getPlayers().size(); j++ )
-            cardsPerPlayer.put( game.getPlayers().get( j ), new ArrayList<>() );
+            cardsPerPlayer.put( game.getPlayers().get( j ), new ArrayList <>() );
         for ( int i = 0; i < 7; i++ )
         {
             for ( Player player : game.getPlayers() )
@@ -87,7 +87,7 @@ public class GameLogic
             game.setTopCard( game.getDeck().get( 0 ) );
             game.getDeck().remove( 0 );
 
-            if( game.getTopCard().getColour() == CardColour.NO_COLOUR )
+            if ( game.getTopCard().getColour() == CardColour.NO_COLOUR )
             {
                 game.getDeck().add( game.getTopCard() );
                 game.setTopCard( null );
@@ -113,7 +113,7 @@ public class GameLogic
         if ( currentCard.getColour() == playedCard.getColour() || currentCard.getType() == playedCard.getType() )
             return true;
 
-        return true;
+        return false;
     }
 
     /**
@@ -137,7 +137,21 @@ public class GameLogic
             game.getDeck().add( game.getTopCard() );
             game.setTopCard( playedCard );
 
-            game.getCardsPerPlayer().get( move.getPlayer() ).remove( playedCard );
+            // Note: game.getCardsPerPlayer().get( move.getPlayer() ) does not works bc of
+            // a serialization issue. Isn't RMI the most wonderful technology in existence?
+            for( Player p : game.getCardsPerPlayer().keySet() )
+            {
+                if( p.getUsername().equals( move.getPlayer().getUsername() ) )
+                {
+                    Iterator<Card> it = game.getCardsPerPlayer().get( p ).iterator();
+                    while ( it.hasNext() )
+                    {
+                        Card c = it.next();
+                        if( c.getColour() == move.getPlayedCard().getColour() && c.getType() == move.getPlayedCard().getType() )
+                            it.remove();
+                    }
+                }
+            }
 
             if ( playedCard.getType() == CardType.REVERSE )
                 game.setClockwise( !game.isClockwise() );
