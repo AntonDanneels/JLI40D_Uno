@@ -80,7 +80,7 @@ public class GameLogic
      */
     public static void putInitialCardInTheMiddle( Game game )
     {
-        if (game.getTopCard() != null)
+        if (game.getTopCard() == null)
         {
             game.setTopCard( game.getDeck().get( 0 ) );
             game.getDeck().remove( 0 );

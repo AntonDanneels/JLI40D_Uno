@@ -37,14 +37,14 @@ public class Client extends JFrame implements ActionListener
     private JPanel lobbyListPanel;
     private Canvas gameCanvas;
 
-    private JTextField usernameField;
+    private JTextField     usernameField;
     private JPasswordField passwordField;
-    private JButton login;
-    private JButton register;
+    private JButton        login;
+    private JButton        register;
 
-    private UserHandler userManager;
+    private UserHandler  userManager;
     private LobbyHandler lobbyHandler;
-    private GameHandler gameHandler;
+    private GameHandler  gameHandler;
 
     private Client( UserHandler userManager, LobbyHandler lobbyHandler, GameHandler gameHandler )
     {
@@ -52,7 +52,7 @@ public class Client extends JFrame implements ActionListener
         this.lobbyHandler = lobbyHandler;
         this.gameHandler = gameHandler;
 
-        game = new Game(0, 4);
+        game = new Game( 0, 4 );
 
         setTitle( "Uno" );
         setSize( 900, 600 );
@@ -84,7 +84,7 @@ public class Client extends JFrame implements ActionListener
     {
         try
         {
-            if( e.getSource().equals( register ) )
+            if ( e.getSource().equals( register ) )
                 token = userManager.register( "test@test", usernameField.getText(), new String( passwordField.getPassword() ) );
             else
                 token = userManager.login( usernameField.getText(), new String( passwordField.getPassword() ) );
@@ -112,7 +112,7 @@ public class Client extends JFrame implements ActionListener
     private void updateLobbyList() throws RemoteException, InvalidTokenException
     {
         remove( loginPanel );
-        if( lobbyListPanel != null )
+        if ( lobbyListPanel != null )
             remove( lobbyListPanel );
 
         lobbyListPanel = new JPanel();
@@ -121,9 +121,9 @@ public class Client extends JFrame implements ActionListener
 
         lobbyListPanel.setLayout( new BorderLayout() );
 
-        JPanel buttonPanel = new JPanel();
-        JButton refresh = new JButton( "Refresh" );
-        JButton newGame = new JButton( "New game" );
+        JPanel  buttonPanel = new JPanel();
+        JButton refresh     = new JButton( "Refresh" );
+        JButton newGame     = new JButton( "New game" );
 
         refresh.addActionListener( new ActionListener()
         {
@@ -151,22 +151,22 @@ public class Client extends JFrame implements ActionListener
         {
             public void actionPerformed( ActionEvent e )
             {
-                JTextField gameNameField = new JTextField();
+                JTextField gameNameField    = new JTextField();
                 JTextField nrOfPlayersField = new JTextField();
                 Object[] message = {
                         "Game name:", gameNameField,
                         "Nr of players:", nrOfPlayersField,
                 };
-                int option = JOptionPane.showConfirmDialog(frame, message, "Enter all your values", JOptionPane.OK_CANCEL_OPTION);
+                int option = JOptionPane.showConfirmDialog( frame, message, "Enter all your values", JOptionPane.OK_CANCEL_OPTION );
 
-                if (option == JOptionPane.OK_OPTION)
+                if ( option == JOptionPane.OK_OPTION )
                 {
                     String gameName = gameNameField.getText();
-                    String value2 = nrOfPlayersField.getText();
+                    String value2   = nrOfPlayersField.getText();
                     try
                     {
                         int nrOfPlayers = Integer.valueOf( value2 );
-                        int id = lobbyHandler.makeGame( token, gameName, nrOfPlayers  );
+                        int id          = lobbyHandler.makeGame( token, gameName, nrOfPlayers );
                         updateLobbyList();
                     }
                     catch ( RemoteException e1 )
@@ -190,16 +190,16 @@ public class Client extends JFrame implements ActionListener
         lobbyListPanel.add( buttonPanel, BorderLayout.NORTH );
 
         JPanel listPanel = new JPanel();
-        listPanel.setLayout( new BoxLayout( listPanel, BoxLayout.PAGE_AXIS) );
+        listPanel.setLayout( new BoxLayout( listPanel, BoxLayout.PAGE_AXIS ) );
 
-        for( int i = 0; i < games.size(); i++ )
+        for ( int i = 0; i < games.size(); i++ )
         {
-            Game game = games.get( i );
+            Game   game  = games.get( i );
             JPanel panel = new JPanel();
             panel.add( new JLabel( "Game " + game.getGameID() ) );
-            panel.add( new JLabel( "Players: " + game.getNumberOfJoinedPlayers()  ) );
+            panel.add( new JLabel( "Players: " + game.getNumberOfJoinedPlayers() ) );
 
-            JButton join = new JButton( "Join" );
+            JButton join     = new JButton( "Join" );
             JButton spectate = new JButton( "View" );
 
             join.addActionListener( new ActionListener()
@@ -237,7 +237,7 @@ public class Client extends JFrame implements ActionListener
         try
         {
             remove( loginPanel );
-            if( lobbyListPanel != null )
+            if ( lobbyListPanel != null )
                 remove( lobbyListPanel );
 
             gameCanvas = new Canvas();
@@ -247,7 +247,7 @@ public class Client extends JFrame implements ActionListener
             repaint();
 
             Graphics g = gameCanvas.getGraphics();
-            g.drawString( "Joining.." , 50,50 );
+            g.drawString( "Joining..", 50, 50 );
 
             game = lobbyHandler.joinGame( token, id );
 
@@ -278,37 +278,41 @@ public class Client extends JFrame implements ActionListener
         while ( !game.isEnded() )
         {
             Graphics g = gameCanvas.getGraphics();
-            g.clearRect( 0,0,getWidth(), getHeight() );
+            g.clearRect( 0, 0, getWidth(), getHeight() );
+
+            Card topCard = game.getTopCard();
+            g.drawString( "" + topCard.getColour() + ":" + topCard.getType(), 450, 50 );
 
             for ( int i = 0; i < game.getPlayers().size(); i++ )
             {
-                g.drawString( "Player " + game.getPlayers().get( i ).getUsername() , 50, 50 + 25 * i );
-                g.drawString( "Cards " + game.getPlayers().get( i ).getNrOfCards() , 60, 60 + 25 * i );
+                g.drawString( "Player " + game.getPlayers().get( i ).getUsername(), 50, 50 + 25 * i );
+                g.drawString( "Cards " + game.getPlayers().get( i ).getNrOfCards(), 60, 60 + 25 * i );
             }
 
             GameMove move;
-            if ( gameHandler.myTurn(token, game.getGameID()) )
+            if ( gameHandler.myTurn( token, game.getGameID() ) )
             {
                 g.drawString( "It is my turn", 250, 50 );
 
                 // This is temporary until we've decided how to keep track of a players card.
                 Player me = null;
-                for( int i = 0; i < game.getPlayers().size(); i++ )
+                for ( int i = 0; i < game.getPlayers().size(); i++ )
                 {
-                    if( game.getPlayers().get( i ).getUsername().equals( usernameField.getText( ) ) )
+                    if ( game.getPlayers().get( i ).getUsername().equals( usernameField.getText() ) )
                         me = game.getPlayers().get( i );
                 }
 
                 List<Card> cards = game.getCardsPerPlayer().get( me );
 
-                for( int i = 0; i < cards.size(); i++)
+                for ( int i = 0; i < cards.size(); i++ )
                 {
                     Card c = cards.get( i );
-                    g.drawString( "" + c.getColour() + ":" + c.getType(), 250, 75 * (i + 1) );
+                    g.drawString( "" + c.getColour() + ":" + c.getType(), 250, 75 * ( i + 1 ) );
                 }
 
                 while ( true )
-                {}
+                {
+                }
 
                 // Construct my GameMove & send it
                 //move = new GameMove( game.getCurrentGameMoveID(), game.getPlayers().get( myID ), null, true );
@@ -316,7 +320,7 @@ public class Client extends JFrame implements ActionListener
             }
             else
             {
-                move = gameHandler.getNextMove(token, game.getGameID(), game.getCurrentGameMoveID() );
+                move = gameHandler.getNextMove( token, game.getGameID(), game.getCurrentGameMoveID() );
             }
 
             GameLogic.applyMove( game, move );
@@ -328,7 +332,7 @@ public class Client extends JFrame implements ActionListener
     public static void main( String args[] )
     {
         String host = "localhost";
-        int port = 1099;
+        int    port = 1099;
 
         Registry myRegistry;
 
@@ -338,8 +342,8 @@ public class Client extends JFrame implements ActionListener
 
             myRegistry = LocateRegistry.getRegistry( host, port );
             final LobbyHandler lobbyHandler = ( LobbyHandler )myRegistry.lookup( LobbyHandler.class.getName() );
-            final UserHandler userManager  = ( UserHandler )myRegistry.lookup( UserHandler.class.getName() );
-            final GameHandler gameHandler  = ( GameHandler )myRegistry.lookup( GameHandler.class.getName() );
+            final UserHandler  userManager  = ( UserHandler )myRegistry.lookup( UserHandler.class.getName() );
+            final GameHandler  gameHandler  = ( GameHandler )myRegistry.lookup( GameHandler.class.getName() );
 
             Client client = new Client( userManager, lobbyHandler, gameHandler );
         }
