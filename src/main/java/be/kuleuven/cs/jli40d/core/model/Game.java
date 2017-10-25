@@ -20,10 +20,10 @@ public class Game implements Serializable
 {
     private int gameID;
 
-    private List<Player>   players;
-    private List<Card>     deck;
-    private List<GameMove> moves;
-    private Map<Player,List<Card>> cardsPerPlayer;
+    private List<Player>            players;
+    private List<Card>              deck;
+    private List<GameMove>          moves;
+    private Map<Player, List<Card>> cardsPerPlayer;
 
     private int maximumNumberOfPlayers;
 
@@ -43,7 +43,7 @@ public class Game implements Serializable
         this.deck = new ArrayList<>();
         this.moves = new ArrayList<>();
 
-        this.cardsPerPlayer = new HashMap <>();
+        this.cardsPerPlayer = new HashMap<>();
 
         this.topCard = null;
         this.ended = false;
@@ -52,7 +52,7 @@ public class Game implements Serializable
         this.clockwise = true;
     }
 
-    public Map <Player, List <Card>> getCardsPerPlayer()
+    public Map<Player, List<Card>> getCardsPerPlayer()
     {
         return cardsPerPlayer;
     }
@@ -180,5 +180,24 @@ public class Game implements Serializable
     public void addLatestMove( GameMove gameMove )
     {
         this.moves.add( gameMove );
+    }
+
+    /**
+     * Util function that returns true if a user, based on his username, has joined the game.
+     *
+     * @param username The username to check.
+     * @return True if the player is in the game, false otherwise.
+     */
+    public boolean hasPlayer( String username )
+    {
+        for ( Player player : players )
+        {
+            if ( player.getUsername().equals( username ) )
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -104,6 +104,9 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
      * <p>
      * This method is blocking. This means that if no exception is thrown, the method will return a {@link Game}
      * object only when all players have joined.
+     * <p>
+     * If the player tries to join a {@link Game} where he already joined, this function will not add a new player
+     * and will not throw a {@link UnableToJoinGameException} exception either.
      *
      * @param token  Token received by the {@link UserHandler}.
      * @param gameID The id of the game to join.
@@ -127,30 +130,31 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
         catch ( GameNotFoundException e )
         {
             LOGGER.info( "User {} tried to join a non-existing game with id = {}.", username, gameID );
-
             throw new UnableToJoinGameException( "Game not found" );
         }
 
-        //check if the game is not full or has ended
-        if ( requestedGame.getNumberOfJoinedPlayers() >= requestedGame.getMaximumNumberOfPlayers() )
+        if ( requestedGame.hasPlayer( username ) )
+        {
+            LOGGER.debug( "Player {} tried to re-join a game.", username );
+        }
+        else if ( requestedGame.getNumberOfJoinedPlayers() >= requestedGame.getMaximumNumberOfPlayers() )
         {
             LOGGER.info( "{} tried to join a full game ( {} ).", username, gameID );
-
             throw new UnableToJoinGameException( "Game full." );
         }
         else if ( requestedGame.isEnded() )
         {
             LOGGER.info( "{} tried to join a game ( {} ) that has ended.", username, gameID );
-
             throw new UnableToJoinGameException( "Game has ended." );
         }
+        else
+        {
+            //create a new player with the next id of the list
+            Player player = new Player( requestedGame.getNumberOfJoinedPlayers(), username );
+            requestedGame.getPlayers().add( player );
 
-        //create a new player with the next id of the list
-        Player player = new Player( requestedGame.getNumberOfJoinedPlayers(), username );
-
-        requestedGame.getPlayers().add( player );
-
-        LOGGER.info( "Player {} added to game {}.", username, gameID );
+            LOGGER.info( "Player {} added to game {}.", username, gameID );
+        }
 
         //blocking until all players joined
         while ( requestedGame.getNumberOfJoinedPlayers() < requestedGame.getMaximumNumberOfPlayers() )
@@ -166,7 +170,11 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
             }
         }
 
-        GameLogic.distributeCards( requestedGame );
+        //Only distribute cards when no moves have been played.
+        if ( requestedGame.getMoves().size() == 0 )
+        {
+            GameLogic.distributeCards( requestedGame );
+        }
 
         notifyAll();
 
