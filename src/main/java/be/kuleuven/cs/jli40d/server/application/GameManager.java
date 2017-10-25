@@ -138,7 +138,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
         Game   game     = getGameByID( gameID );
         String username = userManager.findUserByToken( token );
 
-        if ( game.getCurrentPlayerUsername().equals( username )
+        if ( !game.getCurrentPlayerUsername().equals( username )
                 || GameLogic.testMove( game, move ) )
         {
             throw new InvalidGameMoveException( "Either not your turn or invalid move" );
