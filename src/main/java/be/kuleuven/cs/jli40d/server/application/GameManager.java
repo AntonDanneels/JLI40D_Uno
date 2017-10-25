@@ -95,7 +95,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
         Game   game     = getGameByID( gameID );
         userManager.findUserByToken( token ); //TODO check if authenticated for game
 
-        while ( game.getMoves().size() < nextGameMoveID )
+        while ( game.getMoves().size() <= nextGameMoveID )
         {
             try
             {
