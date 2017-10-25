@@ -78,6 +78,8 @@ public class Client extends JFrame implements ActionListener
 
         add( loginPanel );
         setVisible( true );
+
+        this.addMouseListener( new MouseEventListener() );
     }
 
     public void actionPerformed( ActionEvent e )
