@@ -86,6 +86,14 @@ public class GameLogic
         {
             game.setTopCard( game.getDeck().get( 0 ) );
             game.getDeck().remove( 0 );
+
+            if( game.getTopCard().getColour() == CardColour.NO_COLOUR )
+            {
+                game.getDeck().add( game.getTopCard() );
+                game.setTopCard( null );
+                putInitialCardInTheMiddle( game );
+            }
+
         }
     }
 
@@ -126,7 +134,10 @@ public class GameLogic
         else
         {
             Card playedCard = move.getPlayedCard();
+            game.getDeck().add( game.getTopCard() );
             game.setTopCard( playedCard );
+
+            game.getCardsPerPlayer().get( move.getPlayer() ).remove( playedCard );
 
             if ( playedCard.getType() == CardType.REVERSE )
                 game.setClockwise( !game.isClockwise() );
