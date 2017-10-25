@@ -129,7 +129,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
      * @throws InvalidGameMoveException When the move is invalid.
      */
     @Override
-    public void sendMove( String token, int gameID, GameMove move ) throws
+    public synchronized void sendMove( String token, int gameID, GameMove move ) throws
             InvalidTokenException,
             RemoteException,
             GameNotFoundException,
