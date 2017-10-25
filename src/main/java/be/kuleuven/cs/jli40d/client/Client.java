@@ -304,7 +304,7 @@ public class Client extends JFrame implements ActionListener
                 for( int i = 0; i < cards.size(); i++)
                 {
                     Card c = cards.get( i );
-                    g.drawString( "" + c.getColour() + ":" + c.getType(), 250, 75 * i );
+                    g.drawString( "" + c.getColour() + ":" + c.getType(), 250, 75 * (i + 1) );
                 }
 
                 while ( true )

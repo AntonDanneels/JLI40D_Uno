@@ -52,8 +52,9 @@ public class GameLogic
             cardsPerPlayer.put( game.getPlayers().get( j ), new ArrayList<>() );
         for( int i = 0; i < 7; i++ )
         {
-            for( int j = 0; j < game.getPlayers().size(); j++ )
-                cardsPerPlayer.get( game.getPlayers().get( j ) ).add( game.getDeck().get( index++ ) );
+            System.out.println(i);
+            for( Player player : game.getPlayers())
+                cardsPerPlayer.get( player ).add( game.getDeck().get( index++ ) );
         }
         //game.setDeck( game.getDeck().subList( 0, index ) );
         Iterator it = game.getDeck().iterator();
