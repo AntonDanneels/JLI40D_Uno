@@ -55,7 +55,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
 
 
         //If the game has ended or all players have joined it
-        return game.isEnded() || game.getNumberOfJoinedPlayers() == game.getMaximumNumberOfPlayers();
+        return game.isStarted();
 
     }
 
@@ -65,10 +65,11 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
             RemoteException,
             GameNotFoundException
     {
-        Game   game     = getGameByID( gameID );
+        Game game = getGameByID( gameID );
+
         String username = userManager.findUserByToken( token );
 
-        return  game.getCurrentPlayerUsername().equals( username );
+        return game.getCurrentPlayerUsername().equals( username );
     }
 
     /**
@@ -92,7 +93,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
             RemoteException,
             GameNotFoundException
     {
-        Game   game     = getGameByID( gameID );
+        Game game = getGameByID( gameID );
         userManager.findUserByToken( token ); //TODO check if authenticated for game
 
         while ( game.getMoves().size() <= nextGameMoveID )

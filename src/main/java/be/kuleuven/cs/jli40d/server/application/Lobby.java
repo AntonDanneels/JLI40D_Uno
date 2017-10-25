@@ -171,8 +171,10 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
         }
 
         //Only distribute cards when no moves have been played.
-        if ( requestedGame.getMoves().size() == 0 )
+        if ( !requestedGame.isStarted() )
         {
+            LOGGER.debug( "Game not yet started, distributing cards." );
+
             GameLogic.distributeCards( requestedGame );
         }
 
