@@ -79,7 +79,9 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
      * @throws InvalidTokenException       When the token is invalid (expired or not found).
      * @throws UnableToCreateGameException When the game cannot be created for some reason (like exceeded limits).
      */
-    public int makeGame( String token, String gameName, int numberOfPlayers ) throws InvalidTokenException, UnableToCreateGameException
+    public int makeGame( String token, String gameName, int numberOfPlayers ) throws
+            InvalidTokenException,
+            UnableToCreateGameException
     {
         //initial check for token
         userManager.findUserByToken( token );
@@ -87,6 +89,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
         Game game = new Game( games.nextID(), numberOfPlayers );
 
         GameLogic.generateDeck( game );
+        GameLogic.putInitialCardInTheMiddle( game );
 
         games.add( game );
 
@@ -108,7 +111,9 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
      * @throws UnableToJoinGameException When the user cannot join the game for various reasons.
      * @throws InvalidTokenException     When the token is invalid (expired or not found).
      */
-    public synchronized Game joinGame( String token, int gameID ) throws UnableToJoinGameException, InvalidTokenException
+    public synchronized Game joinGame( String token, int gameID ) throws
+            UnableToJoinGameException,
+            InvalidTokenException
     {
         //initial check for token and find username
         String username = userManager.findUserByToken( token );
@@ -148,7 +153,8 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
         LOGGER.info( "Player {} added to game {}.", username, gameID );
 
         //blocking until all players joined
-        while ( requestedGame.getNumberOfJoinedPlayers() < requestedGame.getMaximumNumberOfPlayers() ) {
+        while ( requestedGame.getNumberOfJoinedPlayers() < requestedGame.getMaximumNumberOfPlayers() )
+        {
             try
             {
                 wait();
