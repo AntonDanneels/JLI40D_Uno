@@ -27,6 +27,7 @@ public class Game implements Serializable
 
     private int maximumNumberOfPlayers;
 
+    private boolean started;
     private boolean ended;
     private int     currentPlayer;
     private Card    topCard;
@@ -46,6 +47,7 @@ public class Game implements Serializable
         this.cardsPerPlayer = new HashMap<>();
 
         this.topCard = null;
+        this.started = false;
         this.ended = false;
         this.currentPlayer = 0;
         this.currentGameMoveID = 0;
@@ -110,6 +112,17 @@ public class Game implements Serializable
     public List<Card> getDeck()
     {
         return deck;
+    }
+
+    public boolean isStarted()
+    {
+        return started;
+    }
+
+    public void setStarted( boolean started )
+    {
+
+        this.started = started;
     }
 
     public boolean isEnded()

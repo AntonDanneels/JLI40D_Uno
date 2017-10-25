@@ -55,7 +55,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
 
 
         //If the game has ended or all players have joined it
-        return game.isEnded() || game.getNumberOfJoinedPlayers() == game.getMaximumNumberOfPlayers();
+        return game.isStarted();
 
     }
 
