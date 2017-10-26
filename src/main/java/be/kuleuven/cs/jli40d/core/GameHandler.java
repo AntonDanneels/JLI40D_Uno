@@ -72,13 +72,12 @@ public interface GameHandler extends Remote, Serializable
      *
      * @param token  The token given to the user for authentication.
      * @param gameID The id of the game.
-     * @param move   The {@link GameMove}.
      * @throws InvalidTokenException
      * @throws RemoteException
      * @throws GameNotFoundException    When the game is not found.
      * @throws InvalidGameMoveException When the move is invalid.
      */
-    GameMove sendMove( String token, int gameID, GameMove move ) throws
+    void sendMove( String token, int gameID, GameMove move ) throws
             InvalidTokenException,
             RemoteException,
             GameNotFoundException,
