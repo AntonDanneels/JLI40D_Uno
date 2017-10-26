@@ -275,21 +275,21 @@ public class Client extends JFrame implements ActionListener
         }
     }
 
-    private void setCard(int index, Player player, List<Card> cards )
+    private void setCard( int index, Player player, List<Card> cards )
     {
         GameMove move;
-        if( index < 0 )
+        if ( index < 0 )
             move = new GameMove( game.getCurrentGameMoveID(), player, null, true );
         else
             move = new GameMove( game.getCurrentGameMoveID(), player, cards.get( index ), false );
 
-        if( GameLogic.testMove(game, move ) )
+        if ( GameLogic.testMove( game, move ) )
         {
             try
             {
                 GameMove result = gameHandler.sendMove( token, game.getGameID(), move );
-                GameLogic.applyMove( game, move );
-                game.setCurrentGameMoveID( game.getCurrentGameMoveID() + 1 );
+                //GameLogic.applyMove( game, move );
+                //game.setCurrentGameMoveID( game.getCurrentGameMoveID() + 1 );
                 run();
             }
             catch ( InvalidTokenException e )
@@ -325,22 +325,28 @@ public class Client extends JFrame implements ActionListener
                     me = game.getPlayers().get( i );
             }
 
-            final Player meP = me;
+            final Player     meP   = me;
             final List<Card> cards = game.getCardsPerPlayer().get( me );
 
             for ( int i = 0; i < cards.size(); i++ )
             {
-                Card c = cards.get( i );
+                Card      c     = cards.get( i );
                 final int index = i;
                 //g.drawString( "" + c.getColour() + ":" + c.getType(), 250, 75 * ( i + 1 ) );
                 JButton button = new JButton( c.getColour() + ":" + c.getType() );
-                button.addActionListener( e -> { setCard(index, meP, cards ); } );
+                button.addActionListener( e ->
+                {
+                    setCard( index, meP, cards );
+                } );
 
                 gamePanel.add( button );
             }
 
             JButton drawCardButton = new JButton( "Draw card" );
-            drawCardButton.addActionListener( e -> { setCard( -1, meP, cards );} );
+            drawCardButton.addActionListener( e ->
+            {
+                setCard( -1, meP, cards );
+            } );
 
             gamePanel.add( drawCardButton );
 
@@ -362,6 +368,7 @@ public class Client extends JFrame implements ActionListener
         }
         else
         {
+
             LOGGER.debug( "Waiting for move {}", game.getCurrentGameMoveID() );
 
             gamePanel.removeAll();
@@ -381,13 +388,14 @@ public class Client extends JFrame implements ActionListener
             }
 
             g.drawString( "Waiting for the other players", 250, 150 );
-
-            move = gameHandler.getNextMove( token, game.getGameID(), game.getCurrentGameMoveID() );
-            GameLogic.applyMove( game, move );
-            game.setCurrentGameMoveID( game.getCurrentGameMoveID() + 1 );
-
-            run();
         }
+
+        move = gameHandler.getNextMove( token, game.getGameID(), game.getCurrentGameMoveID() );
+        GameLogic.applyMove( game, move );
+        game.setCurrentGameMoveID( game.getCurrentGameMoveID() + 1 );
+
+        run();
+
     }
 
     public static void main( String args[] )
