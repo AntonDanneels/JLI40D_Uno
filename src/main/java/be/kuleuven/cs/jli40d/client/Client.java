@@ -297,7 +297,6 @@ public class Client extends JFrame implements ActionListener
                 gameHandler.sendMove( token, game.getGameID(), move );
                 //GameLogic.applyMove( game, move );
                 //game.setCurrentGameMoveID( game.getCurrentGameMoveID() + 1 );
-                run();
             }
             catch ( InvalidTokenException e )
             {
