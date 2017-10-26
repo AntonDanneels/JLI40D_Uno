@@ -30,7 +30,7 @@ public class Client extends JFrame implements ActionListener
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( Client.class );
 
-    private Queue<GameMove> unhandlesGamemMves;
+    private Queue<GameMove> unhandlesGamemMoves;
 
     private Game game;
     private int myID = 0;
@@ -56,7 +56,7 @@ public class Client extends JFrame implements ActionListener
         this.lobbyHandler = lobbyHandler;
         this.gameHandler = gameHandler;
 
-        unhandlesGamemMves = new LinkedList<>();
+        unhandlesGamemMoves = new LinkedList<>();
 
         setTitle( "Uno" );
         setSize( 900, 600 );
@@ -82,8 +82,6 @@ public class Client extends JFrame implements ActionListener
 
         add( loginPanel );
         setVisible( true );
-
-        this.addMouseListener( new MouseEventListener() );
     }
 
     public void actionPerformed( ActionEvent e )
@@ -259,7 +257,7 @@ public class Client extends JFrame implements ActionListener
 
             //start ListenerService
 
-            ListenerService listenerService = new ListenerService( gameHandler, token, id, unhandlesGamemMves);
+            ListenerService listenerService = new ListenerService( this, gameHandler, token, game, unhandlesGamemMoves );
             new Thread( listenerService ).start();
 
             run();
@@ -296,7 +294,7 @@ public class Client extends JFrame implements ActionListener
         {
             try
             {
-                GameMove result = gameHandler.sendMove( token, game.getGameID(), move );
+                gameHandler.sendMove( token, game.getGameID(), move );
                 //GameLogic.applyMove( game, move );
                 //game.setCurrentGameMoveID( game.getCurrentGameMoveID() + 1 );
                 run();
@@ -322,10 +320,28 @@ public class Client extends JFrame implements ActionListener
 
     public void run() throws InvalidTokenException, RemoteException, GameNotFoundException, InvalidGameMoveException
     {
-        GameMove move;
+        while ( !unhandlesGamemMoves.isEmpty())
+        {
+
+            GameMove move = unhandlesGamemMoves.poll();
+
+            GameLogic.applyMove( game, move );
+            game.setCurrentGameMoveID( game.getCurrentGameMoveID() + 1 );
+        }
+
         if ( gameHandler.myTurn( token, game.getGameID() ) )
         {
+
             gamePanel.removeAll();
+            gamePanel.revalidate();
+            gamePanel.repaint();
+
+            Graphics g = gamePanel.getGraphics();
+            g.clearRect( 0, 0, getWidth(), getHeight() );
+
+            gamePanel.repaint();
+
+
             // This is temporary until we've decided how to keep track of a players card.
             Player me = null;
             for ( int i = 0; i < game.getPlayers().size(); i++ )
@@ -398,12 +414,6 @@ public class Client extends JFrame implements ActionListener
 
             g.drawString( "Waiting for the other players", 250, 150 );
         }
-
-        GameLogic.applyMove( game, move );
-        game.setCurrentGameMoveID( game.getCurrentGameMoveID() + 1 );
-
-        run();
-
     }
 
     public static void main( String args[] )

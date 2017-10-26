@@ -1,8 +1,10 @@
 package be.kuleuven.cs.jli40d.client;
 
 import be.kuleuven.cs.jli40d.core.GameHandler;
+import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
+import be.kuleuven.cs.jli40d.core.model.exception.InvalidGameMoveException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,21 +25,21 @@ public class ListenerService implements Runnable
     private GameHandler gameHandler;
 
     private String token;
-    private int    gameID;
-    private int    nextGameMoveID;
+    private Game    game;
 
     private boolean active;
 
     private Queue<GameMove> unhandledGameMoves;
+    private Client client;
 
-    public ListenerService( GameHandler gameHandler, String token, int gameID, Queue<GameMove> unhandledGameMoves )
+    public ListenerService( Client client, GameHandler gameHandler, String token, Game game, Queue<GameMove> unhandledGameMoves )
     {
+        this.client = client;
         this.gameHandler = gameHandler;
         this.token = token;
-        this.gameID = gameID;
+        this.game = game;
         this.unhandledGameMoves = unhandledGameMoves;
 
-        this.nextGameMoveID = 0; //TODO make dynamic
         this.active = true;
     }
 
@@ -48,15 +50,19 @@ public class ListenerService implements Runnable
         {
             try
             {
-                GameMove move = gameHandler.getNextMove( token, gameID, nextGameMoveID );
+                GameMove move = gameHandler.getNextMove( token, game.getGameID(), game.getCurrentGameMoveID() + 1 );
+                unhandledGameMoves.add( move );
+                client.run();
             }
             catch ( InvalidTokenException | RemoteException | GameNotFoundException e )
             {
                 LOGGER.error( "Error while fetching next move. {}", e.getMessage() );
                 active = false;
             }
-
-            nextGameMoveID++;
+            catch ( InvalidGameMoveException e )
+            {
+                LOGGER.warn( "client.run returned an invalidGameMoveException. {}", e.getMessage() );
+            }
         }
     }
 }
