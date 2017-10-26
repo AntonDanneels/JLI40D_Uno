@@ -284,6 +284,7 @@ public class Client extends JFrame implements ActionListener
             move = new GameMove( game.getCurrentGameMoveID(), player, null, true );
         else
             move = new GameMove( game.getCurrentGameMoveID(), player, cards.get( index ), false );
+
         if( GameLogic.testMove(game, move ) )
         {
             try
@@ -361,11 +362,15 @@ public class Client extends JFrame implements ActionListener
             // Construct my GameMove & send it
             //move = new GameMove( game.getCurrentGameMoveID(), me, cards.get( currentCardIndex ), false );
             //gameHandler.sendMove( token, game.getGameID(), move );
+            LOGGER.debug( "Waiting for input." );
         }
         else
         {
+            LOGGER.debug( "Waiting for move {}", game.getCurrentGameMoveID() );
+
             gamePanel.removeAll();
             gamePanel.revalidate();
+            gamePanel.repaint();
 
             Graphics g = gamePanel.getGraphics();
             g.clearRect( 0, 0, getWidth(), getHeight() );
@@ -384,6 +389,8 @@ public class Client extends JFrame implements ActionListener
             move = gameHandler.getNextMove( token, game.getGameID(), game.getCurrentGameMoveID() );
             GameLogic.applyMove( game, move );
             game.setCurrentGameMoveID( game.getCurrentGameMoveID() + 1 );
+
+            run();
         }
     }
 
