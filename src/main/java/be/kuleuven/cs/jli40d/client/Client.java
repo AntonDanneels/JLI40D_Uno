@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,7 +20,6 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * Created by Anton D. on 19/10/2017 using IntelliJ IDEA 14.0
@@ -290,8 +288,6 @@ public class Client extends JFrame implements ActionListener
             try
             {
                 GameMove result = gameHandler.sendMove( token, game.getGameID(), move );
-                if( index == -1 )
-                    game.getCardsPerPlayer().get( player ).add( result.getPlayedCard() );
                 GameLogic.applyMove( game, move );
                 game.setCurrentGameMoveID( game.getCurrentGameMoveID() + 1 );
                 run();

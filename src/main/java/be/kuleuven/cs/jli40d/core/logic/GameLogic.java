@@ -1,6 +1,8 @@
 package be.kuleuven.cs.jli40d.core.logic;
 
 import be.kuleuven.cs.jli40d.core.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -9,6 +11,8 @@ import java.util.*;
  */
 public class GameLogic
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger( GameLogic.class );
+
     public static void generateDeck( Game game )
     {
         game.getDeck().clear();
@@ -53,9 +57,9 @@ public class GameLogic
     {
         int index = 0;
 
-        Map <Player, List <Card>> cardsPerPlayer = game.getCardsPerPlayer();
+        Map<Player, List<Card>> cardsPerPlayer = game.getCardsPerPlayer();
         for ( int j = 0; j < game.getPlayers().size(); j++ )
-            cardsPerPlayer.put( game.getPlayers().get( j ), new ArrayList <>() );
+            cardsPerPlayer.put( game.getPlayers().get( j ), new ArrayList<>() );
         for ( int i = 0; i < 7; i++ )
         {
             for ( Player player : game.getPlayers() )
@@ -129,13 +133,23 @@ public class GameLogic
     {
         if ( move.isCardDrawn() )
         {
-            Card c = game.getDeck().remove( 0 );
-            move.setPlayedCard( c );
-            for( Player p : game.getCardsPerPlayer().keySet() )
+            //if a card is drawn, add it to the deck of the player (and generate one if needed)
+            if ( move.getPlayedCard() == null )
             {
-                if( p.getUsername().equals( move.getPlayer().getUsername() ) )
-                    game.getCardsPerPlayer().get( p ).add( c );
+                Card c = game.getDeck().remove( 0 );
+                move.setPlayedCard( c );
             }
+
+            for ( Player p : game.getCardsPerPlayer().keySet() )
+            {
+                if ( p.getUsername().equals( move.getPlayer().getUsername() ) )
+                    game.getCardsPerPlayer().get( p ).add( move.getPlayedCard() );
+            }
+
+            LOGGER.debug( "card drawn move applied: {}:{} to {}",
+                    move.getPlayedCard().getColour(),
+                    move.getPlayedCard().getType(),
+                    move.getPlayer().getUsername() );
         }
         else
         {
@@ -146,15 +160,15 @@ public class GameLogic
 
             // Note: game.getCardsPerPlayer().get( move.getPlayer() ) does not works bc of
             // a serialization issue. Isn't RMI the most wonderful technology in existence?
-            for( Player p : game.getCardsPerPlayer().keySet() )
+            for ( Player p : game.getCardsPerPlayer().keySet() )
             {
-                if( p.getUsername().equals( move.getPlayer().getUsername() ) )
+                if ( p.getUsername().equals( move.getPlayer().getUsername() ) )
                 {
                     Iterator<Card> it = game.getCardsPerPlayer().get( p ).iterator();
                     while ( it.hasNext() )
                     {
                         Card c = it.next();
-                        if( c.getColour() == move.getPlayedCard().getColour() && c.getType() == move.getPlayedCard().getType() )
+                        if ( c.getColour() == move.getPlayedCard().getColour() && c.getType() == move.getPlayedCard().getType() )
                             it.remove();
                     }
                 }
@@ -171,6 +185,11 @@ public class GameLogic
                 int    nextPlayer = wrap( game.getCurrentPlayer(), game.isClockwise(), game.getPlayers().size() );
                 Player target     = game.getPlayers().get( nextPlayer );
                 target.setNrOfCards( target.getNrOfCards() + 2 );
+
+                move = new GameMove( game.getCurrentGameMoveID(), target, null, true );
+                GameLogic.applyMove( game, move );
+                move = new GameMove( game.getCurrentGameMoveID(), target, null, true );
+                GameLogic.applyMove( game, move );
             }
 
             if ( playedCard.getType() == CardType.PLUS4 )
