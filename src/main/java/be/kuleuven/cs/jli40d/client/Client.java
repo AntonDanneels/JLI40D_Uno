@@ -19,7 +19,9 @@ import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 /**
  * Created by Anton D. on 19/10/2017 using IntelliJ IDEA 14.0
@@ -27,6 +29,8 @@ import java.util.List;
 public class Client extends JFrame implements ActionListener
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( Client.class );
+
+    private Queue<GameMove> unhandlesGamemMves;
 
     private Game game;
     private int myID = 0;
@@ -52,7 +56,7 @@ public class Client extends JFrame implements ActionListener
         this.lobbyHandler = lobbyHandler;
         this.gameHandler = gameHandler;
 
-        game = new Game( 0, 4 );
+        unhandlesGamemMves = new LinkedList<>();
 
         setTitle( "Uno" );
         setSize( 900, 600 );
@@ -253,6 +257,11 @@ public class Client extends JFrame implements ActionListener
 
             game = lobbyHandler.joinGame( token, id );
 
+            //start ListenerService
+
+            ListenerService listenerService = new ListenerService( gameHandler, token, id, unhandlesGamemMves);
+            new Thread( listenerService ).start();
+
             run();
         }
         catch ( RemoteException | InvalidTokenException | UnableToJoinGameException e )
@@ -390,7 +399,6 @@ public class Client extends JFrame implements ActionListener
             g.drawString( "Waiting for the other players", 250, 150 );
         }
 
-        move = gameHandler.getNextMove( token, game.getGameID(), game.getCurrentGameMoveID() );
         GameLogic.applyMove( game, move );
         game.setCurrentGameMoveID( game.getCurrentGameMoveID() + 1 );
 

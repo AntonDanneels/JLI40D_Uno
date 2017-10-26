@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
+import java.util.Queue;
 
 /**
  * This service is tasked with fetching all the latest {@link GameMove} objects.
@@ -17,30 +18,34 @@ import java.rmi.RemoteException;
  */
 public class ListenerService implements Runnable
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ListenerService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger( ListenerService.class );
 
     private GameHandler gameHandler;
 
     private String token;
-    private int gameID;
-    private int nextGameMoveID;
+    private int    gameID;
+    private int    nextGameMoveID;
 
     private boolean active;
 
-    public ListenerService( GameHandler gameHandler, String token, int gameID, int nextGameMoveID )
+    private Queue<GameMove> unhandledGameMoves;
+
+    public ListenerService( GameHandler gameHandler, String token, int gameID, Queue<GameMove> unhandledGameMoves )
     {
         this.gameHandler = gameHandler;
         this.token = token;
         this.gameID = gameID;
-        this.nextGameMoveID = nextGameMoveID;
+        this.unhandledGameMoves = unhandledGameMoves;
 
+        this.nextGameMoveID = 0; //TODO make dynamic
         this.active = true;
     }
 
     @Override
     public void run()
     {
-        while (active) {
+        while ( active )
+        {
             try
             {
                 GameMove move = gameHandler.getNextMove( token, gameID, nextGameMoveID );
