@@ -32,6 +32,8 @@ public class GameClient extends Application
     private Stage primaryStage;
     private Scene loginScene, lobbyScene, gameScene;
 
+    private String token;
+
     public static void main( String[] args )
     {
         launch( args );
@@ -85,8 +87,23 @@ public class GameClient extends Application
         }
     }
 
+    public void setStartScene()
+    {
+        this.primaryStage.setScene( loginScene );
+    }
+
     public void setLobbyScene()
     {
         this.primaryStage.setScene( lobbyScene );
+    }
+
+    public String getToken()
+    {
+        return token;
+    }
+
+    public void setToken( String token )
+    {
+        this.token = token;
     }
 }

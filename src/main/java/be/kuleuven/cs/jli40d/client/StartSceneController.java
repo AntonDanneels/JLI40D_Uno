@@ -32,6 +32,12 @@ public class StartSceneController
     private UserHandler userHandler;
     private GameClient client;
 
+    @FXML
+    private TextField usernameField;
+
+    @FXML
+    private PasswordField passwordField;
+
     public StartSceneController()
     {
     }
@@ -42,18 +48,13 @@ public class StartSceneController
         this.client = client;
     }
 
-    @FXML
-    private TextField usernameField;
-
-    @FXML
-    private PasswordField passwordField;
-
     public void login()
     {
         LOGGER.debug( "Trying to login user" );
         try
         {
             String token = userHandler.login( usernameField.getText(), passwordField.getText() );
+            client.setToken( token );
 
             LOGGER.debug( "Login succesful, token: {}", token );
             LOGGER.debug( "Switching to lobby scene" );
@@ -71,14 +72,13 @@ public class StartSceneController
         }
     }
 
-
-
     public void register()
     {
         LOGGER.debug( "Trying to register user" );
         try
         {
             String token = userHandler.register( "test@test.be", usernameField.getText(), passwordField.getText() );
+            client.setToken( token );
 
             LOGGER.debug( "Register succesful, token: {}", token );
             LOGGER.debug( "Switching to lobby scene" );
