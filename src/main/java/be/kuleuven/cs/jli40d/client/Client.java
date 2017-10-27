@@ -171,8 +171,8 @@ public class Client extends JFrame implements ActionListener
                     String value2   = nrOfPlayersField.getText();
                     try
                     {
-                        int nrOfPlayers = Integer.valueOf( value2 );
-                        int id          = lobbyHandler.makeGame( token, gameName, nrOfPlayers );
+                        int  nrOfPlayers = Integer.valueOf( value2 );
+                        long id          = lobbyHandler.makeGame( token, gameName, nrOfPlayers );
                         updateLobbyList();
                     }
                     catch ( RemoteException e1 )
@@ -238,7 +238,7 @@ public class Client extends JFrame implements ActionListener
 
     }
 
-    private void joinGame( int id )
+    private void joinGame( long id )
     {
         try
         {

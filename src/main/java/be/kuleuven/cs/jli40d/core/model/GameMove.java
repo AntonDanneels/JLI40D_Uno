@@ -7,12 +7,12 @@ import java.io.Serializable;
  */
 public class GameMove implements Serializable
 {
-    private int id;
+    private long id;
     private Player player;
     private Card playedCard;
     private boolean cardDrawn;
 
-    public GameMove( int id, Player player, Card playedCard, boolean cardDrawn )
+    public GameMove( long id, Player player, Card playedCard, boolean cardDrawn )
     {
         this.id = id;
         this.player = player;
@@ -40,7 +40,7 @@ public class GameMove implements Serializable
         return cardDrawn;
     }
 
-    public int getId()
+    public long getId()
     {
         return id;
     }

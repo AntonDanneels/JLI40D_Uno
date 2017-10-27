@@ -1,5 +1,7 @@
 package be.kuleuven.cs.jli40d.core.model;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,9 +18,11 @@ import java.util.Map;
  * @author Pieter
  * @version 1.0
  */
+@Entity
 public class Game implements Serializable
 {
-    private int gameID;
+    @Id
+    private long gameID;
 
     private List<Player>            players;
     private List<Card>              deck;
@@ -140,12 +144,12 @@ public class Game implements Serializable
         return topCard;
     }
 
-    public void setGameID( int gameID )
+    public void setGameID( long gameID )
     {
         this.gameID = gameID;
     }
 
-    public int getGameID()
+    public long getGameID()
     {
         return gameID;
     }

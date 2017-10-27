@@ -1,12 +1,16 @@
 package be.kuleuven.cs.jli40d.core.model;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.io.Serializable;
 
 /**
  * Created by Anton D.
  */
+@Entity
 public class Player implements Serializable
 {
+    @Id
     private int ID;
     private int nrOfCards;
 
