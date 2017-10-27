@@ -15,8 +15,8 @@
          </image>
       </ImageView>
       <TextField fx:id="usernameField" layoutX="374.0" layoutY="247.0" text="Username" />
+      <PasswordField fx:id="passwordField" layoutX="374.0" layoutY="287.0" text="Password" />
       <Button fx:id="loginButton" layoutX="374.0" layoutY="329.0" mnemonicParsing="false" onAction="#login" prefHeight="25.0" prefWidth="76.0" text="Login" />
       <Button fx:id="registerButton" layoutX="450.0" layoutY="329.0" mnemonicParsing="false" onAction="#register" prefHeight="25.0" prefWidth="76.0" text="Register" />
-      <PasswordField fx:id="passwordField" layoutX="374.0" layoutY="287.0" text="Password" />
    </children>
 </Pane>
