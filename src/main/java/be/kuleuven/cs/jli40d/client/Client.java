@@ -19,9 +19,9 @@ import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created by Anton D. on 19/10/2017 using IntelliJ IDEA 14.0
@@ -30,7 +30,7 @@ public class Client extends JFrame implements ActionListener
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( Client.class );
 
-    private Queue<GameMove> unhandlesGamemMoves;
+    private BlockingQueue<GameMove> unhandledGamesMoves;
 
     private Game game;
     private int myID = 0;
@@ -52,11 +52,13 @@ public class Client extends JFrame implements ActionListener
 
     private Client( UserHandler userManager, LobbyHandler lobbyHandler, GameHandler gameHandler )
     {
+        LOGGER.debug( "Creating new client." );
+
         this.userManager = userManager;
         this.lobbyHandler = lobbyHandler;
         this.gameHandler = gameHandler;
 
-        unhandlesGamemMoves = new LinkedList<>();
+        unhandledGamesMoves = new LinkedBlockingQueue<>();
 
         setTitle( "Uno" );
         setSize( 900, 600 );
@@ -257,7 +259,7 @@ public class Client extends JFrame implements ActionListener
 
             //start ListenerService
 
-            ListenerService listenerService = new ListenerService( this, gameHandler, token, game, unhandlesGamemMoves );
+            ListenerService listenerService = new ListenerService( this, gameHandler, token, game, unhandledGamesMoves );
             new Thread( listenerService ).start();
 
             run();
@@ -319,100 +321,112 @@ public class Client extends JFrame implements ActionListener
 
     public void run() throws InvalidTokenException, RemoteException, GameNotFoundException, InvalidGameMoveException
     {
-        while ( !unhandlesGamemMoves.isEmpty())
+        while ( true )
         {
 
-            GameMove move = unhandlesGamemMoves.poll();
+            GameMove move = null;
+            try
+            {
+                move = unhandledGamesMoves.take();
+            }
+            catch ( InterruptedException e )
+            {
+                LOGGER.error( "Error because taking next move from queue was interrupted. {}", e.getMessage() );
+
+                Thread.currentThread().interrupt();
+            }
 
             GameLogic.applyMove( game, move );
             game.setCurrentGameMoveID( game.getCurrentGameMoveID() + 1 );
-        }
-
-        if ( gameHandler.myTurn( token, game.getGameID() ) )
-        {
-
-            gamePanel.removeAll();
-            gamePanel.revalidate();
-            gamePanel.repaint();
-
-            Graphics g = gamePanel.getGraphics();
-            g.clearRect( 0, 0, getWidth(), getHeight() );
-
-            gamePanel.repaint();
 
 
-            // This is temporary until we've decided how to keep track of a players card.
-            Player me = null;
-            for ( int i = 0; i < game.getPlayers().size(); i++ )
+            if ( gameHandler.myTurn( token, game.getGameID() ) )
             {
-                if ( game.getPlayers().get( i ).getUsername().equals( usernameField.getText() ) )
-                    me = game.getPlayers().get( i );
-            }
 
-            final Player     meP   = me;
-            final List<Card> cards = game.getCardsPerPlayer().get( me );
+                gamePanel.removeAll();
+                gamePanel.revalidate();
+                gamePanel.repaint();
 
-            for ( int i = 0; i < cards.size(); i++ )
-            {
-                Card      c     = cards.get( i );
-                final int index = i;
-                //g.drawString( "" + c.getColour() + ":" + c.getType(), 250, 75 * ( i + 1 ) );
-                JButton button = new JButton( c.getColour() + ":" + c.getType() );
-                button.addActionListener( e ->
+                Graphics g = gamePanel.getGraphics();
+                g.clearRect( 0, 0, getWidth(), getHeight() );
+
+                gamePanel.repaint();
+
+
+                // This is temporary until we've decided how to keep track of a players card.
+                Player me = null;
+                for ( int i = 0; i < game.getPlayers().size(); i++ )
                 {
-                    setCard( index, meP, cards );
+                    if ( game.getPlayers().get( i ).getUsername().equals( usernameField.getText() ) )
+                        me = game.getPlayers().get( i );
+                }
+
+                final Player     meP   = me;
+                final List<Card> cards = game.getCardsPerPlayer().get( me.getUsername() );
+
+                for ( int i = 0; i < cards.size(); i++ )
+                {
+                    Card      c     = cards.get( i );
+                    final int index = i;
+                    //g.drawString( "" + c.getColour() + ":" + c.getType(), 250, 75 * ( i + 1 ) );
+                    JButton button = new JButton( c.getColour() + ":" + c.getType() );
+                    button.addActionListener( e ->
+                    {
+                        setCard( index, meP, cards );
+                    } );
+
+                    gamePanel.add( button );
+                }
+
+                JButton drawCardButton = new JButton( "Draw card" );
+                drawCardButton.addActionListener( e ->
+                {
+                    setCard( -1, meP, cards );
                 } );
 
-                gamePanel.add( button );
+                gamePanel.add( drawCardButton );
+
+                Card topCard = game.getTopCard();
+                gamePanel.add( new JLabel( "TopCard: " + topCard.getColour() + ":" + topCard.getType() ) );
+
+                for ( int i = 0; i < game.getPlayers().size(); i++ )
+                {
+                    gamePanel.add( new JLabel( "Player: " + game.getPlayers().get( i ).getUsername() ) );
+                    gamePanel.add( new JLabel( "Cards " + game.getPlayers().get( i ).getNrOfCards() ) );
+                }
+
+                gamePanel.add( new JLabel( "it is my turn" ) );
+                gamePanel.revalidate();
+                // Construct my GameMove & send it
+                //move = new GameMove( game.getCurrentGameMoveID(), me, cards.get( currentCardIndex ), false );
+                //gameHandler.sendMove( token, game.getGameID(), move );
+                LOGGER.debug( "Waiting for input." );
             }
-
-            JButton drawCardButton = new JButton( "Draw card" );
-            drawCardButton.addActionListener( e ->
+            else
             {
-                setCard( -1, meP, cards );
-            } );
 
-            gamePanel.add( drawCardButton );
+                LOGGER.debug( "Waiting for move {}", game.getCurrentGameMoveID() );
 
-            Card topCard = game.getTopCard();
-            gamePanel.add( new JLabel( "TopCard: " + topCard.getColour() + ":" + topCard.getType() ) );
+                gamePanel.removeAll();
+                gamePanel.revalidate();
+                gamePanel.repaint();
 
-            for ( int i = 0; i < game.getPlayers().size(); i++ )
-            {
-                gamePanel.add( new JLabel( "Player: " + game.getPlayers().get( i ).getUsername() ) );
-                gamePanel.add( new JLabel( "Cards " + game.getPlayers().get( i ).getNrOfCards() ) );
+                Graphics g = gamePanel.getGraphics();
+                g.clearRect( 0, 0, getWidth(), getHeight() );
+
+                Card topCard = game.getTopCard();
+                g.drawString( "" + topCard.getColour() + ":" + topCard.getType(), 450, 150 );
+
+                for ( int i = 0; i < game.getPlayers().size(); i++ )
+                {
+                    g.drawString( "Player " + game.getPlayers().get( i ).getUsername(), 50, 150 + 25 * i );
+                    g.drawString( "Cards " + game.getPlayers().get( i ).getNrOfCards(), 60, 160 + 25 * i );
+                }
+
+                g.drawString( "Waiting for the other players", 250, 150 );
             }
-
-            gamePanel.add( new JLabel( "it is my turn" ) );
-            gamePanel.revalidate();
-            // Construct my GameMove & send it
-            //move = new GameMove( game.getCurrentGameMoveID(), me, cards.get( currentCardIndex ), false );
-            //gameHandler.sendMove( token, game.getGameID(), move );
-            LOGGER.debug( "Waiting for input." );
         }
-        else
-        {
 
-            LOGGER.debug( "Waiting for move {}", game.getCurrentGameMoveID() );
-
-            gamePanel.removeAll();
-            gamePanel.revalidate();
-            gamePanel.repaint();
-
-            Graphics g = gamePanel.getGraphics();
-            g.clearRect( 0, 0, getWidth(), getHeight() );
-
-            Card topCard = game.getTopCard();
-            g.drawString( "" + topCard.getColour() + ":" + topCard.getType(), 450, 150 );
-
-            for ( int i = 0; i < game.getPlayers().size(); i++ )
-            {
-                g.drawString( "Player " + game.getPlayers().get( i ).getUsername(), 50, 150 + 25 * i );
-                g.drawString( "Cards " + game.getPlayers().get( i ).getNrOfCards(), 60, 160 + 25 * i );
-            }
-
-            g.drawString( "Waiting for the other players", 250, 150 );
-        }
     }
 
     public static void main( String args[] )

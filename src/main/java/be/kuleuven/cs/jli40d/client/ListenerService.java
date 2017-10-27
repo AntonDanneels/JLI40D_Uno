@@ -4,7 +4,6 @@ import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
-import be.kuleuven.cs.jli40d.core.model.exception.InvalidGameMoveException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,16 +51,15 @@ public class ListenerService implements Runnable
             {
                 GameMove move = gameHandler.getNextMove( token, game.getGameID(), game.getCurrentGameMoveID() + 1 );
                 unhandledGameMoves.add( move );
-                client.run();
+                LOGGER.debug( "Added move {}: {}:{}", move.getId(),
+                        move.getPlayedCard().getColour(),
+                        move.getPlayedCard().getType() );
+
             }
             catch ( InvalidTokenException | RemoteException | GameNotFoundException e )
             {
                 LOGGER.error( "Error while fetching next move. {}", e.getMessage() );
                 active = false;
-            }
-            catch ( InvalidGameMoveException e )
-            {
-                LOGGER.warn( "client.run returned an invalidGameMoveException. {}", e.getMessage() );
             }
         }
     }

@@ -23,7 +23,7 @@ public class Game implements Serializable
     private List<Player>            players;
     private List<Card>              deck;
     private List<GameMove>          moves;
-    private Map<Player, List<Card>> cardsPerPlayer;
+    private Map<String, List<Card>> cardsPerPlayer;
 
     private int maximumNumberOfPlayers;
 
@@ -54,7 +54,7 @@ public class Game implements Serializable
         this.clockwise = true;
     }
 
-    public Map<Player, List<Card>> getCardsPerPlayer()
+    public Map<String, List<Card>> getCardsPerPlayer()
     {
         return cardsPerPlayer;
     }

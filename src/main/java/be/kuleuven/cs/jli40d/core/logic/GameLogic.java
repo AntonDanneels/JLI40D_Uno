@@ -57,13 +57,16 @@ public class GameLogic
     {
         int index = 0;
 
-        Map<Player, List<Card>> cardsPerPlayer = game.getCardsPerPlayer();
+        Map<String, List<Card>> cardsPerPlayer = game.getCardsPerPlayer();
         for ( int j = 0; j < game.getPlayers().size(); j++ )
-            cardsPerPlayer.put( game.getPlayers().get( j ), new ArrayList<>() );
+            cardsPerPlayer.put( game.getPlayers().get( j ).getUsername(), new ArrayList<>() );
         for ( int i = 0; i < 7; i++ )
         {
             for ( Player player : game.getPlayers() )
-                cardsPerPlayer.get( player ).add( game.getDeck().get( index++ ) );
+            {
+                cardsPerPlayer.get( player.getUsername() ).add( game.getDeck().get( index++ ) );
+                player.setNrOfCards( player.getNrOfCards() + 1 );
+            }
         }
         //game.setDeck( game.getDeck().subList( 0, index ) );
         Iterator it      = game.getDeck().iterator();
@@ -133,18 +136,7 @@ public class GameLogic
     {
         if ( move.isCardDrawn() )
         {
-            //if a card is drawn, add it to the deck of the player (and generate one if needed)
-            if ( move.getPlayedCard() == null )
-            {
-                Card c = game.getDeck().remove( 0 );
-                move.setPlayedCard( c );
-            }
-
-            for ( Player p : game.getCardsPerPlayer().keySet() )
-            {
-                if ( p.getUsername().equals( move.getPlayer().getUsername() ) )
-                    game.getCardsPerPlayer().get( p ).add( move.getPlayedCard() );
-            }
+            giveCardToPlayer( game, move );
 
             LOGGER.debug( "card drawn move applied: {}:{} to {}",
                     move.getPlayedCard().getColour(),
@@ -158,13 +150,11 @@ public class GameLogic
             Collections.shuffle( game.getDeck() );
             game.setTopCard( playedCard );
 
-            // Note: game.getCardsPerPlayer().get( move.getPlayer() ) does not works bc of
-            // a serialization issue. Isn't RMI the most wonderful technology in existence?
-            for ( Player p : game.getCardsPerPlayer().keySet() )
+            for ( Player p : game.getPlayers() )
             {
                 if ( p.getUsername().equals( move.getPlayer().getUsername() ) )
                 {
-                    Iterator<Card> it = game.getCardsPerPlayer().get( p ).iterator();
+                    Iterator<Card> it = game.getCardsPerPlayer().get( p.getUsername() ).iterator();
                     while ( it.hasNext() )
                     {
                         Card c = it.next();
@@ -173,6 +163,9 @@ public class GameLogic
                     }
                 }
             }
+
+            //Add the game move
+            game.addLatestMove( move );
 
             if ( playedCard.getType() == CardType.REVERSE )
                 game.setClockwise( !game.isClockwise() );
@@ -184,12 +177,14 @@ public class GameLogic
             {
                 int    nextPlayer = wrap( game.getCurrentPlayer(), game.isClockwise(), game.getPlayers().size() );
                 Player target     = game.getPlayers().get( nextPlayer );
-                target.setNrOfCards( target.getNrOfCards() + 2 );
 
-                move = new GameMove( game.getCurrentGameMoveID(), target, null, true );
-                GameLogic.applyMove( game, move );
-                move = new GameMove( game.getCurrentGameMoveID(), target, null, true );
-                GameLogic.applyMove( game, move );
+                for ( int i = 0; i < 2; i++ )
+                {
+                    GameMove m = new GameMove( game.getCurrentGameMoveID(), target, null, true );
+                    giveCardToPlayer( game, m );
+                    game.addLatestMove( m );
+
+                }
             }
 
             if ( playedCard.getType() == CardType.PLUS4 )
@@ -202,8 +197,6 @@ public class GameLogic
             game.setCurrentPlayer( wrap( game.getCurrentPlayer(), game.isClockwise(), game.getPlayers().size() ) );
         }
 
-        //finally add the move
-        game.addLatestMove( move );
     }
 
     private static int wrap( int current, boolean clockwise, int max )
@@ -217,5 +210,31 @@ public class GameLogic
             result = 0;
 
         return result;
+    }
+
+    private static void giveCardToPlayer( Game game, GameMove move )
+    {
+
+        if ( game.getCardsPerPlayer().containsKey( move.getPlayer().getUsername() ) )
+        {
+
+            //take a card from the deck if there is no card given
+            if ( move.getPlayedCard() == null )
+            {
+                Card c = game.getDeck().remove( 0 );
+                move.setPlayedCard( c );
+            }
+
+            //and give it to the player
+            Player target = move.getPlayer();
+
+            game.getCardsPerPlayer().get( target.getUsername() ).add( move.getPlayedCard() );
+            target.setNrOfCards( target.getNrOfCards() + 1 );
+
+            LOGGER.debug( "Given card {}:{} to {}",
+                    move.getPlayedCard().getColour(),
+                    move.getPlayedCard().getType(),
+                    move.getPlayer().getUsername() );
+        }
     }
 }
