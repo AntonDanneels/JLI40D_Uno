@@ -65,6 +65,7 @@ public class Client extends JFrame implements ActionListener
         setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
         setResizable( false );
 
+        /*
         loginPanel = new JPanel();
 
         usernameField = new JTextField( "Username" );
@@ -83,6 +84,7 @@ public class Client extends JFrame implements ActionListener
         loginPanel.add( login );
 
         add( loginPanel );
+        */
         setVisible( true );
     }
 
