@@ -13,6 +13,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.io.File;
@@ -26,7 +28,9 @@ import java.util.ResourceBundle;
 
 public class GameClient extends Application
 {
+    private Logger LOGGER = LoggerFactory.getLogger( GameClient.class );
     private Stage primaryStage;
+    private Scene loginScene, lobbyScene, gameScene;
 
     public static void main( String[] args )
     {
@@ -46,31 +50,43 @@ public class GameClient extends Application
 
             Pane pane = loader.load();
 
-            Scene scene = new Scene( pane );
-            primaryStage.setScene( scene );
+            loginScene = new Scene( pane );
+            primaryStage.setScene( loginScene );
             primaryStage.show();
 
             String host = "localhost";
             int    port = 1099;
 
-            Registry myRegistry;
-
-            myRegistry = LocateRegistry.getRegistry( host, port );
-            final LobbyHandler lobbyHandler = ( LobbyHandler )myRegistry.lookup( LobbyHandler.class.getName() );
-            final UserHandler  userManager  = ( UserHandler )myRegistry.lookup( UserHandler.class.getName() );
-            final GameHandler  gameHandler  = ( GameHandler )myRegistry.lookup( GameHandler.class.getName() );
+            Registry myRegistry = LocateRegistry.getRegistry( host, port );
+            LobbyHandler lobbyHandler = ( LobbyHandler )myRegistry.lookup( LobbyHandler.class.getName() );
+            UserHandler  userManager  = ( UserHandler )myRegistry.lookup( UserHandler.class.getName() );
+            GameHandler  gameHandler  = ( GameHandler )myRegistry.lookup( GameHandler.class.getName() );
 
             StartSceneController startSceneController = loader.getController();
             startSceneController.init( this, userManager );
+
+            loader = new FXMLLoader();
+            loader.setLocation( getClass().getResource( "/lobby.fxml" ) );
+            Pane lobbyPane = loader.load();
+
+            lobbyScene = new Scene( lobbyPane );
         }
         catch ( IOException e )
         {
             e.printStackTrace();
+            Utils.createPopup( "An unexpected error occurred" );
+            LOGGER.debug( "Failed to load resource {}", e.getMessage() );
         }
         catch ( NotBoundException e )
         {
             e.printStackTrace();
+            Utils.createPopup( "An unexpected error occurred" );
+            LOGGER.debug( "Tried to load a non existing registry item: {}", e.getMessage() );
         }
+    }
 
+    public void setLobbyScene()
+    {
+        this.primaryStage.setScene( lobbyScene );
     }
 }

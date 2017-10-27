@@ -56,43 +56,22 @@ public class StartSceneController
             String token = userHandler.login( usernameField.getText(), passwordField.getText() );
 
             LOGGER.debug( "Login succesful, token: {}", token );
+            LOGGER.debug( "Switching to lobby scene" );
+            client.setLobbyScene();
         }
         catch ( RemoteException e )
         {
-            createPopup( "An unexpected error occured." );
+            Utils.createPopup( "An unexpected error occured." );
             LOGGER.debug( "Unexpected remote exception: {}", e.getMessage() );
         }
         catch ( InvalidUsernameOrPasswordException e )
         {
-            createPopup( "Invalid username or password." );
+            Utils.createPopup( "Invalid username or password." );
             LOGGER.debug( "User entered invalid username or password" );
         }
     }
 
-    public static void createPopup( String text )
-    {
-        final Stage myDialog = new Stage();
-        myDialog.initModality( Modality.WINDOW_MODAL);
 
-        Button okButton = new Button("Close");
-        okButton.setOnAction(new EventHandler<ActionEvent>(){
-
-            @Override
-            public void handle(ActionEvent arg0) {
-                myDialog.close();
-            }
-
-        });
-
-        Scene myDialogScene = new Scene( VBoxBuilder.create()
-                .children(new Text(text), okButton)
-                .alignment( Pos.CENTER)
-                .padding(new Insets(10))
-                .build());
-
-        myDialog.setScene(myDialogScene);
-        myDialog.show();
-    }
 
     public void register()
     {
@@ -102,16 +81,18 @@ public class StartSceneController
             String token = userHandler.register( "test@test.be", usernameField.getText(), passwordField.getText() );
 
             LOGGER.debug( "Register succesful, token: {}", token );
+            LOGGER.debug( "Switching to lobby scene" );
+            client.setLobbyScene();
         }
         catch ( RemoteException e )
         {
-            createPopup( "An unexpected error occured." );
+            Utils.createPopup( "An unexpected error occured." );
             LOGGER.debug( "Unexpected remote exception: {}", e.getMessage() );
         }
 
         catch ( AccountAlreadyExistsException e )
         {
-            createPopup( "Account already exists." );
+            Utils.createPopup( "Account already exists." );
             LOGGER.debug( "User tried to register an already existing account" );
         }
     }
