@@ -261,7 +261,7 @@ public class Client extends JFrame implements ActionListener
 
             //start ListenerService
 
-            ListenerService listenerService = new ListenerService( gameHandler, token, unhandledGamesMoves );
+            ListenerService listenerService = new ListenerService( gameHandler, token, game, unhandledGamesMoves );
             new Thread( listenerService ).start();
 
             run();

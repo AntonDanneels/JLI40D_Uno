@@ -5,6 +5,7 @@ import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.model.Card;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
+import be.kuleuven.cs.jli40d.core.model.Player;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import be.kuleuven.cs.jli40d.core.model.exception.UnableToJoinGameException;
@@ -23,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import sun.rmi.runtime.Log;
 
 import java.rmi.RemoteException;
+import java.util.List;
 import java.util.Queue;
 
 /**
@@ -62,7 +64,6 @@ public class GameSceneHandler extends AnimationTimer
         gameCanvas.setOnMouseMoved( e -> { mousePosX = e.getX(); mousePosY = e.getY(); } );
 
         gc = gameCanvas.getGraphicsContext2D();
-        listenerService = new ListenerService( gameHandler, client.getToken(), gameMoves );
     }
 
     public void run()
@@ -74,6 +75,8 @@ public class GameSceneHandler extends AnimationTimer
         text.setFont(gc.getFont());
         final double width = text.getLayoutBounds().getWidth();
         gc.fillText( msg, gameCanvas.getWidth() / 2 - width / 2, 50 );
+
+        // TODO add rotating card here
 
         new Thread( new Runnable()
         {
@@ -107,11 +110,12 @@ public class GameSceneHandler extends AnimationTimer
 
     private void enterGameLoop()
     {
+        listenerService = new ListenerService( gameHandler, client.getToken(), game, gameMoves );
         new Thread( listenerService ).start();
         this.start();
     }
 
-    public void handle( long now )
+    public synchronized void handle( long now )
     {
         gc.clearRect( 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight() );
         gc.fillText( "Game " + game.getGameID(), 10, 10 );
@@ -129,7 +133,8 @@ public class GameSceneHandler extends AnimationTimer
 
             int x = 50;
             int y = 75;
-            for( Card c : game.getCardsPerPlayer().get( client.getUsername() ) )
+            List<Card> cards = game.getCardsPerPlayer().get( client.getUsername() );
+            for( Card c : cards )
             {
                 drawCard( c, x, y, 10,10 );
                 y += 25;
@@ -147,7 +152,6 @@ public class GameSceneHandler extends AnimationTimer
         {
             e.printStackTrace();
         }
-
     }
 
     private void drawCard( Card c, int x, int y, int w, int h )
