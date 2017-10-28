@@ -36,7 +36,9 @@ public class GameClient extends Application
     private LobbySceneHandler lobbySceneHandler;
     private GameSceneHandler gameSceneHandler;
 
+    // TODO: find a better way to store these..
     private String token;
+    private String username;
 
     public static void main( String[] args )
     {
@@ -86,7 +88,7 @@ public class GameClient extends Application
             Pane gamePane = loader.load();
 
             GameSceneHandler gameSceneHandler = loader.getController();
-            gameSceneHandler.init( this, gameHandler );
+            gameSceneHandler.init( this, lobbyHandler, gameHandler );
             this.gameSceneHandler = gameSceneHandler;
 
             gameScene = new Scene( gamePane );
@@ -130,5 +132,15 @@ public class GameClient extends Application
     public void setToken( String token )
     {
         this.token = token;
+    }
+
+    public String getUsername()
+    {
+        return username;
+    }
+
+    public void setUsername( String username )
+    {
+        this.username = username;
     }
 }

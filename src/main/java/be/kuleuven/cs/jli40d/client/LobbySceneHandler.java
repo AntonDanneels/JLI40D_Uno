@@ -40,7 +40,6 @@ public class LobbySceneHandler
 
     public LobbySceneHandler()
     {
-
     }
 
     public void init( GameClient client, LobbyHandler lobbyHandler )

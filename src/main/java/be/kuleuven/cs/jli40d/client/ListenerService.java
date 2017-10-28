@@ -29,14 +29,11 @@ public class ListenerService implements Runnable
     private boolean active;
 
     private Queue<GameMove> unhandledGameMoves;
-    private Client client;
 
-    public ListenerService( Client client, GameHandler gameHandler, String token, Game game, Queue<GameMove> unhandledGameMoves )
+    public ListenerService( GameHandler gameHandler, String token, Queue<GameMove> unhandledGameMoves )
     {
-        this.client = client;
         this.gameHandler = gameHandler;
         this.token = token;
-        this.game = game;
         this.unhandledGameMoves = unhandledGameMoves;
 
         this.active = true;

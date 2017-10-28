@@ -55,6 +55,7 @@ public class StartSceneController
         {
             String token = userHandler.login( usernameField.getText(), passwordField.getText() );
             client.setToken( token );
+            client.setUsername( usernameField.getText() );
 
             LOGGER.debug( "Login succesful, token: {}", token );
             LOGGER.debug( "Switching to lobby scene" );

@@ -9,6 +9,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.rmi.runtime.Log;
 
 /**
  * Created by Anton D.
@@ -35,6 +36,7 @@ public class GameCell extends ListCell<Game>
         HBox.setHgrow( pane1, Priority.ALWAYS );
         joinButton.setOnAction( e ->
         {
+            LOGGER.debug( "Joining game: {}", game.getGameID() );
             LOGGER.debug( "Switching to the game scene." );
             client.setGameScene( game );
         });
