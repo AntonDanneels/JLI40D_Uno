@@ -39,6 +39,8 @@ public class ListenerService implements Runnable
         this.unhandledGameMoves = unhandledGameMoves;
 
         this.active = true;
+
+        this.currentGameMoveID = game.getMoves().size();
     }
 
     @Override
