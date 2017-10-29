@@ -68,6 +68,7 @@ public class GameLogic
                 player.setNrOfCards( player.getNrOfCards() + 1 );
             }
         }
+
         //game.setDeck( game.getDeck().subList( 0, index ) );
         Iterator it      = game.getDeck().iterator();
         int      removed = 0;
@@ -94,13 +95,13 @@ public class GameLogic
             game.setTopCard( game.getDeck().get( 0 ) );
             game.getDeck().remove( 0 );
 
-            if ( game.getTopCard().getColour() == CardColour.NO_COLOUR )
+            if ( game.getTopCard().getColour() == CardColour.NO_COLOUR || game.getTopCard().getType() == CardType.PLUS2
+                    || game.getTopCard().getType() == CardType.REVERSE || game.getTopCard().getType() == CardType.SKIP )
             {
                 game.getDeck().add( game.getTopCard() );
                 game.setTopCard( null );
                 putInitialCardInTheMiddle( game );
             }
-
         }
     }
 
@@ -112,7 +113,7 @@ public class GameLogic
         Card currentCard = game.getTopCard();
         Card playedCard  = move.getPlayedCard();
 
-        if ( playedCard.getColour() == CardColour.NO_COLOUR )
+        if ( playedCard.getColour() == CardColour.NO_COLOUR || playedCard.getType() == CardType.PLUS4 )
         {
             return true;
         }
