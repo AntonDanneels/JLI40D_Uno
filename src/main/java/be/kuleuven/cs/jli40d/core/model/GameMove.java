@@ -12,12 +12,16 @@ public class GameMove implements Serializable
     private Card playedCard;
     private boolean cardDrawn;
 
+    private boolean activated;
+
     public GameMove( int id, Player player, Card playedCard, boolean cardDrawn )
     {
         this.id = id;
         this.player = player;
         this.playedCard = playedCard;
         this.cardDrawn = cardDrawn;
+
+        this.activated = false;
     }
 
     public void setPlayedCard( Card playedCard )
@@ -43,5 +47,15 @@ public class GameMove implements Serializable
     public int getId()
     {
         return id;
+    }
+
+    public boolean isActivated()
+    {
+        return activated;
+    }
+
+    public void setActivated( boolean activated )
+    {
+        this.activated = activated;
     }
 }

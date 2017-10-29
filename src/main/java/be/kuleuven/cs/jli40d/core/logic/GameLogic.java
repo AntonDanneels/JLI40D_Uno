@@ -175,17 +175,17 @@ public class GameLogic
             if ( playedCard.getType() == CardType.SKIP )
                 game.setCurrentPlayer( wrap( game.getCurrentPlayer(), game.isClockwise(), game.getPlayers().size() ) );
 
-            if ( playedCard.getType() == CardType.PLUS2 )
+            if ( playedCard.getType() == CardType.PLUS2 && !move.isActivated())
             {
                 int    nextPlayer = wrap( game.getCurrentPlayer(), game.isClockwise(), game.getPlayers().size() );
                 Player target     = game.getPlayers().get( nextPlayer );
+
+                move.setActivated( true );
 
                 for ( int i = 0; i < 2; i++ )
                 {
                     GameMove m = new GameMove( game.getCurrentGameMoveID(), target, null, true );
                     giveCardToPlayer( game, m );
-                    game.addLatestMove( m );
-
                 }
             }
 
