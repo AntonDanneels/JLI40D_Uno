@@ -3,10 +3,7 @@ package be.kuleuven.cs.jli40d.client;
 import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.logic.GameLogic;
-import be.kuleuven.cs.jli40d.core.model.Card;
-import be.kuleuven.cs.jli40d.core.model.Game;
-import be.kuleuven.cs.jli40d.core.model.GameMove;
-import be.kuleuven.cs.jli40d.core.model.Player;
+import be.kuleuven.cs.jli40d.core.model.*;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidGameMoveException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
@@ -17,18 +14,21 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.BlendMode;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.ArcType;
 import javafx.scene.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.rmi.runtime.Log;
 
+import java.io.File;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
@@ -49,7 +49,8 @@ public class GameSceneHandler extends AnimationTimer
     private double mousePosX = 0.0;
     private double mousePosY = 0.0;
 
-    private List<CardButton> cardButtons;
+    private       List<CardButton> cardButtons;
+    public static Map<Card, Image> images;
 
     @FXML
     private Canvas gameCanvas;
@@ -57,10 +58,15 @@ public class GameSceneHandler extends AnimationTimer
 
     private Player me;
 
+    private CardButton selectedCardButton = null;
+    private int topCardX = 0;
+    private int topCardY = 0;
+
     public GameSceneHandler()
     {
         cardButtons = new ArrayList<>();
         gameMoves = new ConcurrentLinkedDeque<>();
+        images = new HashMap<>();
     }
 
     public void init( GameClient client, LobbyHandler lobbyHandler, GameHandler gameHandler )
@@ -75,6 +81,20 @@ public class GameSceneHandler extends AnimationTimer
         gameCanvas.setOnMouseDragged( e -> {  mousePosX = e.getX(); mousePosY = e.getY(); } );
 
         gc = gameCanvas.getGraphicsContext2D();
+
+        Game game = new Game( 0,4 );
+        GameLogic.generateDeck( game );
+        for ( Card c : game.getDeck() )
+        {
+            String path = "/cards_original/" + c.getType() + "_" + c.getColour() + ".png";
+            LOGGER.debug( "Loading image: {}", path );
+            images.put( c, new Image( path ) );
+        }
+
+        topCardX = (int)gameCanvas.getWidth() / 2 - 25;
+        topCardY = (int)gameCanvas.getHeight() / 2 - 35;
+
+        LOGGER.debug( "Loaded {} images", images.size() );
     }
 
     public void run()
@@ -129,24 +149,18 @@ public class GameSceneHandler extends AnimationTimer
                 me = p;
         }
 
-        int x = 50;
-        int y = 75;
-        List<Card> cards = game.getCardsPerPlayer().get( client.getUsername() );
-        for( Card c : cards )
-        {
-            cardButtons.add( new CardButton( x, y, 150, 20, c ) );
-            y += 25;
-        }
+        layoutCards();
 
         new Thread( listenerService ).start();
         this.start();
     }
 
-    private CardButton selectedCardButton = null;
-
     public synchronized void handle( long now )
     {
-        gc.clearRect( 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight() );
+        gc.setFill( Color.WHITE );
+        gc.fillRect( 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight() );
+        gc.setFill( Color.BLACK );
+        //gc.clearRect( 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight() );
         gc.fillText( "Mouse " + mouseDown + " , " + mousePosX + " , " + mousePosY, 10, 10 );
 
         try
@@ -161,15 +175,15 @@ public class GameSceneHandler extends AnimationTimer
                 // TODO create animation
             }
 
-            gc.strokeRect( 600, 50, 200, 50 );
-            gc.fillText( "Draw card", 605, 512 );
+            gc.strokeRect( 800, 20, 100, 50 );
+            gc.fillText( "Draw card", 805, 32 );
 
             if( gameHandler.myTurn( client.getToken(), game.getGameID() ) )
             {
                 gc.fillText( "It is my turn", 50, 50 );
                 if ( mouseDown )
                 {
-                    if( Utils.intersects( (int) mousePosX, (int) mousePosY, 1,1, 600, 50, 200, 50 ) )
+                    if( Utils.intersects( (int) mousePosX, (int) mousePosY, 1,1, 800, 20, 100, 50 ) )
                     {
                         GameMove move = new GameMove( game.getCurrentGameMoveID(), me, null, true );
 
@@ -200,7 +214,7 @@ public class GameSceneHandler extends AnimationTimer
                 {
                     if ( selectedCardButton != null )
                     {
-                        if ( Utils.intersects( selectedCardButton.getX(), selectedCardButton.getY(), selectedCardButton.getW(), selectedCardButton.getH(), 400, 200, 200, 50 ) )
+                        if ( Utils.intersects( selectedCardButton.getX(), selectedCardButton.getY(), selectedCardButton.getW(), selectedCardButton.getH(), topCardX, topCardY, 50, 75 ) )
                         {
                             GameMove move = new GameMove( game.getCurrentGameMoveID(), me, selectedCardButton.getC(), false );
 
@@ -222,9 +236,10 @@ public class GameSceneHandler extends AnimationTimer
             }
 
             // TODO proper drop area
-            gc.strokeRect( 400, 200, 200, 50 );
+            gc.setFill( Color.TRANSPARENT );
             Card c = game.getTopCard();
-            gc.fillText( c.getType() + ":" + c.getColour(), 405, 212 );
+            gc.clearRect( topCardX, topCardY, 50, 75 );
+            gc.drawImage( images.get( c ), topCardX, topCardY, 50, 75 );
 
             for ( CardButton b : cardButtons )
             {
@@ -253,13 +268,13 @@ public class GameSceneHandler extends AnimationTimer
     public void layoutCards()
     {
         cardButtons.clear();
-        int x = 50;
-        int y = 75;
         List<Card> cards = game.getCardsPerPlayer().get( client.getUsername() );
+        int x = (int)gameCanvas.getWidth() / 2 - cards.size() * 60 / 2;
+        int y = 500;
         for( Card c : cards )
         {
-            cardButtons.add( new CardButton( x, y, 150, 20, c ) );
-            y += 25;
+            cardButtons.add( new CardButton( x, y, 50, 75, c ) );
+            x += 60;
         }
     }
 

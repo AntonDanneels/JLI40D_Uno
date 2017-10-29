@@ -50,7 +50,7 @@ public class Game implements Serializable
         this.started = false;
         this.ended = false;
         this.currentPlayer = 0;
-        this.currentGameMoveID = -1;
+        this.currentGameMoveID = 0;
         this.clockwise = true;
     }
 

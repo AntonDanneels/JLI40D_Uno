@@ -40,13 +40,13 @@ public class CardButton
     public void render( GraphicsContext gc )
     {
         if( hovered )
+        {
             gc.setStroke( Color.RED );
-        else
+            gc.strokeRect( x, y, w, h );
             gc.setStroke( Color.BLACK );
+        }
 
-        gc.strokeRect( x, y, w, h );
-        gc.setFill( Color.BLACK );
-        gc.fillText( c.getType() + ":" + c.getColour(), x + 5, y + 12 );
+        gc.drawImage( GameSceneHandler.images.get( c ), x, y, w, h );
     }
 
     public void setX( int x )
