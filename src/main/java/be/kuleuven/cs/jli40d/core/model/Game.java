@@ -2,6 +2,7 @@ package be.kuleuven.cs.jli40d.core.model;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,10 +25,17 @@ public class Game implements Serializable
     @Id
     private long gameID;
 
-    private List<Player>            players;
-    private List<Card>              deck;
-    private List<GameMove>          moves;
-    private Map<String, List<Card>> cardsPerPlayer;
+    @OneToMany
+    private List<Player> players;
+
+    @OneToMany
+    private List<Card> deck;
+
+    @OneToMany
+    private List<GameMove> moves;
+
+    @OneToMany
+    private Map<String, PlayerHand> playerHands;
 
     private int maximumNumberOfPlayers;
 
@@ -37,6 +45,10 @@ public class Game implements Serializable
     private Card    topCard;
     private int     currentGameMoveID;
     private boolean clockwise;
+
+    public Game()
+    {
+    }
 
     public Game( int gameID, int maximumNumberOfPlayers )
     {
@@ -48,7 +60,7 @@ public class Game implements Serializable
         this.deck = new ArrayList<>();
         this.moves = new ArrayList<>();
 
-        this.cardsPerPlayer = new HashMap<>();
+        this.playerHands = new HashMap<>();
 
         this.topCard = null;
         this.started = false;
@@ -58,8 +70,29 @@ public class Game implements Serializable
         this.clockwise = true;
     }
 
+    public Map<String, PlayerHand> getPlayerHands()
+    {
+        return playerHands;
+    }
+
+    public void setPlayerHands( Map<String, PlayerHand> playerHands )
+    {
+        this.playerHands = playerHands;
+    }
+
+    /**
+     * Legacy function that creates a <code> Map<String, List<Card>> </code> object.
+     *
+     * @return A mapping with all the cards for each player
+     */
     public Map<String, List<Card>> getCardsPerPlayer()
     {
+        Map<String, List<Card>> cardsPerPlayer = new HashMap<>();
+
+        for (String player : playerHands.keySet()) {
+            cardsPerPlayer.put( player, playerHands.get( player ).getPlayerHands() );
+        }
+
         return cardsPerPlayer;
     }
 
