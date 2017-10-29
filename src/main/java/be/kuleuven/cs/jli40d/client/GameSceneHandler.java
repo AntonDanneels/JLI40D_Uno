@@ -95,6 +95,10 @@ public class GameSceneHandler extends AnimationTimer
         game.getDeck().add( new Card( CardType.PLUS4, CardColour.RED ) );
         game.getDeck().add( new Card( CardType.PLUS4, CardColour.BLUE ) );
         game.getDeck().add( new Card( CardType.PLUS4, CardColour.YELLOW ) );
+        game.getDeck().add( new Card( CardType.OTHER_COLOUR, CardColour.GREEN ) );
+        game.getDeck().add( new Card( CardType.OTHER_COLOUR, CardColour.RED ) );
+        game.getDeck().add( new Card( CardType.OTHER_COLOUR, CardColour.BLUE ) );
+        game.getDeck().add( new Card( CardType.OTHER_COLOUR, CardColour.YELLOW ) );
 
         for ( Card c : game.getDeck() )
         {
@@ -295,7 +299,10 @@ public class GameSceneHandler extends AnimationTimer
         myDialog.initModality( Modality.WINDOW_MODAL );
         myDialog.setTitle( "Choose the colour" );
 
-        ImageView redView = new ImageView( images.get( new Card( CardType.PLUS4, CardColour.RED ) ) );
+        Card c = move.getPlayedCard();
+
+        c.setColour( CardColour.RED );
+        ImageView redView = new ImageView( images.get( c ) );
         redView.setFitHeight( 75 );
         redView.setFitWidth( 50 );
         redView.setOnMouseClicked( event -> {
@@ -304,7 +311,8 @@ public class GameSceneHandler extends AnimationTimer
             myDialog.close();
         });
 
-        ImageView greenView = new ImageView( images.get( new Card( CardType.PLUS4, CardColour.GREEN ) ) );
+        c.setColour( CardColour.GREEN );
+        ImageView greenView = new ImageView( images.get( c ) );
         greenView.setFitHeight( 75 );
         greenView.setFitWidth( 50 );
         greenView.setOnMouseClicked( event -> {
@@ -313,7 +321,8 @@ public class GameSceneHandler extends AnimationTimer
             myDialog.close();
         } );
 
-        ImageView yellowView = new ImageView( images.get( new Card( CardType.PLUS4, CardColour.YELLOW ) ) );
+        c.setColour( CardColour.YELLOW );
+        ImageView yellowView = new ImageView( images.get( c ) );
         yellowView.setFitHeight( 75 );
         yellowView.setFitWidth( 50 );
         yellowView.setOnMouseClicked( event -> {
@@ -322,7 +331,8 @@ public class GameSceneHandler extends AnimationTimer
             myDialog.close();
         } );
 
-        ImageView blueView = new ImageView( images.get( new Card( CardType.PLUS4, CardColour.BLUE ) ) );
+        c.setColour( CardColour.BLUE );
+        ImageView blueView = new ImageView( images.get( c ) );
         blueView.setFitHeight( 75 );
         blueView.setFitWidth( 50 );
         blueView.setOnMouseClicked( event -> {
@@ -330,6 +340,8 @@ public class GameSceneHandler extends AnimationTimer
             sendMove( move );
             myDialog.close();
         } );
+
+        c.setColour( CardColour.NO_COLOUR );
 
         HBox dialogBox = new HBox( 20 );
         dialogBox.getChildren().addAll( redView, greenView, blueView, yellowView );

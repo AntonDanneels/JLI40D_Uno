@@ -113,7 +113,7 @@ public class GameLogic
         Card currentCard = game.getTopCard();
         Card playedCard  = move.getPlayedCard();
 
-        if ( playedCard.getColour() == CardColour.NO_COLOUR || playedCard.getType() == CardType.PLUS4 )
+        if ( playedCard.getType() == CardType.OTHER_COLOUR || playedCard.getType() == CardType.PLUS4 )
         {
             return true;
         }
