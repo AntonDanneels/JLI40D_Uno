@@ -18,7 +18,7 @@ public class AppConfig
     {
         DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
         dataSourceBuilder.driverClassName( "org.sqlite.JDBC" );
-        dataSourceBuilder.url( "jdbc:sqlite:your.db" );
+        dataSourceBuilder.url( "jdbc:sqlite:uno.db" );
         return dataSourceBuilder.build();
     }
 }
