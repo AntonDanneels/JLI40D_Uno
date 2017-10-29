@@ -114,7 +114,7 @@ public class GameLogic
 
         if ( playedCard.getColour() == CardColour.NO_COLOUR )
         {
-
+            return true;
         }
 
         if ( currentCard.getColour() == playedCard.getColour() || currentCard.getType() == playedCard.getType() )
