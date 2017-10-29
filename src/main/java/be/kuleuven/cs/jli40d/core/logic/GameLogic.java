@@ -142,6 +142,8 @@ public class GameLogic
                     move.getPlayedCard().getColour(),
                     move.getPlayedCard().getType(),
                     move.getPlayer().getUsername() );
+
+            game.setCurrentPlayer( wrap( game.getCurrentPlayer(), game.isClockwise(), game.getPlayers().size() ) );
         }
         else
         {
@@ -235,6 +237,9 @@ public class GameLogic
                     move.getPlayedCard().getColour(),
                     move.getPlayedCard().getType(),
                     move.getPlayer().getUsername() );
+
+            game.addLatestMove( move );
+
         }
     }
 }
