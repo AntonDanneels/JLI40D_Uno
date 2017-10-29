@@ -2,7 +2,7 @@
 .idea/
 JLI40D_Uno.iml
 *.class
-
+target/
 # Log file
 *.log
 

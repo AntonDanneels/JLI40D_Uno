@@ -2,7 +2,9 @@ package be.kuleuven.cs.jli40d.core.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A Game is a collection of {@link Player} objects, specially created for
@@ -18,11 +20,14 @@ public class Game implements Serializable
 {
     private int gameID;
 
-    private List<Player> players;
-    private List<Card>   deck;
+    private List<Player>            players;
+    private List<Card>              deck;
+    private List<GameMove>          moves;
+    private Map<String, List<Card>> cardsPerPlayer;
 
     private int maximumNumberOfPlayers;
 
+    private boolean started;
     private boolean ended;
     private int     currentPlayer;
     private Card    topCard;
@@ -37,12 +42,21 @@ public class Game implements Serializable
 
         this.players = new ArrayList<>();
         this.deck = new ArrayList<>();
+        this.moves = new ArrayList<>();
+
+        this.cardsPerPlayer = new HashMap<>();
 
         this.topCard = null;
+        this.started = false;
         this.ended = false;
         this.currentPlayer = 0;
         this.currentGameMoveID = 0;
         this.clockwise = true;
+    }
+
+    public Map<String, List<Card>> getCardsPerPlayer()
+    {
+        return cardsPerPlayer;
     }
 
     public void setCurrentGameMoveID( int currentGameMoveID )
@@ -100,6 +114,17 @@ public class Game implements Serializable
         return deck;
     }
 
+    public boolean isStarted()
+    {
+        return started;
+    }
+
+    public void setStarted( boolean started )
+    {
+
+        this.started = started;
+    }
+
     public boolean isEnded()
     {
         return ended;
@@ -143,5 +168,49 @@ public class Game implements Serializable
     public int getNumberOfJoinedPlayers()
     {
         return players.size();
+    }
+
+    /**
+     * Util function that returns the username (instead of an int at {@link #getCurrentPlayer()}).
+     *
+     * @return The username of the current player.
+     */
+    public String getCurrentPlayerUsername()
+    {
+        return players.get( currentPlayer ).getUsername();
+    }
+
+    public List<GameMove> getMoves()
+    {
+        return moves;
+    }
+
+    public void setMoves( List<GameMove> moves )
+    {
+        this.moves = moves;
+    }
+
+    public void addLatestMove( GameMove gameMove )
+    {
+        this.moves.add( gameMove );
+    }
+
+    /**
+     * Util function that returns true if a user, based on his username, has joined the game.
+     *
+     * @param username The username to check.
+     * @return True if the player is in the game, false otherwise.
+     */
+    public boolean hasPlayer( String username )
+    {
+        for ( Player player : players )
+        {
+            if ( player.getUsername().equals( username ) )
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

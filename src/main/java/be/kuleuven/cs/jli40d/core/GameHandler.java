@@ -1,38 +1,47 @@
 package be.kuleuven.cs.jli40d.core;
 
 import be.kuleuven.cs.jli40d.core.model.GameMove;
+import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
+import be.kuleuven.cs.jli40d.core.model.exception.InvalidGameMoveException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 
+import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 /**
  * All methods expect a token to identify and authenticate the user.
  */
-public interface GameHandler extends Remote
+public interface GameHandler extends Remote, Serializable
 {
     /**
      * Returns if a game is started (can also be finished) or not.
+     * <p>
+     * This is not a blocking call.
      *
      * @param token  The token given to the user for authentication.
      * @param gameID The id of the game.
      * @return False if the game is not yet started, true otherwise.
      * @throws InvalidTokenException When the token is invalid (expired or not found).
      * @throws RemoteException
+     * @throws GameNotFoundException When the game is not found.
      */
-    boolean isStarted( String token, int gameID ) throws InvalidTokenException, RemoteException;
+    boolean isStarted( String token, int gameID ) throws InvalidTokenException, RemoteException, GameNotFoundException;
 
     /**
      * Returns true if it's the server determines the players (identified
      * by the provided token) turn.
+     * <p>
+     * This method is not blocking.
      *
      * @param token  The token given to the user for authentication.
      * @param gameID The id of the game.
      * @return True if the player that invoked the function has its turn.
      * @throws InvalidTokenException When the token is invalid (expired or not found).
      * @throws RemoteException
+     * @throws GameNotFoundException When the game is not found.
      */
-    boolean myTurn( String token, int gameID ) throws InvalidTokenException, RemoteException;
+    boolean myTurn( String token, int gameID ) throws InvalidTokenException, RemoteException, GameNotFoundException;
 
 
     /**
@@ -48,17 +57,29 @@ public interface GameHandler extends Remote
      * @return The next GameMove when one is ready.
      * @throws InvalidTokenException When the token is invalid (expired or not found).
      * @throws RemoteException
+     * @throws GameNotFoundException When the game is not found.
      */
-    GameMove getNextMove( String token, int gameID, int nextGameMoveID ) throws InvalidTokenException, RemoteException;
+    GameMove getNextMove( String token, int gameID, int nextGameMoveID ) throws
+            InvalidTokenException,
+            RemoteException,
+            GameNotFoundException;
 
     /**
      * Send a {@link GameMove} object to update the state of a certain game.
+     * <p>
+     * This method also checks if the player was authorised and it was his/her
+     * turn to make a move.
      *
      * @param token  The token given to the user for authentication.
      * @param gameID The id of the game.
-     * @param move   The {@link GameMove}.
      * @throws InvalidTokenException
      * @throws RemoteException
+     * @throws GameNotFoundException    When the game is not found.
+     * @throws InvalidGameMoveException When the move is invalid.
      */
-    void sendMove( String token, int gameID, GameMove move ) throws InvalidTokenException, RemoteException;
+    void sendMove( String token, int gameID, GameMove move ) throws
+            InvalidTokenException,
+            RemoteException,
+            GameNotFoundException,
+            InvalidGameMoveException;
 }

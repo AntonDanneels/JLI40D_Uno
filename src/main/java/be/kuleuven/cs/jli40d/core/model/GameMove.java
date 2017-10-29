@@ -1,14 +1,18 @@
 package be.kuleuven.cs.jli40d.core.model;
 
+import java.io.Serializable;
+
 /**
  * Created by Anton D.
  */
-public class GameMove
+public class GameMove implements Serializable
 {
     private int id;
     private Player player;
     private Card playedCard;
     private boolean cardDrawn;
+
+    private boolean activated;
 
     public GameMove( int id, Player player, Card playedCard, boolean cardDrawn )
     {
@@ -16,6 +20,13 @@ public class GameMove
         this.player = player;
         this.playedCard = playedCard;
         this.cardDrawn = cardDrawn;
+
+        this.activated = false;
+    }
+
+    public void setPlayedCard( Card playedCard )
+    {
+        this.playedCard = playedCard;
     }
 
     public Player getPlayer()
@@ -36,5 +47,15 @@ public class GameMove
     public int getId()
     {
         return id;
+    }
+
+    public boolean isActivated()
+    {
+        return activated;
+    }
+
+    public void setActivated( boolean activated )
+    {
+        this.activated = activated;
     }
 }

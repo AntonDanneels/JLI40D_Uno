@@ -26,7 +26,7 @@ public class ApplicationMain
         {
             //services
             SimpleUserManager userManager = new SimpleUserManager();
-            GameManager gameManager = new GameManager();
+            GameManager gameManager = new GameManager( userManager );
             LobbyHandler lobby = new Lobby( userManager, gameManager );
 
             // create on port 1099

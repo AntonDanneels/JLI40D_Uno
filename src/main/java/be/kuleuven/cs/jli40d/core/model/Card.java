@@ -25,4 +25,30 @@ public class Card implements Serializable
     {
         return colour;
     }
+
+    public void setColour( CardColour colour )
+    {
+        this.colour = colour;
+    }
+
+    @Override
+    public boolean equals( Object o )
+    {
+        if ( this == o ) return true;
+        if ( o == null || getClass() != o.getClass() ) return false;
+
+        Card card = ( Card ) o;
+
+        if ( type != card.type ) return false;
+        return colour == card.colour;
+
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = type.hashCode();
+        result = 31 * result + colour.hashCode();
+        return result;
+    }
 }
