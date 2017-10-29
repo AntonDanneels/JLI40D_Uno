@@ -161,12 +161,25 @@ public class GameSceneHandler extends AnimationTimer
                 // TODO create animation
             }
 
+            gc.strokeRect( 600, 50, 200, 50 );
+            gc.fillText( "Draw card", 605, 512 );
+
             if( gameHandler.myTurn( client.getToken(), game.getGameID() ) )
             {
                 gc.fillText( "It is my turn", 50, 50 );
                 if ( mouseDown )
                 {
-                    if( selectedCardButton == null )
+                    if( Utils.intersects( (int) mousePosX, (int) mousePosY, 1,1, 600, 50, 200, 50 ) )
+                    {
+                        GameMove move = new GameMove( game.getCurrentGameMoveID(), me, null, true );
+
+                        if( GameLogic.testMove( game, move ) )
+                        {
+                            LOGGER.debug( "Sending gamemove to draw card" );
+                            gameHandler.sendMove( client.getToken(), game.getGameID(), move );
+                        }
+                    }
+                    else if( selectedCardButton == null )
                     {
                         for ( CardButton b : cardButtons )
                         {
@@ -187,14 +200,15 @@ public class GameSceneHandler extends AnimationTimer
                 {
                     if ( selectedCardButton != null )
                     {
-                        LOGGER.debug( "Testing intersection" );
                         if ( Utils.intersects( selectedCardButton.getX(), selectedCardButton.getY(), selectedCardButton.getW(), selectedCardButton.getH(), 400, 200, 200, 50 ) )
                         {
-                            LOGGER.debug( "Testing gameMove" );
                             GameMove move = new GameMove( game.getCurrentGameMoveID(), me, selectedCardButton.getC(), false );
 
                             if( GameLogic.testMove( game, move ) )
+                            {
+                                LOGGER.debug( "Sending gamemove with played card {}:{}", selectedCardButton.getC().getType(), selectedCardButton.getC().getColour() );
                                 gameHandler.sendMove( client.getToken(), game.getGameID(), move );
+                            }
                         }
                     }
 
