@@ -183,12 +183,12 @@ public class GameSceneHandler extends AnimationTimer
 
     public synchronized void handle( long now )
     {
-        gc.setFill( Color.WHITE );
+        gc.setFill( Color.BLACK );
+        gc.clearRect( 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight() );
 
         //draw background
-         gc.drawImage( background, 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
+        gc.drawImage( background, 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
 
-        //gc.clearRect( 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight() );
         gc.fillText( "Mouse " + mouseDown + " , " + mousePosX + " , " + mousePosY, 10, 10 );
 
         try
@@ -203,15 +203,12 @@ public class GameSceneHandler extends AnimationTimer
                 // TODO create animation
             }
 
-            gc.strokeRect( 800, 20, 100, 50 );
-            gc.fillText( "Draw card", 805, 32 );
-
             if ( gameHandler.myTurn( client.getToken(), game.getGameID() ) )
             {
                 gc.fillText( "It is my turn", 50, 50 );
                 if ( mouseDown )
                 {
-                    if ( Utils.intersects( ( int )mousePosX, ( int )mousePosY, 1, 1, 800, 20, 100, 50 ) )
+                    if ( Utils.intersects( ( int )mousePosX, ( int )mousePosY, 1, 1, 526, 282, 74, 106) )
                     {
                         GameMove move = new GameMove( game.getCurrentGameMoveID(), me, null, true );
 
@@ -266,8 +263,7 @@ public class GameSceneHandler extends AnimationTimer
                 gc.fillText( "Waiting for the other players", 50, 50 );
             }
 
-            // TODO proper drop area
-            gc.setFill( Color.TRANSPARENT );
+            //gc.setFill( Color.TRANSPARENT );
             Card c = game.getTopCard();
             //gc.clearRect( topCardX, topCardY, 74, 108 );
             gc.drawImage( images.get( c ), topCardX, topCardY, 74, 108 );
