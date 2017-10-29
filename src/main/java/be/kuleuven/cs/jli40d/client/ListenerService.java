@@ -27,6 +27,7 @@ public class ListenerService implements Runnable
     private Game    game;
 
     private boolean active;
+    private int currentGameMoveID;
 
     private Queue<GameMove> unhandledGameMoves;
 
@@ -47,11 +48,12 @@ public class ListenerService implements Runnable
         {
             try
             {
-                GameMove move = gameHandler.getNextMove( token, game.getGameID(), game.getCurrentGameMoveID() + 1 );
+                GameMove move = gameHandler.getNextMove( token, game.getGameID(), currentGameMoveID );
                 unhandledGameMoves.add( move );
                 LOGGER.debug( "Added move {}: {}:{}", move.getId(),
                         move.getPlayedCard().getColour(),
                         move.getPlayedCard().getType() );
+                currentGameMoveID++;
 
             }
             catch ( InvalidTokenException | RemoteException | GameNotFoundException e )

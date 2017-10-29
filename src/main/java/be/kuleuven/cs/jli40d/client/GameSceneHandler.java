@@ -2,11 +2,13 @@ package be.kuleuven.cs.jli40d.client;
 
 import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
+import be.kuleuven.cs.jli40d.core.logic.GameLogic;
 import be.kuleuven.cs.jli40d.core.model.Card;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.Player;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
+import be.kuleuven.cs.jli40d.core.model.exception.InvalidGameMoveException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import be.kuleuven.cs.jli40d.core.model.exception.UnableToJoinGameException;
 import com.sun.corba.se.pept.transport.ListenerThread;
@@ -24,8 +26,10 @@ import org.slf4j.LoggerFactory;
 import sun.rmi.runtime.Log;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * Created by Anton D.
@@ -45,12 +49,18 @@ public class GameSceneHandler extends AnimationTimer
     private double mousePosX = 0.0;
     private double mousePosY = 0.0;
 
+    private List<CardButton> cardButtons;
+
     @FXML
     private Canvas gameCanvas;
     private GraphicsContext gc;
 
+    private Player me;
+
     public GameSceneHandler()
     {
+        cardButtons = new ArrayList<>();
+        gameMoves = new ConcurrentLinkedDeque<>();
     }
 
     public void init( GameClient client, LobbyHandler lobbyHandler, GameHandler gameHandler )
@@ -59,9 +69,10 @@ public class GameSceneHandler extends AnimationTimer
         this.gameHandler = gameHandler;
         this.lobbyHandler = lobbyHandler;
 
-        gameCanvas.setOnMouseDragEntered( e -> { mouseDown = true; } );
-        gameCanvas.setOnMouseDragExited( e -> { mouseDown = false; } );
+        gameCanvas.setOnMousePressed( e -> { mouseDown = true; } );
+        gameCanvas.setOnMouseReleased( e -> { mouseDown = false; } );
         gameCanvas.setOnMouseMoved( e -> { mousePosX = e.getX(); mousePosY = e.getY(); } );
+        gameCanvas.setOnMouseDragged( e -> {  mousePosX = e.getX(); mousePosY = e.getY(); } );
 
         gc = gameCanvas.getGraphicsContext2D();
     }
@@ -108,36 +119,103 @@ public class GameSceneHandler extends AnimationTimer
         } ).start();
     }
 
-    private void enterGameLoop()
+    private synchronized void enterGameLoop()
     {
         listenerService = new ListenerService( gameHandler, client.getToken(), game, gameMoves );
+
+        for( Player p : game.getPlayers() )
+        {
+            if(p.getUsername().equals( client.getUsername() ))
+                me = p;
+        }
+
+        int x = 50;
+        int y = 75;
+        List<Card> cards = game.getCardsPerPlayer().get( client.getUsername() );
+        for( Card c : cards )
+        {
+            cardButtons.add( new CardButton( x, y, 150, 20, c ) );
+            y += 25;
+        }
+
         new Thread( listenerService ).start();
         this.start();
     }
 
+    private CardButton selectedCardButton = null;
+
     public synchronized void handle( long now )
     {
         gc.clearRect( 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight() );
-        gc.fillText( "Game " + game.getGameID(), 10, 10 );
+        gc.fillText( "Mouse " + mouseDown + " , " + mousePosX + " , " + mousePosY, 10, 10 );
 
         try
         {
+            while( gameMoves.peek() != null )
+            {
+                GameMove move = gameMoves.poll();
+                GameLogic.applyMove( game, move );
+                game.setCurrentGameMoveID( game.getCurrentGameMoveID() + 1 );
+                layoutCards();
+
+                // TODO create animation
+            }
+
             if( gameHandler.myTurn( client.getToken(), game.getGameID() ) )
             {
                 gc.fillText( "It is my turn", 50, 50 );
+                if ( mouseDown )
+                {
+                    if( selectedCardButton == null )
+                    {
+                        for ( CardButton b : cardButtons )
+                        {
+                            if ( b.isIn( mousePosX, mousePosY ) )
+                            {
+                                selectedCardButton = b;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        selectedCardButton.setX( (int)mousePosX - selectedCardButton.getW() / 2 );
+                        selectedCardButton.setY( (int)mousePosY - selectedCardButton.getH() / 2 );
+                    }
+                }
+                else
+                {
+                    if ( selectedCardButton != null )
+                    {
+                        LOGGER.debug( "Testing intersection" );
+                        if ( Utils.intersects( selectedCardButton.getX(), selectedCardButton.getY(), selectedCardButton.getW(), selectedCardButton.getH(), 400, 200, 200, 50 ) )
+                        {
+                            LOGGER.debug( "Testing gameMove" );
+                            GameMove move = new GameMove( game.getCurrentGameMoveID(), me, selectedCardButton.getC(), false );
+
+                            if( GameLogic.testMove( game, move ) )
+                                gameHandler.sendMove( client.getToken(), game.getGameID(), move );
+                        }
+                    }
+
+                    selectedCardButton = null;
+                    layoutCards();
+                }
             }
             else
             {
                 gc.fillText( "Waiting for the other players", 50,50 );
             }
 
-            int x = 50;
-            int y = 75;
-            List<Card> cards = game.getCardsPerPlayer().get( client.getUsername() );
-            for( Card c : cards )
+            // TODO proper drop area
+            gc.strokeRect( 400, 200, 200, 50 );
+            Card c = game.getTopCard();
+            gc.fillText( c.getType() + ":" + c.getColour(), 405, 212 );
+
+            for ( CardButton b : cardButtons )
             {
-                drawCard( c, x, y, 10,10 );
-                y += 25;
+                b.update( mousePosX, mousePosY );
+                b.render( gc );
             }
         }
         catch ( InvalidTokenException e )
@@ -152,11 +230,23 @@ public class GameSceneHandler extends AnimationTimer
         {
             e.printStackTrace();
         }
+        catch ( InvalidGameMoveException e )
+        {
+            LOGGER.debug( "Invalid game move!" );
+        }
     }
 
-    private void drawCard( Card c, int x, int y, int w, int h )
+    public void layoutCards()
     {
-        gc.fillText( c.getColour() + ":" + c.getType() , x, y );
+        cardButtons.clear();
+        int x = 50;
+        int y = 75;
+        List<Card> cards = game.getCardsPerPlayer().get( client.getUsername() );
+        for( Card c : cards )
+        {
+            cardButtons.add( new CardButton( x, y, 150, 20, c ) );
+            y += 25;
+        }
     }
 
     public void setGame( Game game )

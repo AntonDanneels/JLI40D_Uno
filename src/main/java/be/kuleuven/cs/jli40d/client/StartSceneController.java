@@ -80,6 +80,7 @@ public class StartSceneController
         {
             String token = userHandler.register( "test@test.be", usernameField.getText(), passwordField.getText() );
             client.setToken( token );
+            client.setUsername( usernameField.getText() );
 
             LOGGER.debug( "Register succesful, token: {}", token );
             LOGGER.debug( "Switching to lobby scene" );

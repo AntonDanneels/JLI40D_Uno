@@ -86,6 +86,7 @@ public class LobbySceneHandler
         {
             int id = lobbyHandler.makeGame( client.getToken(), gameName, nrOfPlayers );
             LOGGER.debug( "Succesfully created a game with ID {}", id );
+            refresh();
         }
         catch ( RemoteException e )
         {
