@@ -175,25 +175,18 @@ public class GameLogic
             if ( playedCard.getType() == CardType.SKIP )
                 game.setCurrentPlayer( wrap( game.getCurrentPlayer(), game.isClockwise(), game.getPlayers().size() ) );
 
-            if ( playedCard.getType() == CardType.PLUS2 && !move.isActivated())
+            if ( ( playedCard.getType() == CardType.PLUS2 || playedCard.getType() == CardType.PLUS4 ) && !move.isActivated() )
             {
                 int    nextPlayer = wrap( game.getCurrentPlayer(), game.isClockwise(), game.getPlayers().size() );
                 Player target     = game.getPlayers().get( nextPlayer );
 
                 move.setActivated( true );
 
-                for ( int i = 0; i < 2; i++ )
+                for ( int i = 0; i < ( playedCard.getType() == CardType.PLUS2 ? 2 : 4 ); i++ )
                 {
                     GameMove m = new GameMove( game.getCurrentGameMoveID(), target, null, true );
                     giveCardToPlayer( game, m );
                 }
-            }
-
-            if ( playedCard.getType() == CardType.PLUS4 )
-            {
-                int    nextPlayer = wrap( game.getCurrentPlayer(), game.isClockwise(), game.getPlayers().size() );
-                Player target     = game.getPlayers().get( nextPlayer );
-                target.setNrOfCards( target.getNrOfCards() + 4 );
             }
 
             game.setCurrentPlayer( wrap( game.getCurrentPlayer(), game.isClockwise(), game.getPlayers().size() ) );
