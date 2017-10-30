@@ -3,8 +3,12 @@
 JLI40D_Uno.iml
 *.class
 target/
+target/classes/
 # Log file
 *.log
+
+# SQLite db files
+*.db
 
 # BlueJ files
 *.ctxt

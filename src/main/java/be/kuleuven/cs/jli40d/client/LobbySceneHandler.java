@@ -4,18 +4,10 @@ import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import be.kuleuven.cs.jli40d.core.model.exception.UnableToCreateGameException;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.VBoxBuilder;
-import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -32,7 +24,7 @@ public class LobbySceneHandler
 {
     private Logger LOGGER = LoggerFactory.getLogger( LobbySceneHandler.class );
 
-    private GameClient       client;
+    private GameClient   client;
     private LobbyHandler lobbyHandler;
 
     @FXML
@@ -53,13 +45,13 @@ public class LobbySceneHandler
         LOGGER.debug( "Showing dialog to create game" );
 
         Stage myDialog = new Stage();
-        myDialog.initModality( Modality.WINDOW_MODAL);
+        myDialog.initModality( Modality.WINDOW_MODAL );
         myDialog.setTitle( "Enter game info" );
 
-        Button okButton = new Button("Create game");
-        TextField gameName = new TextField( "Game name" );
-        ComboBox<Integer> comboBox = new ComboBox <>();
-        comboBox.getItems().addAll( 2,3,4 );
+        Button            okButton = new Button( "Create game" );
+        TextField         gameName = new TextField( "Game name" );
+        ComboBox<Integer> comboBox = new ComboBox<>();
+        comboBox.getItems().addAll( 2, 3, 4 );
         comboBox.setValue( 4 );
 
         VBox dialogBox = new VBox( 20 );
@@ -73,9 +65,9 @@ public class LobbySceneHandler
         {
             createNewGame( gameName.getText(), comboBox.getValue() );
             myDialog.close();
-        });
+        } );
 
-        myDialog.setScene(myDialogScene);
+        myDialog.setScene( myDialogScene );
         myDialog.show();
     }
 
@@ -84,7 +76,7 @@ public class LobbySceneHandler
         LOGGER.debug( "Creating game with name {} and {} players ", gameName, nrOfPlayers );
         try
         {
-            int id = lobbyHandler.makeGame( client.getToken(), gameName, nrOfPlayers );
+            long id = lobbyHandler.makeGame( client.getToken(), gameName, nrOfPlayers );
             LOGGER.debug( "Succesfully created a game with ID {}", id );
             refresh();
         }
@@ -113,9 +105,9 @@ public class LobbySceneHandler
             List<Game> games = lobbyHandler.currentGames( client.getToken() );
             gamesList.getItems().clear();
 
-            gamesList.setCellFactory( new Callback <ListView <Game>, ListCell <Game>>()
+            gamesList.setCellFactory( new Callback<ListView<Game>, ListCell<Game>>()
             {
-                public ListCell <Game> call( ListView <Game> param )
+                public ListCell<Game> call( ListView<Game> param )
                 {
                     return new GameCell( client );
                 }

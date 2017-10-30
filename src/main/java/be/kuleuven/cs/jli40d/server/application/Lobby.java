@@ -79,7 +79,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
      * @throws InvalidTokenException       When the token is invalid (expired or not found).
      * @throws UnableToCreateGameException When the game cannot be created for some reason (like exceeded limits).
      */
-    public int makeGame( String token, String gameName, int numberOfPlayers ) throws
+    public long makeGame( String token, String gameName, int numberOfPlayers ) throws
             InvalidTokenException,
             UnableToCreateGameException
     {
@@ -114,7 +114,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
      * @throws UnableToJoinGameException When the user cannot join the game for various reasons.
      * @throws InvalidTokenException     When the token is invalid (expired or not found).
      */
-    public synchronized Game joinGame( String token, int gameID ) throws
+    public synchronized Game joinGame( String token, long gameID ) throws
             UnableToJoinGameException,
             InvalidTokenException
     {
@@ -193,7 +193,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
         if ( o == null || getClass() != o.getClass() ) return false;
         if ( !super.equals( o ) ) return false;
 
-        Lobby lobby = ( Lobby )o;
+        Lobby lobby = ( Lobby ) o;
 
         if ( userManager != null ? !userManager.equals( lobby.userManager ) : lobby.userManager != null ) return false;
         return games != null ? games.equals( lobby.games ) : lobby.games == null;

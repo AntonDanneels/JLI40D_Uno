@@ -1,38 +1,38 @@
 <code_scheme name="Default (1)">
-  <option name="FIELD_NAME_PREFIX" value="" />
-  <JavaCodeStyleSettings>
-    <option name="SPACE_AFTER_CLOSING_ANGLE_BRACKET_IN_TYPE_ARGUMENT" value="true" />
-    <option name="SPACE_BEFORE_OPENING_ANGLE_BRACKET_IN_TYPE_PARAMETER" value="true" />
-  </JavaCodeStyleSettings>
-  <XML>
-    <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
-  </XML>
-  <codeStyleSettings language="JAVA">
-    <option name="BRACE_STYLE" value="2" />
-    <option name="CLASS_BRACE_STYLE" value="2" />
-    <option name="METHOD_BRACE_STYLE" value="2" />
-    <option name="ELSE_ON_NEW_LINE" value="true" />
-    <option name="WHILE_ON_NEW_LINE" value="true" />
-    <option name="CATCH_ON_NEW_LINE" value="true" />
-    <option name="FINALLY_ON_NEW_LINE" value="true" />
-    <option name="ALIGN_GROUP_FIELD_DECLARATIONS" value="true" />
-    <option name="ALIGN_CONSECUTIVE_VARIABLE_DECLARATIONS" value="true" />
-    <option name="ALIGN_SUBSEQUENT_SIMPLE_METHODS" value="true" />
-    <option name="SPACE_WITHIN_PARENTHESES" value="true" />
-    <option name="SPACE_WITHIN_METHOD_CALL_PARENTHESES" value="true" />
-    <option name="SPACE_WITHIN_METHOD_PARENTHESES" value="true" />
-    <option name="SPACE_WITHIN_IF_PARENTHESES" value="true" />
-    <option name="SPACE_WITHIN_WHILE_PARENTHESES" value="true" />
-    <option name="SPACE_WITHIN_FOR_PARENTHESES" value="true" />
-    <option name="SPACE_WITHIN_TRY_PARENTHESES" value="true" />
-    <option name="SPACE_WITHIN_CATCH_PARENTHESES" value="true" />
-    <option name="SPACE_WITHIN_SWITCH_PARENTHESES" value="true" />
-    <option name="SPACE_WITHIN_SYNCHRONIZED_PARENTHESES" value="true" />
-    <option name="SPACE_WITHIN_CAST_PARENTHESES" value="true" />
-    <option name="SPACE_WITHIN_BRACKETS" value="true" />
-    <option name="SPACE_WITHIN_BRACES" value="true" />
-    <option name="SPACE_WITHIN_ARRAY_INITIALIZER_BRACES" value="true" />
-    <option name="SPACE_BEFORE_TYPE_PARAMETER_LIST" value="true" />
-    <option name="SPACE_WITHIN_ANNOTATION_PARENTHESES" value="true" />
-  </codeStyleSettings>
+    <option name="FIELD_NAME_PREFIX" value=""/>
+    <JavaCodeStyleSettings>
+        <option name="SPACE_AFTER_CLOSING_ANGLE_BRACKET_IN_TYPE_ARGUMENT" value="true"/>
+        <option name="SPACE_BEFORE_OPENING_ANGLE_BRACKET_IN_TYPE_PARAMETER" value="true"/>
+    </JavaCodeStyleSettings>
+    <XML>
+        <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true"/>
+    </XML>
+    <codeStyleSettings language="JAVA">
+        <option name="BRACE_STYLE" value="2"/>
+        <option name="CLASS_BRACE_STYLE" value="2"/>
+        <option name="METHOD_BRACE_STYLE" value="2"/>
+        <option name="ELSE_ON_NEW_LINE" value="true"/>
+        <option name="WHILE_ON_NEW_LINE" value="true"/>
+        <option name="CATCH_ON_NEW_LINE" value="true"/>
+        <option name="FINALLY_ON_NEW_LINE" value="true"/>
+        <option name="ALIGN_GROUP_FIELD_DECLARATIONS" value="true"/>
+        <option name="ALIGN_CONSECUTIVE_VARIABLE_DECLARATIONS" value="true"/>
+        <option name="ALIGN_SUBSEQUENT_SIMPLE_METHODS" value="true"/>
+        <option name="SPACE_WITHIN_PARENTHESES" value="true"/>
+        <option name="SPACE_WITHIN_METHOD_CALL_PARENTHESES" value="true"/>
+        <option name="SPACE_WITHIN_METHOD_PARENTHESES" value="true"/>
+        <option name="SPACE_WITHIN_IF_PARENTHESES" value="true"/>
+        <option name="SPACE_WITHIN_WHILE_PARENTHESES" value="true"/>
+        <option name="SPACE_WITHIN_FOR_PARENTHESES" value="true"/>
+        <option name="SPACE_WITHIN_TRY_PARENTHESES" value="true"/>
+        <option name="SPACE_WITHIN_CATCH_PARENTHESES" value="true"/>
+        <option name="SPACE_WITHIN_SWITCH_PARENTHESES" value="true"/>
+        <option name="SPACE_WITHIN_SYNCHRONIZED_PARENTHESES" value="true"/>
+        <option name="SPACE_WITHIN_CAST_PARENTHESES" value="true"/>
+        <option name="SPACE_WITHIN_BRACKETS" value="true"/>
+        <option name="SPACE_WITHIN_BRACES" value="true"/>
+        <option name="SPACE_WITHIN_ARRAY_INITIALIZER_BRACES" value="true"/>
+        <option name="SPACE_BEFORE_TYPE_PARAMETER_LIST" value="true"/>
+        <option name="SPACE_WITHIN_ANNOTATION_PARENTHESES" value="true"/>
+    </codeStyleSettings>
 </code_scheme>

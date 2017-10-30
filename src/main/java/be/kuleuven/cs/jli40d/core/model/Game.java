@@ -1,5 +1,7 @@
 package be.kuleuven.cs.jli40d.core.model;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,14 +18,16 @@ import java.util.Map;
  * @author Pieter
  * @version 1.0
  */
+@Entity
 public class Game implements Serializable
 {
-    private int gameID;
+    @Id
+    private long gameID;
 
     private List<Player>            players;
     private List<Card>              deck;
     private List<GameMove>          moves;
-    private Map<String, List<Card>> cardsPerPlayer;
+    private Map<String, PlayerHand> playerHands;
 
     private int maximumNumberOfPlayers;
 
@@ -33,6 +37,10 @@ public class Game implements Serializable
     private Card    topCard;
     private int     currentGameMoveID;
     private boolean clockwise;
+
+    public Game()
+    {
+    }
 
     public Game( int gameID, int maximumNumberOfPlayers )
     {
@@ -44,18 +52,39 @@ public class Game implements Serializable
         this.deck = new ArrayList<>();
         this.moves = new ArrayList<>();
 
-        this.cardsPerPlayer = new HashMap<>();
+        this.playerHands = new HashMap<>();
 
         this.topCard = null;
         this.started = false;
         this.ended = false;
         this.currentPlayer = 0;
-        this.currentGameMoveID = 0;
+        this.currentGameMoveID = -1;
         this.clockwise = true;
     }
 
+    public Map<String, PlayerHand> getPlayerHands()
+    {
+        return playerHands;
+    }
+
+    public void setPlayerHands( Map<String, PlayerHand> playerHands )
+    {
+        this.playerHands = playerHands;
+    }
+
+    /**
+     * Legacy function that creates a <code> Map<String, List<Card>> </code> object.
+     *
+     * @return A mapping with all the cards for each player
+     */
     public Map<String, List<Card>> getCardsPerPlayer()
     {
+        Map<String, List<Card>> cardsPerPlayer = new HashMap<>();
+
+        for (String player : playerHands.keySet()) {
+            cardsPerPlayer.put( player, playerHands.get( player ).getPlayerHands() );
+        }
+
         return cardsPerPlayer;
     }
 
@@ -140,12 +169,12 @@ public class Game implements Serializable
         return topCard;
     }
 
-    public void setGameID( int gameID )
+    public void setGameID( long gameID )
     {
         this.gameID = gameID;
     }
 
-    public int getGameID()
+    public long getGameID()
     {
         return gameID;
     }

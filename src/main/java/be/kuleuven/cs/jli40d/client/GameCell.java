@@ -9,22 +9,21 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.rmi.runtime.Log;
 
 /**
  * Created by Anton D.
  */
 public class GameCell extends ListCell<Game>
 {
-    private Logger LOGGER = LoggerFactory.getLogger( GameCell.class );
+    private static final Logger LOGGER = LoggerFactory.getLogger(GameCell.class);
 
-    private HBox hBox = new HBox();
-    private Pane pane = new Pane();
-    private Pane pane1 = new Pane();
-    private Label gameNameLabel = new Label( "" );
-    private Label nrOfPlayersLabel = new Label( "" );
-    private Button joinButton = new Button( "Join" );
-    private Button viewButton = new Button( "View" );
+    private HBox   hBox             = new HBox();
+    private Pane   pane             = new Pane();
+    private Pane   pane1            = new Pane();
+    private Label  gameNameLabel    = new Label( "" );
+    private Label  nrOfPlayersLabel = new Label( "" );
+    private Button joinButton       = new Button( "Join" );
+    private Button viewButton       = new Button( "View" );
 
     private Game game;
 
@@ -39,7 +38,7 @@ public class GameCell extends ListCell<Game>
             LOGGER.debug( "Joining game: {}", game.getGameID() );
             LOGGER.debug( "Switching to the game scene." );
             client.setGameScene( game );
-        });
+        } );
     }
 
     protected void updateItem( Game game, boolean empty )

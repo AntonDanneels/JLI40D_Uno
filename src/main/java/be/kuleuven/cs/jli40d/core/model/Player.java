@@ -1,26 +1,45 @@
 package be.kuleuven.cs.jli40d.core.model;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.io.Serializable;
 
 /**
  * Created by Anton D.
  */
+@Entity
 public class Player implements Serializable
 {
-    private int ID;
+    @Id
+    private int id;
+
     private int nrOfCards;
 
     private String username;
 
-    public Player( int ID, String username )
+    public Player()
     {
-        this.ID = ID;
+    }
+
+    public Player( int id, String username )
+    {
+        this.id = id;
         this.username = username;
     }
 
-    public int getID()
+    public int getId()
     {
-        return ID;
+        return id;
+    }
+
+    public void setId( int id )
+    {
+        this.id = id;
+    }
+
+    public void setUsername( String username )
+    {
+        this.username = username;
     }
 
     public int getNrOfCards()
