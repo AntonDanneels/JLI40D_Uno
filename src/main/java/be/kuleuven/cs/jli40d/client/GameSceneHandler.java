@@ -208,18 +208,18 @@ public class GameSceneHandler extends AnimationTimer
                 gc.fillText( "It is my turn", 50, 50 );
                 if ( mouseDown )
                 {
-                    if ( Utils.intersects( ( int )mousePosX, ( int )mousePosY, 1, 1, 526, 282, 74, 106 ) )
+                    if ( selectedCardButton == null )
                     {
-                        GameMove move = new GameMove( game.getCurrentGameMoveID(), me, null, true );
-
-                        if ( GameLogic.testMove( game, move ) )
+                        if ( Utils.intersects( ( int )mousePosX, ( int )mousePosY, 1, 1, 526, 282, 74, 106 ) )
                         {
-                            LOGGER.debug( "Sending gamemove to draw card" );
-                            gameHandler.sendMove( client.getToken(), game.getGameID(), move );
+                            GameMove move = new GameMove( game.getCurrentGameMoveID(), me, null, true );
+
+                            if ( GameLogic.testMove( game, move ) )
+                            {
+                                LOGGER.debug( "Sending gamemove to draw card" );
+                                gameHandler.sendMove( client.getToken(), game.getGameID(), move );
+                            }
                         }
-                    }
-                    else if ( selectedCardButton == null )
-                    {
                         for ( CardButton b : cardButtons )
                         {
                             if ( b.isIn( mousePosX, mousePosY ) )
