@@ -25,8 +25,9 @@ public class Card implements Serializable
     {
     }
 
-    public Card( CardType type, CardColour colour )
+    public Card( long id, CardType type, CardColour colour )
     {
+        this.id = id;
         this.type = type;
         this.colour = colour;
     }
