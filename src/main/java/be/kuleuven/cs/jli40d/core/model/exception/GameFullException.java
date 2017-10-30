@@ -8,7 +8,7 @@ public class GameFullException extends UnableToJoinGameException
 {
     public GameFullException()
     {
-        super("Game is full, no new players can join right now.");
+        super( "Game is full, no new players can join right now." );
     }
 
     /**

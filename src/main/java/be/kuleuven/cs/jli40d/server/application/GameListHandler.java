@@ -12,7 +12,7 @@ import java.util.List;
  */
 public interface GameListHandler extends Serializable
 {
-    void add(Game game);
+    void add( Game game );
 
     int nextID();
 

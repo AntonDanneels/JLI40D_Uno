@@ -155,7 +155,7 @@ public class SimpleUserManager extends UnicastRemoteObject implements UserHandle
         if ( o == null || getClass() != o.getClass() ) return false;
         if ( !super.equals( o ) ) return false;
 
-        SimpleUserManager manager = ( SimpleUserManager )o;
+        SimpleUserManager manager = ( SimpleUserManager ) o;
 
         if ( tokens != null ? !tokens.equals( manager.tokens ) : manager.tokens != null ) return false;
         return passwords != null ? passwords.equals( manager.passwords ) : manager.passwords == null;

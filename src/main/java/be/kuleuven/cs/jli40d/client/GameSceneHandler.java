@@ -32,23 +32,19 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  */
 public class GameSceneHandler extends AnimationTimer
 {
+    public static Map<Card, Image> images;
+    public static Image            background;
     private Logger LOGGER = LoggerFactory.getLogger( GameSceneHandler.class );
-
     private GameClient      client;
     private LobbyHandler    lobbyHandler;
     private GameHandler     gameHandler;
     private Game            game;
     private ListenerService listenerService;
     private Queue<GameMove> gameMoves;
-
     private boolean mouseDown = false;
     private double  mousePosX = 0.0;
     private double  mousePosY = 0.0;
-
     private       List<CardButton> cardButtons;
-    public static Map<Card, Image> images;
-    public static Image            background;
-
     @FXML
     private Canvas          gameCanvas;
     private GraphicsContext gc;
@@ -111,8 +107,8 @@ public class GameSceneHandler extends AnimationTimer
             images.put( c, new Image( path ) );
         }
 
-        topCardX = ( int )gameCanvas.getWidth() / 2 - 74/2;
-        topCardY = ( int )gameCanvas.getHeight() / 2 - 20;
+        topCardX = ( int ) gameCanvas.getWidth() / 2 - 74 / 2;
+        topCardY = ( int ) gameCanvas.getHeight() / 2 - 20;
 
         LOGGER.debug( "Loaded {} images", images.size() );
 
@@ -187,7 +183,7 @@ public class GameSceneHandler extends AnimationTimer
         gc.clearRect( 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight() );
 
         //draw background
-        gc.drawImage( background, 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
+        gc.drawImage( background, 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight() );
 
         gc.fillText( "Mouse " + mouseDown + " , " + mousePosX + " , " + mousePosY, 10, 10 );
 
@@ -204,12 +200,12 @@ public class GameSceneHandler extends AnimationTimer
             }
 
             //if ( gameHandler.myTurn( client.getToken(), game.getGameID() ) )
-            if( game.getCurrentPlayerUsername().equals( client.getUsername() ) )
+            if ( game.getCurrentPlayerUsername().equals( client.getUsername() ) )
             {
                 gc.fillText( "It is my turn", 50, 50 );
                 if ( mouseDown )
                 {
-                    if ( Utils.intersects( ( int )mousePosX, ( int )mousePosY, 1, 1, 526, 282, 74, 106) )
+                    if ( Utils.intersects( ( int ) mousePosX, ( int ) mousePosY, 1, 1, 526, 282, 74, 106 ) )
                     {
                         GameMove move = new GameMove( game.getCurrentGameMoveID(), me, null, true );
 
@@ -232,8 +228,8 @@ public class GameSceneHandler extends AnimationTimer
                     }
                     else
                     {
-                        selectedCardButton.setX( ( int )mousePosX - selectedCardButton.getW() / 2 );
-                        selectedCardButton.setY( ( int )mousePosY - selectedCardButton.getH() / 2 );
+                        selectedCardButton.setX( ( int ) mousePosX - selectedCardButton.getW() / 2 );
+                        selectedCardButton.setY( ( int ) mousePosY - selectedCardButton.getH() / 2 );
                     }
                 }
                 else
@@ -268,7 +264,6 @@ public class GameSceneHandler extends AnimationTimer
             Card c = game.getTopCard();
             //gc.clearRect( topCardX, topCardY, 74, 108 );
             gc.drawImage( images.get( c ), topCardX, topCardY, 74, 108 );
-
 
 
             for ( CardButton b : cardButtons )
@@ -388,7 +383,7 @@ public class GameSceneHandler extends AnimationTimer
     {
         cardButtons.clear();
         List<Card> cards = game.getCardsPerPlayer().get( client.getUsername() );
-        int        x     = ( int )gameCanvas.getWidth() / 2 - cards.size() * 80 / 2;
+        int        x     = ( int ) gameCanvas.getWidth() / 2 - cards.size() * 80 / 2;
         int        y     = 475;
         for ( Card c : cards )
         {

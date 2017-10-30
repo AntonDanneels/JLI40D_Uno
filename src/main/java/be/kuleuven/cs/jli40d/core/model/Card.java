@@ -7,7 +7,7 @@ import java.io.Serializable;
  */
 public class Card implements Serializable
 {
-    private CardType type;
+    private CardType   type;
     private CardColour colour;
 
     public Card( CardType type, CardColour colour )

@@ -88,6 +88,31 @@ public class Client extends JFrame implements ActionListener
         setVisible( true );
     }
 
+    public static void main( String args[] )
+    {
+        String host = "localhost";
+        int    port = 1099;
+
+        Registry myRegistry;
+
+        try
+        {
+            UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
+
+            myRegistry = LocateRegistry.getRegistry( host, port );
+            final LobbyHandler lobbyHandler = ( LobbyHandler ) myRegistry.lookup( LobbyHandler.class.getName() );
+            final UserHandler  userManager  = ( UserHandler ) myRegistry.lookup( UserHandler.class.getName() );
+            final GameHandler  gameHandler  = ( GameHandler ) myRegistry.lookup( GameHandler.class.getName() );
+
+            Client client = new Client( userManager, lobbyHandler, gameHandler );
+        }
+        catch ( Exception e )
+        {
+            // :no-words: :marvelous:
+            e.printStackTrace();
+        }
+    }
+
     public void actionPerformed( ActionEvent e )
     {
         try
@@ -429,30 +454,5 @@ public class Client extends JFrame implements ActionListener
             }
         }
 
-    }
-
-    public static void main( String args[] )
-    {
-        String host = "localhost";
-        int    port = 1099;
-
-        Registry myRegistry;
-
-        try
-        {
-            UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
-
-            myRegistry = LocateRegistry.getRegistry( host, port );
-            final LobbyHandler lobbyHandler = ( LobbyHandler )myRegistry.lookup( LobbyHandler.class.getName() );
-            final UserHandler  userManager  = ( UserHandler )myRegistry.lookup( UserHandler.class.getName() );
-            final GameHandler  gameHandler  = ( GameHandler )myRegistry.lookup( GameHandler.class.getName() );
-
-            Client client = new Client( userManager, lobbyHandler, gameHandler );
-        }
-        catch ( Exception e )
-        {
-            // :no-words: :marvelous:
-            e.printStackTrace();
-        }
     }
 }
