@@ -7,9 +7,9 @@ import java.io.Serializable;
  */
 public class GameMove implements Serializable
 {
-    private int id;
-    private Player player;
-    private Card playedCard;
+    private int     id;
+    private Player  player;
+    private Card    playedCard;
     private boolean cardDrawn;
 
     private boolean activated;
@@ -24,11 +24,6 @@ public class GameMove implements Serializable
         this.activated = false;
     }
 
-    public void setPlayedCard( Card playedCard )
-    {
-        this.playedCard = playedCard;
-    }
-
     public Player getPlayer()
     {
         return player;
@@ -37,6 +32,11 @@ public class GameMove implements Serializable
     public Card getPlayedCard()
     {
         return playedCard;
+    }
+
+    public void setPlayedCard( Card playedCard )
+    {
+        this.playedCard = playedCard;
     }
 
     public boolean isCardDrawn()

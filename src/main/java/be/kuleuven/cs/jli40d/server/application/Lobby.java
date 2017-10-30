@@ -193,7 +193,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
         if ( o == null || getClass() != o.getClass() ) return false;
         if ( !super.equals( o ) ) return false;
 
-        Lobby lobby = ( Lobby )o;
+        Lobby lobby = ( Lobby ) o;
 
         if ( userManager != null ? !userManager.equals( lobby.userManager ) : lobby.userManager != null ) return false;
         return games != null ? games.equals( lobby.games ) : lobby.games == null;

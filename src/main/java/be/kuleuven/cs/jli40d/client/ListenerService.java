@@ -24,10 +24,10 @@ public class ListenerService implements Runnable
     private GameHandler gameHandler;
 
     private String token;
-    private Game    game;
+    private Game   game;
 
     private boolean active;
-    private int currentGameMoveID;
+    private int     currentGameMoveID;
 
     private Queue<GameMove> unhandledGameMoves;
 
@@ -39,6 +39,8 @@ public class ListenerService implements Runnable
         this.unhandledGameMoves = unhandledGameMoves;
 
         this.active = true;
+
+        this.currentGameMoveID = game.getMoves().size();
     }
 
     @Override

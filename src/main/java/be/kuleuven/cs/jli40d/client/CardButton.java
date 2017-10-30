@@ -3,15 +3,14 @@ package be.kuleuven.cs.jli40d.client;
 import be.kuleuven.cs.jli40d.core.model.Card;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 
 /**
  * Created by Anton D.
  */
 public class CardButton
 {
-    private int x,y,w,h;
-    private Card c;
+    private int x, y, w, h;
+    private Card    c;
     private boolean hovered;
 
     public CardButton( int x, int y, int w, int h, Card c )
@@ -26,7 +25,7 @@ public class CardButton
 
     public void update( double mousePosX, double mousePosY )
     {
-        if( isIn( mousePosX, mousePosY ) )
+        if ( isIn( mousePosX, mousePosY ) )
             hovered = true;
         else
             hovered = false;
@@ -39,7 +38,7 @@ public class CardButton
 
     public void render( GraphicsContext gc )
     {
-        if( hovered )
+        if ( hovered )
         {
             gc.setStroke( Color.RED );
             gc.strokeRect( x, y, w, h );
@@ -49,24 +48,24 @@ public class CardButton
         gc.drawImage( GameSceneHandler.images.get( c ), x, y, w, h );
     }
 
-    public void setX( int x )
-    {
-        this.x = x;
-    }
-
-    public void setY( int y )
-    {
-        this.y = y;
-    }
-
     public int getX()
     {
         return x;
     }
 
+    public void setX( int x )
+    {
+        this.x = x;
+    }
+
     public int getY()
     {
         return y;
+    }
+
+    public void setY( int y )
+    {
+        this.y = y;
     }
 
     public int getW()
