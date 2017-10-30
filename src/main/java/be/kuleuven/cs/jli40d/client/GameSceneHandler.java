@@ -106,14 +106,14 @@ public class GameSceneHandler extends AnimationTimer
 
         Game game = new Game( 0, 4 );
         GameLogic.generateDeck( game );
-        game.getDeck().add( new Card(0, CardType.PLUS4, CardColour.GREEN ) );
-        game.getDeck().add( new Card(0, CardType.PLUS4, CardColour.RED ) );
-        game.getDeck().add( new Card(0, CardType.PLUS4, CardColour.BLUE ) );
-        game.getDeck().add( new Card(0, CardType.PLUS4, CardColour.YELLOW ) );
-        game.getDeck().add( new Card(0, CardType.OTHER_COLOUR, CardColour.GREEN ) );
-        game.getDeck().add( new Card(0, CardType.OTHER_COLOUR, CardColour.RED ) );
-        game.getDeck().add( new Card(0, CardType.OTHER_COLOUR, CardColour.BLUE ) );
-        game.getDeck().add( new Card(0, CardType.OTHER_COLOUR, CardColour.YELLOW ) );
+        game.getDeck().add( new Card( 0, CardType.PLUS4, CardColour.GREEN ) );
+        game.getDeck().add( new Card( 0, CardType.PLUS4, CardColour.RED ) );
+        game.getDeck().add( new Card( 0, CardType.PLUS4, CardColour.BLUE ) );
+        game.getDeck().add( new Card( 0, CardType.PLUS4, CardColour.YELLOW ) );
+        game.getDeck().add( new Card( 0, CardType.OTHER_COLOUR, CardColour.GREEN ) );
+        game.getDeck().add( new Card( 0, CardType.OTHER_COLOUR, CardColour.RED ) );
+        game.getDeck().add( new Card( 0, CardType.OTHER_COLOUR, CardColour.BLUE ) );
+        game.getDeck().add( new Card( 0, CardType.OTHER_COLOUR, CardColour.YELLOW ) );
 
         for ( Card c : game.getDeck() )
         {
@@ -210,6 +210,11 @@ public class GameSceneHandler extends AnimationTimer
 
             if ( !username.equals( client.getUsername() ) )
             {
+                gc.fillOval( getPlayerPosition( player.getUsername() ).getKey(),
+                        +getPlayerPosition( player.getUsername() ).getValue(),
+                        +104,
+                        +104 );
+
                 gc.fillText(
                         username + " (" + game.getPlayerHands().get( username ).getPlayerHands().size() + ")",
                         getPlayerPosition( player.getUsername() ).getKey() + 52,
