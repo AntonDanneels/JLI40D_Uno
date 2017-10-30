@@ -17,34 +17,34 @@ public class GameLogic
 
     public static void generateDeck( Game game )
     {
+        int counter = 0;
+
         game.getDeck().clear();
 
-        CardType[]   types   = CardType.values();
-        CardColour[] colours = CardColour.values();
-        for ( int i = 0; i < types.length; i++ )
+        for ( CardType type : CardType.values() )
         {
-            for ( int j = 0; j < colours.length; j++ )
-            {
-                if ( colours[ j ] != CardColour.NO_COLOUR && types[ i ] != CardType.OTHER_COLOUR && types[ i ] != CardType.PLUS4 )
+            if ( type != CardType.OTHER_COLOUR && type != CardType.PLUS4 )
+                for ( CardColour colour : CardColour.values() )
                 {
-                    CardType   type   = types[ i ];
-                    CardColour colour = colours[ j ];
-                    Card       card   = new Card( type, colour );
-                    game.getDeck().add( card );
-
-                    if ( types[ i ] != CardType.ZERO )
+                    if (colour != CardColour.NO_COLOUR)
                     {
-                        Card extra = new Card( type, colour );
-                        game.getDeck().add( extra );
+                        Card card = new Card( counter++, type, colour );
+                        game.getDeck().add( card );
+
+                        if ( type != CardType.ZERO )
+                        {
+                            Card extra = new Card( counter++, type, colour );
+                            game.getDeck().add( extra );
+                        }
                     }
+
                 }
-            }
         }
 
         for ( int i = 0; i < 4; i++ )
         {
-            game.getDeck().add( new Card( CardType.OTHER_COLOUR, CardColour.NO_COLOUR ) );
-            game.getDeck().add( new Card( CardType.PLUS4, CardColour.NO_COLOUR ) );
+            game.getDeck().add( new Card(counter++, CardType.OTHER_COLOUR, CardColour.NO_COLOUR ) );
+            game.getDeck().add( new Card(counter++, CardType.PLUS4, CardColour.NO_COLOUR ) );
         }
 
         Collections.shuffle( game.getDeck() );
@@ -159,13 +159,8 @@ public class GameLogic
             {
                 if ( p.getUsername().equals( move.getPlayer().getUsername() ) )
                 {
-                    Iterator<Card> it = game.getCardsPerPlayer().get( p.getUsername() ).iterator();
-                    while ( it.hasNext() )
-                    {
-                        Card c = it.next();
-                        if ( c.getColour() == move.getPlayedCard().getColour() && c.getType() == move.getPlayedCard().getType() )
-                            it.remove();
-                    }
+                    game.getPlayerHands().get( p.getUsername() ).getPlayerHands()
+                            .removeIf( c -> c.getId() == move.getPlayedCard().getId() );
                 }
             }
 
@@ -226,7 +221,7 @@ public class GameLogic
             //and give it to the player
             Player target = move.getPlayer();
 
-            game.getCardsPerPlayer().get( target.getUsername() ).add( move.getPlayedCard() );
+            game.getPlayerHands().get( target.getUsername() ).getPlayerHands().add( move.getPlayedCard() );
             target.setNrOfCards( target.getNrOfCards() + 1 );
 
             LOGGER.debug( "Given card {}:{} to {}",
