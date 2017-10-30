@@ -213,7 +213,6 @@ public class GameLogic
 
         if ( game.getCardsPerPlayer().containsKey( move.getPlayer().getUsername() ) )
         {
-
             //take a card from the deck if there is no card given
             if ( move.getPlayedCard() == null )
             {
@@ -235,6 +234,17 @@ public class GameLogic
             game.addLatestMove( move );
 
         }
+    }
+
+    public static boolean hasGameEnded( Game game )
+    {
+        for ( Player p : game.getPlayers() )
+        {
+            if ( p.getNrOfCards() == 0 )
+                return true;
+        }
+
+        return false;
     }
 
     public static int calculateScoreForPlayer( String username, Game game )
