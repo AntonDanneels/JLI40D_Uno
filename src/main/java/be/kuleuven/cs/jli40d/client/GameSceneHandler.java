@@ -211,9 +211,9 @@ public class GameSceneHandler extends AnimationTimer
             if ( !username.equals( client.getUsername() ) )
             {
                 gc.fillOval( getPlayerPosition( player.getUsername() ).getKey(),
-                        +getPlayerPosition( player.getUsername() ).getValue(),
-                        +104,
-                        +104 );
+                        getPlayerPosition( player.getUsername() ).getValue(),
+                        104,
+                        104 );
 
                 gc.fillText(
                         username + " (" + game.getPlayerHands().get( username ).getPlayerHands().size() + ")",
