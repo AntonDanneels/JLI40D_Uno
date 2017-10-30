@@ -5,7 +5,6 @@ import be.kuleuven.cs.jli40d.core.model.exception.InvalidUsernameOrPasswordExcep
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
 
 import java.rmi.RemoteException;
 

@@ -13,7 +13,7 @@ public class InvalidTokenException extends Exception
      */
     public InvalidTokenException()
     {
-        super("Token is either invalid or expired. Create an account or log in.");
+        super( "Token is either invalid or expired. Create an account or log in." );
     }
 
     /**

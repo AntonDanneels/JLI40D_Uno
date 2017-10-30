@@ -93,7 +93,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
             RemoteException,
             GameNotFoundException
     {
-        Game game = getGameByID( gameID );
+        Game   game     = getGameByID( gameID );
         String username = userManager.findUserByToken( token ); //TODO check if authenticated for game
 
         while ( game.getMoves().size() <= nextGameMoveID )
@@ -147,7 +147,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
 
         GameLogic.applyMove( game, move );
 
-        LOGGER.debug( "{} added a move to game {}", username, game  );
+        LOGGER.debug( "{} added a move to game {}", username, game );
 
         notifyAll();
 
@@ -191,7 +191,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
         if ( this == o ) return true;
         if ( o == null || getClass() != o.getClass() ) return false;
 
-        GameManager manager = ( GameManager )o;
+        GameManager manager = ( GameManager ) o;
 
         return games != null ? games.equals( manager.games ) : manager.games == null;
     }

@@ -26,8 +26,8 @@ public class ApplicationMain
         {
             //services
             SimpleUserManager userManager = new SimpleUserManager();
-            GameManager gameManager = new GameManager( userManager );
-            LobbyHandler lobby = new Lobby( userManager, gameManager );
+            GameManager       gameManager = new GameManager( userManager );
+            LobbyHandler      lobby       = new Lobby( userManager, gameManager );
 
             // create on port 1099
             Registry registry = LocateRegistry.createRegistry( 1099 );

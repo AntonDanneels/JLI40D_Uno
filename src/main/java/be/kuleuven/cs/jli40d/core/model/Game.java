@@ -59,11 +59,6 @@ public class Game implements Serializable
         return cardsPerPlayer;
     }
 
-    public void setCurrentGameMoveID( int currentGameMoveID )
-    {
-        this.currentGameMoveID = currentGameMoveID;
-    }
-
     public boolean isClockwise()
     {
         return clockwise;
@@ -74,34 +69,14 @@ public class Game implements Serializable
         this.clockwise = clockwise;
     }
 
-    public void setPlayers( List<Player> players )
-    {
-        this.players = players;
-    }
-
     public int getCurrentGameMoveID()
     {
         return currentGameMoveID;
     }
 
-    public void setDeck( List<Card> deck )
+    public void setCurrentGameMoveID( int currentGameMoveID )
     {
-        this.deck = deck;
-    }
-
-    public void setEnded( boolean ended )
-    {
-        this.ended = ended;
-    }
-
-    public void setCurrentPlayer( int currentPlayer )
-    {
-        this.currentPlayer = currentPlayer;
-    }
-
-    public void setTopCard( Card topCard )
-    {
-        this.topCard = topCard;
+        this.currentGameMoveID = currentGameMoveID;
     }
 
     public List<Player> getPlayers()
@@ -109,9 +84,19 @@ public class Game implements Serializable
         return players;
     }
 
+    public void setPlayers( List<Player> players )
+    {
+        this.players = players;
+    }
+
     public List<Card> getDeck()
     {
         return deck;
+    }
+
+    public void setDeck( List<Card> deck )
+    {
+        this.deck = deck;
     }
 
     public boolean isStarted()
@@ -130,9 +115,19 @@ public class Game implements Serializable
         return ended;
     }
 
+    public void setEnded( boolean ended )
+    {
+        this.ended = ended;
+    }
+
     public int getCurrentPlayer()
     {
         return currentPlayer;
+    }
+
+    public void setCurrentPlayer( int currentPlayer )
+    {
+        this.currentPlayer = currentPlayer;
     }
 
     public Card getTopCard()
@@ -140,14 +135,19 @@ public class Game implements Serializable
         return topCard;
     }
 
-    public void setGameID( int gameID )
+    public void setTopCard( Card topCard )
     {
-        this.gameID = gameID;
+        this.topCard = topCard;
     }
 
     public int getGameID()
     {
         return gameID;
+    }
+
+    public void setGameID( int gameID )
+    {
+        this.gameID = gameID;
     }
 
     public int getMaximumNumberOfPlayers()

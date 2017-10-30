@@ -19,7 +19,7 @@ public class StartSceneController
     private static final Logger LOGGER = LoggerFactory.getLogger(StartSceneController.class);
 
     private UserHandler userHandler;
-    private GameClient client;
+    private GameClient  client;
 
     @FXML
     private TextField usernameField;

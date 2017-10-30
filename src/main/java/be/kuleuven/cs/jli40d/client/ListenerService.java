@@ -24,10 +24,10 @@ public class ListenerService implements Runnable
     private GameHandler gameHandler;
 
     private String token;
-    private Game    game;
+    private Game   game;
 
     private boolean active;
-    private int currentGameMoveID;
+    private int     currentGameMoveID;
 
     private Queue<GameMove> unhandledGameMoves;
 
