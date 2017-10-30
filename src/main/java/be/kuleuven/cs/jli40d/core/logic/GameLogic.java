@@ -236,4 +236,19 @@ public class GameLogic
 
         }
     }
+
+    public static int calculateScoreForPlayer( String username, Game game )
+    {
+        int score = 0;
+        for ( Player p : game.getPlayers() )
+        {
+            if( !p.getUsername().equals( username ) )
+            {
+                for ( Card c : game.getCardsPerPlayer().get( p ) )
+                    score += c.getType().getValue();
+            }
+        }
+
+        return score;
+    }
 }
