@@ -1,5 +1,7 @@
 package be.kuleuven.cs.jli40d.core.model;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.io.Serializable;
 
 /**
@@ -19,8 +21,6 @@ public class GameMove implements Serializable
     public GameMove()
     {
     }
-
-    public GameMove( long id, Player player, Card playedCard, boolean cardDrawn )
 
     public GameMove( int id, Player player, Card playedCard, boolean cardDrawn )
     {
@@ -47,11 +47,6 @@ public class GameMove implements Serializable
         return playedCard;
     }
 
-    public void setPlayedCard( Card playedCard )
-    {
-        this.playedCard = playedCard;
-    }
-
     public boolean isCardDrawn()
     {
         return cardDrawn;
@@ -70,5 +65,20 @@ public class GameMove implements Serializable
     public void setActivated( boolean activated )
     {
         this.activated = activated;
+    }
+
+    public void setId( long id )
+    {
+        this.id = id;
+    }
+
+    public void setPlayer( Player player )
+    {
+        this.player = player;
+    }
+
+    public void setCardDrawn( boolean cardDrawn )
+    {
+        this.cardDrawn = cardDrawn;
     }
 }

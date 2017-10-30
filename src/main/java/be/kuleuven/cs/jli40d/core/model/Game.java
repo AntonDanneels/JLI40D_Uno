@@ -1,5 +1,7 @@
 package be.kuleuven.cs.jli40d.core.model;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,7 +27,7 @@ public class Game implements Serializable
     private List<Player>            players;
     private List<Card>              deck;
     private List<GameMove>          moves;
-    private Map<String, List<Card>> cardsPerPlayer;
+    private Map<String, PlayerHand> playerHands;
 
     private int maximumNumberOfPlayers;
 
