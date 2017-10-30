@@ -61,11 +61,6 @@ public class Card implements Serializable
         return colour;
     }
 
-    public void setColour( CardColour colour )
-    {
-        this.colour = colour;
-    }
-
     @Override
     public boolean equals( Object o )
     {

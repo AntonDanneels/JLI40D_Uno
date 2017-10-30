@@ -3,6 +3,7 @@
 JLI40D_Uno.iml
 *.class
 target/
+target/classes/
 # Log file
 *.log
 
