@@ -52,7 +52,7 @@ public class ListenerService implements Runnable
             {
                 GameMove move = gameHandler.getNextMove( token, game.getGameID(), currentGameMoveID );
                 unhandledGameMoves.add( move );
-                LOGGER.debug( "Added move {}: {}:{}", move.getId(),
+                LOGGER.debug( "Added move {}: {}:{}", currentGameMoveID,
                         move.getPlayedCard().getColour(),
                         move.getPlayedCard().getType() );
                 currentGameMoveID++;
