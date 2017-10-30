@@ -62,7 +62,7 @@ public class GameClient extends Application
             primaryStage.setScene( loginScene );
             primaryStage.show();
 
-            String host = "localhost";
+            String host = "54.218.90.17";
             int    port = 1099;
 
             Registry myRegistry = LocateRegistry.getRegistry( host, port );
