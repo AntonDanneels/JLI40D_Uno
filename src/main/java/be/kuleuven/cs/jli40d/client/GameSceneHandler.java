@@ -18,6 +18,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Pair;
@@ -105,14 +106,14 @@ public class GameSceneHandler extends AnimationTimer
 
         Game game = new Game( 0, 4 );
         GameLogic.generateDeck( game );
-        game.getDeck().add( new Card( CardType.PLUS4, CardColour.GREEN ) );
-        game.getDeck().add( new Card( CardType.PLUS4, CardColour.RED ) );
-        game.getDeck().add( new Card( CardType.PLUS4, CardColour.BLUE ) );
-        game.getDeck().add( new Card( CardType.PLUS4, CardColour.YELLOW ) );
-        game.getDeck().add( new Card( CardType.OTHER_COLOUR, CardColour.GREEN ) );
-        game.getDeck().add( new Card( CardType.OTHER_COLOUR, CardColour.RED ) );
-        game.getDeck().add( new Card( CardType.OTHER_COLOUR, CardColour.BLUE ) );
-        game.getDeck().add( new Card( CardType.OTHER_COLOUR, CardColour.YELLOW ) );
+        game.getDeck().add( new Card( 0, CardType.PLUS4, CardColour.GREEN ) );
+        game.getDeck().add( new Card( 0, CardType.PLUS4, CardColour.RED ) );
+        game.getDeck().add( new Card( 0, CardType.PLUS4, CardColour.BLUE ) );
+        game.getDeck().add( new Card( 0, CardType.PLUS4, CardColour.YELLOW ) );
+        game.getDeck().add( new Card( 0, CardType.OTHER_COLOUR, CardColour.GREEN ) );
+        game.getDeck().add( new Card( 0, CardType.OTHER_COLOUR, CardColour.RED ) );
+        game.getDeck().add( new Card( 0, CardType.OTHER_COLOUR, CardColour.BLUE ) );
+        game.getDeck().add( new Card( 0, CardType.OTHER_COLOUR, CardColour.YELLOW ) );
 
         for ( Card c : game.getDeck() )
         {
@@ -126,7 +127,7 @@ public class GameSceneHandler extends AnimationTimer
 
         LOGGER.debug( "Loaded {} images", images.size() );
 
-        String path = "/uno-dark-minimalist-players.png";
+        String path = "/uno-dark-background.png";
         LOGGER.debug( "Loading image: {}", path );
         background = new Image( path );
 
@@ -201,14 +202,25 @@ public class GameSceneHandler extends AnimationTimer
         //draw background
         gc.drawImage( background, 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight() );
 
-        gc.fillText( "Mouse " + mouseDown + " , " + mousePosX + " , " + mousePosY, 10, 10 );
+        gc.setTextAlign( TextAlignment.CENTER );
 
         for ( Player player : game.getPlayers() )
         {
-            gc.fillOval( getPlayerPosition( player.getUsername() ).getKey(),
-                    getPlayerPosition( player.getUsername() ).getValue(),
-                    104,
-                    104 );
+            String username = player.getUsername();
+
+            if ( !username.equals( client.getUsername() ) )
+            {
+                gc.fillOval( getPlayerPosition( player.getUsername() ).getKey(),
+                        getPlayerPosition( player.getUsername() ).getValue(),
+                        104,
+                        104 );
+
+                gc.fillText(
+                        username + " (" + game.getPlayerHands().get( username ).getPlayerHands().size() + ")",
+                        getPlayerPosition( player.getUsername() ).getKey() + 52,
+                        getPlayerPosition( player.getUsername() ).getValue() + 120 );
+            }
+
         }
 
         try
