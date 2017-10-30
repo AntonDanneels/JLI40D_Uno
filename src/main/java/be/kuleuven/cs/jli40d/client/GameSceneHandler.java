@@ -13,7 +13,6 @@ import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -42,7 +41,7 @@ public class GameSceneHandler extends AnimationTimer
 
     private Map<String, Pair<Integer, Integer>> positionsPerPlayer;
 
-    public static final int CARD_WIDTH = 74;
+    public static final int CARD_WIDTH  = 74;
     public static final int CARD_HEIGHT = 108;
 
     private GameClient      client;
@@ -57,19 +56,14 @@ public class GameSceneHandler extends AnimationTimer
     private double  mousePosY = 0.0;
 
     private List<CardButton> cardButtons;
-    // This should not be public or static
-    public static Map<Card, Image> images = new HashMap<>();
-    public static Image background;
-    public static Image card_back;
 
     private List<CardAnimation> animations;
 
     @FXML
-    private Canvas          gameCanvas;
+    private Canvas gameCanvas;
+
     private GraphicsContext gc;
-
-    private Player me;
-
+    private Player          me;
     private CardButton selectedCardButton = null;
     private int        topCardX           = 0;
     private int        topCardY           = 0;
@@ -112,38 +106,11 @@ public class GameSceneHandler extends AnimationTimer
 
         gc = gameCanvas.getGraphicsContext2D();
 
-        Game game = new Game( 0, 4 );
-        GameLogic.generateDeck( game );
-        game.getDeck().add( new Card( 0, CardType.PLUS4, CardColour.GREEN ) );
-        game.getDeck().add( new Card( 0, CardType.PLUS4, CardColour.RED ) );
-        game.getDeck().add( new Card( 0, CardType.PLUS4, CardColour.BLUE ) );
-        game.getDeck().add( new Card( 0, CardType.PLUS4, CardColour.YELLOW ) );
-        game.getDeck().add( new Card( 0, CardType.OTHER_COLOUR, CardColour.GREEN ) );
-        game.getDeck().add( new Card( 0, CardType.OTHER_COLOUR, CardColour.RED ) );
-        game.getDeck().add( new Card( 0, CardType.OTHER_COLOUR, CardColour.BLUE ) );
-        game.getDeck().add( new Card( 0, CardType.OTHER_COLOUR, CardColour.YELLOW ) );
-
-        for ( Card c : game.getDeck() )
-        {
-            String path = "/cards_original/" + c.getType() + "_" + c.getColour() + ".png";
-            LOGGER.debug( "Loading image: {}", path );
-            images.put( c, new Image( path ) );
-        }
-
         topCardX = ( int )gameCanvas.getWidth() / 2 - 74 / 2;
         topCardY = ( int )gameCanvas.getHeight() / 2 - 20;
 
-        LOGGER.debug( "Loaded {} images", images.size() );
+        ImageLoader.loadImages();
 
-        String path = "/uno-dark-background.png";
-        LOGGER.debug( "Loading image: {}", path );
-        background = new Image( path );
-
-        path = "/cards_original/CARD_BACK.png";
-        LOGGER.debug( "Loading image: {}", path );
-        card_back = new Image( path );
-
-        LOGGER.debug( "loaded background." );
     }
 
     public void run()
@@ -212,7 +179,7 @@ public class GameSceneHandler extends AnimationTimer
         gc.clearRect( 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight() );
 
         //draw background
-        gc.drawImage( background, 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight() );
+        gc.drawImage( ImageLoader.getSceneImage( SceneImage.GAME_BACKGROUND ), 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight() );
 
         gc.setTextAlign( TextAlignment.CENTER );
 
@@ -222,10 +189,21 @@ public class GameSceneHandler extends AnimationTimer
 
             if ( !username.equals( client.getUsername() ) )
             {
-                gc.fillOval( getPlayerPosition( player.getUsername() ).getKey(),
-                        getPlayerPosition( player.getUsername() ).getValue(),
-                        104,
-                        104 );
+                int x = getPlayerPosition( player.getUsername() ).getKey();
+                int y = getPlayerPosition( player.getUsername() ).getValue();
+
+                if ( game.getCurrentPlayerUsername().equals( username ) )
+                {
+                    //player glow is 30x30 @2x
+                    gc.drawImage( ImageLoader.getSceneImage( SceneImage.CURRENT_USER ), x - 14, y - 14, 132, 132 );
+                }
+                else
+                {
+                    gc.drawImage( ImageLoader.getSceneImage( SceneImage.OTHER_USER ), x - 14, y - 14, 132, 132 );
+                }
+
+
+                gc.drawImage( ImageLoader.getSceneImage( SceneImage.DEFAULT_AVATAR ), x, y, 104, 104 );
 
                 gc.fillText(
                         username + " (" + game.getPlayerHands().get( username ).getPlayerHands().size() + ")",
@@ -246,13 +224,17 @@ public class GameSceneHandler extends AnimationTimer
 
                 // TODO create animation
 
-                if( move.isCardDrawn() )
+                if ( move.isCardDrawn() )
                 {
-                    animations.add( new CardAnimation( new Pair<Integer, Integer>( 526, 282 ), getPlayerPosition( move.getPlayer().getUsername() ), card_back ) );
+                    animations.add( new CardAnimation( new Pair<Integer, Integer>( 526, 282 ),
+                            getPlayerPosition( move.getPlayer().getUsername() ),
+                            ImageLoader.getSceneImage( SceneImage.CARD_BACK ) ) );
                 }
                 else
                 {
-                    animations.add( new CardAnimation( getPlayerPosition( move.getPlayer().getUsername() ), new Pair<Integer, Integer>( topCardX, topCardY ), images.get( move.getPlayedCard() ) ) );
+                    animations.add( new CardAnimation( getPlayerPosition( move.getPlayer().getUsername() ),
+                            new Pair<Integer, Integer>( topCardX, topCardY ),
+                            ImageLoader.getCardImage( move.getPlayedCard() ) ) );
                 }
             }
 
@@ -321,7 +303,7 @@ public class GameSceneHandler extends AnimationTimer
             //gc.setFill( Color.TRANSPARENT );
             Card c = game.getTopCard();
             //gc.clearRect( topCardX, topCardY, 74, 108 );
-            gc.drawImage( images.get( c ), topCardX, topCardY, CARD_WIDTH, CARD_HEIGHT );
+            gc.drawImage( ImageLoader.getCardImage( c ), topCardX, topCardY, CARD_WIDTH, CARD_HEIGHT );
 
 
             for ( CardButton b : cardButtons )
@@ -330,13 +312,14 @@ public class GameSceneHandler extends AnimationTimer
                 b.render( gc );
             }
 
+
             Iterator<CardAnimation> cardAnimationIterator = animations.iterator();
             while ( cardAnimationIterator.hasNext() )
             {
                 CardAnimation animation = cardAnimationIterator.next();
                 animation.update();
                 animation.render( gc );
-                if( !animation.isAlive() )
+                if ( !animation.isAlive() )
                     cardAnimationIterator.remove();
             }
         }
@@ -372,7 +355,7 @@ public class GameSceneHandler extends AnimationTimer
         Card c = move.getPlayedCard();
 
         c.setColour( CardColour.RED );
-        ImageView redView = new ImageView( images.get( c ) );
+        ImageView redView = new ImageView( ImageLoader.getCardImage( c ) );
         redView.setFitHeight( CARD_HEIGHT );
         redView.setFitWidth( CARD_WIDTH );
         redView.setOnMouseClicked( event ->
@@ -383,7 +366,7 @@ public class GameSceneHandler extends AnimationTimer
         } );
 
         c.setColour( CardColour.GREEN );
-        ImageView greenView = new ImageView( images.get( c ) );
+        ImageView greenView = new ImageView( ImageLoader.getCardImage( c ) );
         greenView.setFitHeight( CARD_HEIGHT );
         greenView.setFitWidth( CARD_WIDTH );
         greenView.setOnMouseClicked( event ->
@@ -394,7 +377,7 @@ public class GameSceneHandler extends AnimationTimer
         } );
 
         c.setColour( CardColour.YELLOW );
-        ImageView yellowView = new ImageView( images.get( c ) );
+        ImageView yellowView = new ImageView( ImageLoader.getCardImage( c ) );
         yellowView.setFitHeight( CARD_HEIGHT );
         yellowView.setFitWidth( CARD_WIDTH );
         yellowView.setOnMouseClicked( event ->
@@ -405,7 +388,7 @@ public class GameSceneHandler extends AnimationTimer
         } );
 
         c.setColour( CardColour.BLUE );
-        ImageView blueView = new ImageView( images.get( c ) );
+        ImageView blueView = new ImageView( ImageLoader.getCardImage( c ) );
         blueView.setFitHeight( CARD_HEIGHT );
         blueView.setFitWidth( CARD_WIDTH );
         blueView.setOnMouseClicked( event ->

@@ -4,7 +4,7 @@ package be.kuleuven.cs.jli40d.client;
  * @author Pieter
  * @version 1.0
  */
-public enum Scene
+public enum SceneImage
 {
     GAME_BACKGROUND,
     CURRENT_USER,

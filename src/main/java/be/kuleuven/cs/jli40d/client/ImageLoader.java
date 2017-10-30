@@ -20,8 +20,8 @@ public class ImageLoader
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageLoader.class);
 
-    private static HashMap<Scene, Image> sceneImages = new HashMap<>();
-    private static Map<Card, Image> cardImages = new HashMap<>();
+    private static HashMap<SceneImage, Image> sceneImages = new HashMap<>();
+    private static Map<Card, Image>           cardImages  = new HashMap<>();
 
     public static void loadImages()
     {
@@ -50,23 +50,23 @@ public class ImageLoader
 
         String path = "/uno-dark-background.png";
         LOGGER.debug( "Loading image: {}", path );
-        sceneImages.put( Scene.GAME_BACKGROUND, new Image( path ));
+        sceneImages.put( SceneImage.GAME_BACKGROUND, new Image( path ));
 
         path = "/cards_original/CARD_BACK.png";
         LOGGER.debug( "Loading image: {}", path );
-        sceneImages.put( Scene.CARD_BACK, new Image( path ));
+        sceneImages.put( SceneImage.CARD_BACK, new Image( path ));
 
         path = "/current-player.png";
         LOGGER.debug( "Loading image: {}", path );
-        sceneImages.put( Scene.CURRENT_USER, new Image( path ));
+        sceneImages.put( SceneImage.CURRENT_USER, new Image( path ));
 
-        path = "/current-player.png";
+        path = "/player.png";
         LOGGER.debug( "Loading image: {}", path );
-        sceneImages.put( Scene.OTHER_USER, new Image( path ));
+        sceneImages.put( SceneImage.OTHER_USER, new Image( path ));
 
         path = "/user.png";
         LOGGER.debug( "Loading image: {}", path );
-        sceneImages.put( Scene.DEFAULT_AVATAR, new Image( path ));
+        sceneImages.put( SceneImage.DEFAULT_AVATAR, new Image( path ));
     }
 
     public static Image getCardImage(Card card)
@@ -74,9 +74,9 @@ public class ImageLoader
         return cardImages.get( card );
     }
 
-    public static Image getSceneImage( Scene scene)
+    public static Image getSceneImage( SceneImage sceneImage )
     {
-        return sceneImages.get( scene );
+        return sceneImages.get( sceneImage );
     }
 
 }
