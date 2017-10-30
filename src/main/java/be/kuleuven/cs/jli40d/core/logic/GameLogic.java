@@ -26,7 +26,7 @@ public class GameLogic
             if ( type != CardType.OTHER_COLOUR && type != CardType.PLUS4 )
                 for ( CardColour colour : CardColour.values() )
                 {
-                    if (colour != CardColour.NO_COLOUR)
+                    if ( colour != CardColour.NO_COLOUR )
                     {
                         Card card = new Card( counter++, type, colour );
                         game.getDeck().add( card );
@@ -43,8 +43,8 @@ public class GameLogic
 
         for ( int i = 0; i < 4; i++ )
         {
-            game.getDeck().add( new Card(counter++, CardType.OTHER_COLOUR, CardColour.NO_COLOUR ) );
-            game.getDeck().add( new Card(counter++, CardType.PLUS4, CardColour.NO_COLOUR ) );
+            game.getDeck().add( new Card( counter++, CardType.OTHER_COLOUR, CardColour.NO_COLOUR ) );
+            game.getDeck().add( new Card( counter++, CardType.PLUS4, CardColour.NO_COLOUR ) );
         }
 
         Collections.shuffle( game.getDeck() );
@@ -146,7 +146,10 @@ public class GameLogic
                     move.getPlayedCard().getType(),
                     move.getPlayer().getUsername() );
 
-            game.setCurrentPlayer( wrap( game.getCurrentPlayer(), game.isClockwise(), game.getPlayers().size() ) );
+            if ( !move.isActivated() )
+            {
+                game.setCurrentPlayer( wrap( game.getCurrentPlayer(), game.isClockwise(), game.getPlayers().size() ) );
+            }
         }
         else
         {
@@ -183,6 +186,7 @@ public class GameLogic
                 for ( int i = 0; i < ( playedCard.getType() == CardType.PLUS2 ? 2 : 4 ); i++ )
                 {
                     GameMove m = new GameMove( game.getCurrentGameMoveID(), target, null, true );
+                    m.setActivated( true );
                     giveCardToPlayer( game, m );
                 }
             }
@@ -192,7 +196,7 @@ public class GameLogic
 
     }
 
-    private static int wrap( int current, boolean clockwise, int max )
+    public static int wrap( int current, boolean clockwise, int max )
     {
         int step   = ( clockwise ? 1 : -1 );
         int result = current + step;
