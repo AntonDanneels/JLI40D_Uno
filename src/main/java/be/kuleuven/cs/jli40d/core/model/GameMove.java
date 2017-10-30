@@ -5,14 +5,22 @@ import java.io.Serializable;
 /**
  * Created by Anton D.
  */
+@Entity
 public class GameMove implements Serializable
 {
-    private int     id;
+    @Id
+    private long    id;
     private Player  player;
     private Card    playedCard;
     private boolean cardDrawn;
 
     private boolean activated;
+
+    public GameMove()
+    {
+    }
+
+    public GameMove( long id, Player player, Card playedCard, boolean cardDrawn )
 
     public GameMove( int id, Player player, Card playedCard, boolean cardDrawn )
     {
@@ -22,6 +30,11 @@ public class GameMove implements Serializable
         this.cardDrawn = cardDrawn;
 
         this.activated = false;
+    }
+
+    public void setPlayedCard( Card playedCard )
+    {
+        this.playedCard = playedCard;
     }
 
     public Player getPlayer()
@@ -44,7 +57,7 @@ public class GameMove implements Serializable
         return cardDrawn;
     }
 
-    public int getId()
+    public long getId()
     {
         return id;
     }

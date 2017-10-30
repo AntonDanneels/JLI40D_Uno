@@ -16,9 +16,11 @@ import java.util.Map;
  * @author Pieter
  * @version 1.0
  */
+@Entity
 public class Game implements Serializable
 {
-    private int gameID;
+    @Id
+    private long gameID;
 
     private List<Player>            players;
     private List<Card>              deck;
@@ -34,6 +36,10 @@ public class Game implements Serializable
     private int     currentGameMoveID;
     private boolean clockwise;
 
+    public Game()
+    {
+    }
+
     public Game( int gameID, int maximumNumberOfPlayers )
     {
         this.gameID = gameID;
@@ -44,19 +50,45 @@ public class Game implements Serializable
         this.deck = new ArrayList<>();
         this.moves = new ArrayList<>();
 
-        this.cardsPerPlayer = new HashMap<>();
+        this.playerHands = new HashMap<>();
 
         this.topCard = null;
         this.started = false;
         this.ended = false;
         this.currentPlayer = 0;
-        this.currentGameMoveID = 0;
+        this.currentGameMoveID = -1;
         this.clockwise = true;
     }
 
+    public Map<String, PlayerHand> getPlayerHands()
+    {
+        return playerHands;
+    }
+
+    public void setPlayerHands( Map<String, PlayerHand> playerHands )
+    {
+        this.playerHands = playerHands;
+    }
+
+    /**
+     * Legacy function that creates a <code> Map<String, List<Card>> </code> object.
+     *
+     * @return A mapping with all the cards for each player
+     */
     public Map<String, List<Card>> getCardsPerPlayer()
     {
+        Map<String, List<Card>> cardsPerPlayer = new HashMap<>();
+
+        for (String player : playerHands.keySet()) {
+            cardsPerPlayer.put( player, playerHands.get( player ).getPlayerHands() );
+        }
+
         return cardsPerPlayer;
+    }
+
+    public void setCurrentGameMoveID( int currentGameMoveID )
+    {
+        this.currentGameMoveID = currentGameMoveID;
     }
 
     public boolean isClockwise()
@@ -69,14 +101,34 @@ public class Game implements Serializable
         this.clockwise = clockwise;
     }
 
+    public void setPlayers( List<Player> players )
+    {
+        this.players = players;
+    }
+
     public int getCurrentGameMoveID()
     {
         return currentGameMoveID;
     }
 
-    public void setCurrentGameMoveID( int currentGameMoveID )
+    public void setDeck( List<Card> deck )
     {
-        this.currentGameMoveID = currentGameMoveID;
+        this.deck = deck;
+    }
+
+    public void setEnded( boolean ended )
+    {
+        this.ended = ended;
+    }
+
+    public void setCurrentPlayer( int currentPlayer )
+    {
+        this.currentPlayer = currentPlayer;
+    }
+
+    public void setTopCard( Card topCard )
+    {
+        this.topCard = topCard;
     }
 
     public List<Player> getPlayers()
@@ -84,19 +136,9 @@ public class Game implements Serializable
         return players;
     }
 
-    public void setPlayers( List<Player> players )
-    {
-        this.players = players;
-    }
-
     public List<Card> getDeck()
     {
         return deck;
-    }
-
-    public void setDeck( List<Card> deck )
-    {
-        this.deck = deck;
     }
 
     public boolean isStarted()
@@ -115,19 +157,9 @@ public class Game implements Serializable
         return ended;
     }
 
-    public void setEnded( boolean ended )
-    {
-        this.ended = ended;
-    }
-
     public int getCurrentPlayer()
     {
         return currentPlayer;
-    }
-
-    public void setCurrentPlayer( int currentPlayer )
-    {
-        this.currentPlayer = currentPlayer;
     }
 
     public Card getTopCard()
@@ -135,19 +167,14 @@ public class Game implements Serializable
         return topCard;
     }
 
-    public void setTopCard( Card topCard )
-    {
-        this.topCard = topCard;
-    }
-
-    public int getGameID()
-    {
-        return gameID;
-    }
-
-    public void setGameID( int gameID )
+    public void setGameID( long gameID )
     {
         this.gameID = gameID;
+    }
+
+    public long getGameID()
+    {
+        return gameID;
     }
 
     public int getMaximumNumberOfPlayers()

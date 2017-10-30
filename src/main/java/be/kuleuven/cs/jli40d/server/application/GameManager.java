@@ -45,7 +45,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
      * @throws GameNotFoundException When the game is not found.
      */
     @Override
-    public boolean isStarted( String token, int gameID ) throws
+    public boolean isStarted( String token, long gameID ) throws
             InvalidTokenException,
             RemoteException,
             GameNotFoundException
@@ -60,7 +60,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
     }
 
     @Override
-    public synchronized boolean myTurn( String token, int gameID ) throws
+    public synchronized boolean myTurn( String token, long gameID ) throws
             InvalidTokenException,
             RemoteException,
             GameNotFoundException
@@ -88,7 +88,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
      * @throws GameNotFoundException When the game is not found.
      */
     @Override
-    public synchronized GameMove getNextMove( String token, int gameID, int nextGameMoveID ) throws
+    public synchronized GameMove getNextMove( String token, long gameID, long nextGameMoveID ) throws
             InvalidTokenException,
             RemoteException,
             GameNotFoundException
@@ -113,7 +113,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
 
         LOGGER.debug( "Sending move with id = {} for game {} to {}", nextGameMoveID, game, username );
 
-        return game.getMoves().get( nextGameMoveID );
+        return game.getMoves().get( (int) nextGameMoveID );
     }
 
     /**
@@ -130,7 +130,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
      * @throws InvalidGameMoveException When the move is invalid.
      */
     @Override
-    public synchronized void sendMove( String token, int gameID, GameMove move ) throws
+    public synchronized void sendMove( String token, long gameID, GameMove move ) throws
             InvalidTokenException,
             RemoteException,
             GameNotFoundException,
@@ -166,17 +166,17 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
     }
 
     @Override
-    public Game getGameByID( int id ) throws GameNotFoundException
+    public Game getGameByID( long id ) throws GameNotFoundException
     {
         //if the game is not in the list, throw an error
-        if ( games.get( id ) == null )
+        if ( games.get( (int) id ) == null )
         {
             LOGGER.warn( "joinGame method called with gameId = {}, but game not found. ", id );
 
             throw new GameNotFoundException( "Game not found in the list" );
         }
 
-        return games.get( id );
+        return games.get( (int) id );
     }
 
     @Override

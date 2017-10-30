@@ -6,6 +6,9 @@ target/
 # Log file
 *.log
 
+# SQLite db files
+*.db
+
 # BlueJ files
 *.ctxt
 

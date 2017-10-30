@@ -16,7 +16,7 @@ public interface GameListHandler extends Serializable
 
     int nextID();
 
-    Game getGameByID( int id ) throws GameNotFoundException;
+    Game getGameByID( long id ) throws GameNotFoundException;
 
     List<Game> getAllGames();
 }
