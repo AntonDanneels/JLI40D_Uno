@@ -20,6 +20,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +35,12 @@ public class GameSceneHandler extends AnimationTimer
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( GameSceneHandler.class );
 
+    private List<Pair<Integer, Integer>> positions;
+
+    private static final Pair<Integer, Integer> OWN_POSITION = new Pair<>( 450, 600 );
+
+    private Map<String, Pair<Integer, Integer>> positionsPerPlayer;
+
     private GameClient      client;
     private LobbyHandler    lobbyHandler;
     private GameHandler     gameHandler;
@@ -46,8 +53,8 @@ public class GameSceneHandler extends AnimationTimer
     private double  mousePosY = 0.0;
 
     private List<CardButton> cardButtons;
-    public  static Map<Card, Image> images = new HashMap<>();
-    public  static Image            background;
+    public static Map<Card, Image> images = new HashMap<>();
+    public static Image background;
 
     @FXML
     private Canvas          gameCanvas;
@@ -63,6 +70,10 @@ public class GameSceneHandler extends AnimationTimer
     {
         cardButtons = new ArrayList<>();
         gameMoves = new ConcurrentLinkedDeque<>();
+
+        positions = new LinkedList<>();
+
+        positions.addAll( Arrays.asList( new Pair<>( 83, 83 ), new Pair<>( 709, 83 ), new Pair<>( 396, 9 ) ) );
     }
 
     public void init( GameClient client, LobbyHandler lobbyHandler, GameHandler gameHandler )
@@ -176,6 +187,8 @@ public class GameSceneHandler extends AnimationTimer
 
         layoutCards();
 
+        initializePositions();
+
         new Thread( listenerService ).start();
         this.start();
     }
@@ -189,6 +202,14 @@ public class GameSceneHandler extends AnimationTimer
         gc.drawImage( background, 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight() );
 
         gc.fillText( "Mouse " + mouseDown + " , " + mousePosX + " , " + mousePosY, 10, 10 );
+
+        for ( Player player : game.getPlayers() )
+        {
+            gc.fillOval( getPlayerPosition( player.getUsername() ).getKey(),
+                    getPlayerPosition( player.getUsername() ).getValue(),
+                    104,
+                    104 );
+        }
 
         try
         {
@@ -398,8 +419,45 @@ public class GameSceneHandler extends AnimationTimer
         }
     }
 
+    /**
+     * Returns the position of the other players.
+     *
+     * @param player The number of the other player.
+     * @return
+     */
+    public Pair<Integer, Integer> getPlayerPosition( String player )
+    {
+        return positionsPerPlayer.get( player );
+    }
+
     public void setGame( Game game )
     {
         this.game = game;
+    }
+
+    /**
+     * Generate a list with player positions for easy access.
+     */
+    private void initializePositions()
+    {
+        positionsPerPlayer = new HashMap<>();
+
+        for ( Player player : game.getPlayers() )
+        {
+
+            //fixed position for current player
+            if ( player.getUsername().equals( client.getUsername() ) )
+            {
+                positionsPerPlayer.put( player.getUsername(), OWN_POSITION );
+            }
+            else if ( game.getMaximumNumberOfPlayers() == 2 )
+            {
+                positionsPerPlayer.put( player.getUsername(), positions.get( 2 ) );
+            }
+            else
+            {
+                positionsPerPlayer.put( player.getUsername(), positions.remove( 0 ) );
+            }
+        }
     }
 }
