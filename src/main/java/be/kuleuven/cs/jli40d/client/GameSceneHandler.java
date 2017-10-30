@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  */
 public class GameSceneHandler extends AnimationTimer
 {
-    private Logger LOGGER = LoggerFactory.getLogger( GameSceneHandler.class );
+    private static final Logger LOGGER = LoggerFactory.getLogger( GameSceneHandler.class );
 
     private GameClient      client;
     private LobbyHandler    lobbyHandler;
@@ -45,9 +45,9 @@ public class GameSceneHandler extends AnimationTimer
     private double  mousePosX = 0.0;
     private double  mousePosY = 0.0;
 
-    private       List<CardButton> cardButtons;
-    public static Map<Card, Image> images;
-    public static Image            background;
+    private List<CardButton> cardButtons;
+    public  static Map<Card, Image> images = new HashMap<>();
+    public  static Image            background;
 
     @FXML
     private Canvas          gameCanvas;
@@ -63,7 +63,6 @@ public class GameSceneHandler extends AnimationTimer
     {
         cardButtons = new ArrayList<>();
         gameMoves = new ConcurrentLinkedDeque<>();
-        images = new HashMap<>();
     }
 
     public void init( GameClient client, LobbyHandler lobbyHandler, GameHandler gameHandler )
@@ -111,7 +110,7 @@ public class GameSceneHandler extends AnimationTimer
             images.put( c, new Image( path ) );
         }
 
-        topCardX = ( int )gameCanvas.getWidth() / 2 - 74/2;
+        topCardX = ( int )gameCanvas.getWidth() / 2 - 74 / 2;
         topCardY = ( int )gameCanvas.getHeight() / 2 - 20;
 
         LOGGER.debug( "Loaded {} images", images.size() );
@@ -187,7 +186,7 @@ public class GameSceneHandler extends AnimationTimer
         gc.clearRect( 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight() );
 
         //draw background
-        gc.drawImage( background, 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
+        gc.drawImage( background, 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight() );
 
         gc.fillText( "Mouse " + mouseDown + " , " + mousePosX + " , " + mousePosY, 10, 10 );
 
@@ -204,12 +203,12 @@ public class GameSceneHandler extends AnimationTimer
             }
 
             //if ( gameHandler.myTurn( client.getToken(), game.getGameID() ) )
-            if( game.getCurrentPlayerUsername().equals( client.getUsername() ) )
+            if ( game.getCurrentPlayerUsername().equals( client.getUsername() ) )
             {
                 gc.fillText( "It is my turn", 50, 50 );
                 if ( mouseDown )
                 {
-                    if ( Utils.intersects( ( int )mousePosX, ( int )mousePosY, 1, 1, 526, 282, 74, 106) )
+                    if ( Utils.intersects( ( int )mousePosX, ( int )mousePosY, 1, 1, 526, 282, 74, 106 ) )
                     {
                         GameMove move = new GameMove( game.getCurrentGameMoveID(), me, null, true );
 
@@ -270,7 +269,6 @@ public class GameSceneHandler extends AnimationTimer
             gc.drawImage( images.get( c ), topCardX, topCardY, 74, 108 );
 
 
-
             for ( CardButton b : cardButtons )
             {
                 b.update( mousePosX, mousePosY );
@@ -279,15 +277,18 @@ public class GameSceneHandler extends AnimationTimer
         }
         catch ( InvalidTokenException e )
         {
-            e.printStackTrace();
+            Utils.createPopup( "Something went wrong, please login again." );
+            LOGGER.warn( "Invalid token: {}", e.getMessage() );
+            client.setStartScene();
         }
         catch ( RemoteException e )
         {
-            e.printStackTrace();
+            LOGGER.error( "Remote exceptionn. {}", e.getMessage() );
         }
         catch ( GameNotFoundException e )
         {
-            e.printStackTrace();
+            Utils.createPopup( "Game not found" );
+            LOGGER.warn( "User tried to join invalid game: {}", e.getMessage() );
         }
         catch ( InvalidGameMoveException e )
         {
