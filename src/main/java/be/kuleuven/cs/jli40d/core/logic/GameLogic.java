@@ -4,7 +4,9 @@ import be.kuleuven.cs.jli40d.core.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Created by Anton D.
@@ -57,14 +59,14 @@ public class GameLogic
     {
         int index = 0;
 
-        Map<String, List<Card>> cardsPerPlayer = game.getCardsPerPlayer();
+        Map<String, PlayerHand> cardsPerPlayer = game.getPlayerHands();
         for ( int j = 0; j < game.getPlayers().size(); j++ )
-            cardsPerPlayer.put( game.getPlayers().get( j ).getUsername(), new ArrayList<>() );
+            cardsPerPlayer.put( game.getPlayers().get( j ).getUsername(), new PlayerHand() );
         for ( int i = 0; i < 7; i++ )
         {
             for ( Player player : game.getPlayers() )
             {
-                cardsPerPlayer.get( player.getUsername() ).add( game.getDeck().get( index++ ) );
+                cardsPerPlayer.get( player.getUsername() ).getPlayerHands().add( game.getDeck().get( index++ ) );
                 player.setNrOfCards( player.getNrOfCards() + 1 );
             }
         }

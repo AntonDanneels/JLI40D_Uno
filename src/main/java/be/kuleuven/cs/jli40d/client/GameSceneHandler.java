@@ -115,7 +115,7 @@ public class GameSceneHandler extends AnimationTimer
 
         LOGGER.debug( "Loaded {} images", images.size() );
 
-        String path = "/uno-dark-background.png";
+        String path = "/uno-dark-minimalist-players.png";
         LOGGER.debug( "Loading image: {}", path );
         background = new Image( path );
 

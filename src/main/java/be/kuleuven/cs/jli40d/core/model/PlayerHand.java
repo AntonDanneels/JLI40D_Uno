@@ -4,6 +4,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,14 +15,14 @@ import java.util.List;
  * @version 1.0
  */
 @Entity
-public class PlayerHand
+public class PlayerHand implements Serializable
 {
 
     @Id
     private long id;
 
     @OneToMany
-    @MapKey(name = "username")
+    @MapKey( name = "username" )
     private List<Card> playerHands;
 
     public long getId()
@@ -36,6 +38,11 @@ public class PlayerHand
     public List<Card> getPlayerHands()
     {
         return playerHands;
+    }
+
+    public PlayerHand()
+    {
+        this.playerHands = new ArrayList<>();
     }
 
     public void setPlayerHands( List<Card> playerHands )
