@@ -17,7 +17,7 @@ import java.util.List;
  * @author Pieter
  * @version 1.0
  */
-public interface DataHandler extends Remote, Serializable
+public interface DatabaseHandler extends Remote, Serializable
 {
     List<Game> getGames() throws RemoteException;
 
