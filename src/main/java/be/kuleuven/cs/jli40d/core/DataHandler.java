@@ -2,6 +2,8 @@ package be.kuleuven.cs.jli40d.core;
 
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
+import be.kuleuven.cs.jli40d.core.model.User;
+import be.kuleuven.cs.jli40d.core.model.exception.AccountAlreadyExistsException;
 
 import java.io.Serializable;
 import java.rmi.Remote;
@@ -23,6 +25,6 @@ public interface DataHandler extends Remote, Serializable
 
     void addMove( long gameID, GameMove gameMove) throws RemoteException;
 
-    boolean registerUser() throws RemoteException;
+    void registerUser( User user ) throws RemoteException, AccountAlreadyExistsException;
 
 }
