@@ -1,7 +1,6 @@
 package be.kuleuven.cs.jli40d.core.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -17,8 +16,10 @@ public class Token implements Serializable
 
     private String token;
 
+    @Temporal( TemporalType.DATE )
     private Date expiryDate;
 
+    @ManyToOne
     private User user;
 
     public Token()

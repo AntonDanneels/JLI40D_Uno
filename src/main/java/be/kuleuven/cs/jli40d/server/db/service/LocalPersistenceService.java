@@ -1,20 +1,28 @@
-package be.kuleuven.cs.jli40d.server.service;
+package be.kuleuven.cs.jli40d.server.db.service;
 
 import be.kuleuven.cs.jli40d.core.DatabaseHandler;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.User;
 import be.kuleuven.cs.jli40d.core.model.exception.AccountAlreadyExistsException;
+import org.springframework.stereotype.Service;
 
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 
 /**
  * @author Pieter
  * @version 1.0
  */
-public class LocalPersistenceService implements DatabaseHandler
+@Service
+public class LocalPersistenceService extends UnicastRemoteObject implements DatabaseHandler
 {
+
+    protected LocalPersistenceService() throws RemoteException
+    {
+    }
+
     @Override
     public List<Game> getGames() throws RemoteException
     {
@@ -37,5 +45,23 @@ public class LocalPersistenceService implements DatabaseHandler
     public void registerUser( User user ) throws RemoteException, AccountAlreadyExistsException
     {
 
+    }
+
+    @Override
+    public String getValidTokenForUser( User user ) throws RemoteException
+    {
+        return null;
+    }
+
+    @Override
+    public User findUserByName( String username ) throws RemoteException
+    {
+        return null;
+    }
+
+    @Override
+    public List<User> getUsersSortedByScore() throws RemoteException
+    {
+        return null;
     }
 }
