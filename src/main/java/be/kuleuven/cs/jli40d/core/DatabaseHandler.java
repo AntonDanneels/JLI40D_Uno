@@ -27,4 +27,10 @@ public interface DatabaseHandler extends Remote, Serializable
 
     void registerUser( User user ) throws RemoteException, AccountAlreadyExistsException;
 
+    String getValidTokenForUser(User user) throws RemoteException;
+
+    User findUserByName(String username) throws RemoteException;
+
+    List<User> getUsersSortedByScore() throws RemoteException;
+
 }

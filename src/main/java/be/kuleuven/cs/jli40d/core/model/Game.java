@@ -2,6 +2,7 @@ package be.kuleuven.cs.jli40d.core.model;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,9 +25,16 @@ public class Game implements Serializable
     @Id
     private long gameID;
 
-    private List<Player>            players;
-    private List<Card>              deck;
-    private List<GameMove>          moves;
+    @OneToMany
+    private List<Player> players;
+
+    @OneToMany
+    private List<GameMove> moves;
+
+    @OneToMany
+    private List<Card>     deck;
+
+    @OneToMany
     private Map<String, PlayerHand> playerHands;
 
     private int maximumNumberOfPlayers;
@@ -81,7 +89,8 @@ public class Game implements Serializable
     {
         Map<String, List<Card>> cardsPerPlayer = new HashMap<>();
 
-        for (String player : playerHands.keySet()) {
+        for ( String player : playerHands.keySet() )
+        {
             cardsPerPlayer.put( player, playerHands.get( player ).getPlayerHands() );
         }
 
