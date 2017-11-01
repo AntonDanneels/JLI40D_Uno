@@ -23,6 +23,7 @@ import javafx.stage.Stage;
 import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.rmi.runtime.Log;
 
 import java.rmi.RemoteException;
 import java.util.*;
@@ -67,6 +68,7 @@ public class GameSceneHandler extends AnimationTimer
     private CardButton selectedCardButton = null;
     private int        topCardX           = 0;
     private int        topCardY           = 0;
+    private int cardOffsetX = 0;
 
     public GameSceneHandler()
     {
@@ -288,10 +290,9 @@ public class GameSceneHandler extends AnimationTimer
                                     gameHandler.sendMove( client.getToken(), game.getGameID(), move );
                             }
                         }
+                        selectedCardButton = null;
+                        layoutCards();
                     }
-
-                    selectedCardButton = null;
-                    layoutCards();
                 }
             }
             else
@@ -299,6 +300,10 @@ public class GameSceneHandler extends AnimationTimer
                 // TODO: draw at a better place
                 gc.fillText( "Waiting for the other players", 50, 50 );
             }
+
+            moveMyCards();
+
+            gc.fillText( "" + cardOffsetX, 150, 75 );
 
             //gc.setFill( Color.TRANSPARENT );
             Card c = game.getTopCard();
@@ -341,6 +346,28 @@ public class GameSceneHandler extends AnimationTimer
         catch ( InvalidGameMoveException e )
         {
             LOGGER.debug( "Invalid game move!" );
+        }
+    }
+
+    private void moveMyCards()
+    {
+        if( getTotalCardWidth() > gameCanvas.getWidth() )
+        {
+            // Left
+            if( Utils.intersects( 0, 444, 50, 200, (int)mousePosX, (int)mousePosY, 1, 1 ) &&
+                    cardOffsetX > -(getTotalCardWidth() - gameCanvas.getWidth()) / 2.0)
+            {
+                cardOffsetX -= 5;
+                layoutCards();
+            }
+
+            // Right
+            if( Utils.intersects( 850, 444, 50, 200, (int)mousePosX, (int)mousePosY, 1, 1 ) &&
+                    cardOffsetX < (getTotalCardWidth() - gameCanvas.getWidth()) / 2.0)
+            {
+                cardOffsetX += 5;
+                layoutCards();
+            }
         }
     }
 
@@ -437,13 +464,19 @@ public class GameSceneHandler extends AnimationTimer
     {
         cardButtons.clear();
         List<Card> cards = game.getCardsPerPlayer().get( client.getUsername() );
-        int        x     = ( int )gameCanvas.getWidth() / 2 - cards.size() * 80 / 2;
+        int        x     = ( int )gameCanvas.getWidth() / 2 - cards.size() * (CARD_WIDTH + 5) / 2 - cardOffsetX;
         int        y     = 475;
         for ( Card c : cards )
         {
             cardButtons.add( new CardButton( x, y, CARD_WIDTH, CARD_HEIGHT, c ) );
-            x += 80;
+            x += CARD_WIDTH + 5;
         }
+    }
+
+    private double getTotalCardWidth()
+    {
+        List<Card> cards = game.getCardsPerPlayer().get( client.getUsername() );
+        return (cards.size() * (CARD_WIDTH + 5));
     }
 
     /**
