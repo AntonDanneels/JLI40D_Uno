@@ -11,6 +11,7 @@ import be.kuleuven.cs.jli40d.core.model.Game;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -44,6 +45,8 @@ public class GameClient extends Application
     {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle( "Uno" );
+        this.primaryStage.getIcons().add(new Image("/icon.png")); //TODO: make this shit working
+        this.primaryStage.setResizable( false );
 
         try
         {

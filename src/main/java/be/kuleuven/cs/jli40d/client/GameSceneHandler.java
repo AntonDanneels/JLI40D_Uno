@@ -13,13 +13,14 @@ import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +35,15 @@ public class GameSceneHandler extends AnimationTimer
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( GameSceneHandler.class );
 
+    private List<Pair<Integer, Integer>> positions;
+
+    private static final Pair<Integer, Integer> OWN_POSITION = new Pair<>( 450, 600 );
+
+    private Map<String, Pair<Integer, Integer>> positionsPerPlayer;
+
+    public static final int CARD_WIDTH  = 74;
+    public static final int CARD_HEIGHT = 108;
+
     private GameClient      client;
     private LobbyHandler    lobbyHandler;
     private GameHandler     gameHandler;
@@ -46,23 +56,29 @@ public class GameSceneHandler extends AnimationTimer
     private double  mousePosY = 0.0;
 
     private List<CardButton> cardButtons;
-    public  static Map<Card, Image> images = new HashMap<>();
-    public  static Image            background;
+
+    private List<CardAnimation> animations;
 
     @FXML
-    private Canvas          gameCanvas;
+    private Canvas gameCanvas;
+
     private GraphicsContext gc;
-
-    private Player me;
-
+    private Player          me;
     private CardButton selectedCardButton = null;
-    private int        topCardX           = 0;
-    private int        topCardY           = 0;
+
+    private int topCardX    = 0;
+    private int topCardY    = 0;
+    private int cardOffsetX = 0;
 
     public GameSceneHandler()
     {
+        animations = new ArrayList<>();
         cardButtons = new ArrayList<>();
         gameMoves = new ConcurrentLinkedDeque<>();
+
+        positions = new LinkedList<>();
+
+        positions.addAll( Arrays.asList( new Pair<>( 83, 83 ), new Pair<>( 709, 83 ), new Pair<>( 396, 9 ) ) );
     }
 
     public void init( GameClient client, LobbyHandler lobbyHandler, GameHandler gameHandler )
@@ -70,6 +86,16 @@ public class GameSceneHandler extends AnimationTimer
         this.client = client;
         this.gameHandler = gameHandler;
         this.lobbyHandler = lobbyHandler;
+
+        animations.clear();
+        cardButtons.clear();
+        gameMoves.clear();
+
+        me = null;
+        selectedCardButton = null;
+        listenerService = null;
+
+        topCardX = topCardY = cardOffsetX = 0;
 
         gameCanvas.setOnMousePressed( e ->
         {
@@ -92,34 +118,11 @@ public class GameSceneHandler extends AnimationTimer
 
         gc = gameCanvas.getGraphicsContext2D();
 
-        Game game = new Game( 0, 4 );
-        GameLogic.generateDeck( game );
-        game.getDeck().add( new Card( CardType.PLUS4, CardColour.GREEN ) );
-        game.getDeck().add( new Card( CardType.PLUS4, CardColour.RED ) );
-        game.getDeck().add( new Card( CardType.PLUS4, CardColour.BLUE ) );
-        game.getDeck().add( new Card( CardType.PLUS4, CardColour.YELLOW ) );
-        game.getDeck().add( new Card( CardType.OTHER_COLOUR, CardColour.GREEN ) );
-        game.getDeck().add( new Card( CardType.OTHER_COLOUR, CardColour.RED ) );
-        game.getDeck().add( new Card( CardType.OTHER_COLOUR, CardColour.BLUE ) );
-        game.getDeck().add( new Card( CardType.OTHER_COLOUR, CardColour.YELLOW ) );
+        topCardX = ( int ) gameCanvas.getWidth() / 2 - 74 / 2;
+        topCardY = ( int ) gameCanvas.getHeight() / 2 - 20;
 
-        for ( Card c : game.getDeck() )
-        {
-            String path = "/cards_original/" + c.getType() + "_" + c.getColour() + ".png";
-            LOGGER.debug( "Loading image: {}", path );
-            images.put( c, new Image( path ) );
-        }
+        ImageLoader.loadImages();
 
-        topCardX = ( int )gameCanvas.getWidth() / 2 - 74 / 2;
-        topCardY = ( int )gameCanvas.getHeight() / 2 - 20;
-
-        LOGGER.debug( "Loaded {} images", images.size() );
-
-        String path = "/uno-dark-background.png";
-        LOGGER.debug( "Loading image: {}", path );
-        background = new Image( path );
-
-        LOGGER.debug( "loaded background." );
     }
 
     public void run()
@@ -176,6 +179,8 @@ public class GameSceneHandler extends AnimationTimer
 
         layoutCards();
 
+        initializePositions();
+
         new Thread( listenerService ).start();
         this.start();
     }
@@ -186,9 +191,39 @@ public class GameSceneHandler extends AnimationTimer
         gc.clearRect( 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight() );
 
         //draw background
-        gc.drawImage( background, 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight() );
+        gc.drawImage( ImageLoader.getSceneImage( SceneImage.GAME_BACKGROUND ), 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight() );
 
-        gc.fillText( "Mouse " + mouseDown + " , " + mousePosX + " , " + mousePosY, 10, 10 );
+        gc.setTextAlign( TextAlignment.CENTER );
+
+        for ( Player player : game.getPlayers() )
+        {
+            String username = player.getUsername();
+
+            if ( !username.equals( client.getUsername() ) )
+            {
+                int x = getPlayerPosition( player.getUsername() ).getKey();
+                int y = getPlayerPosition( player.getUsername() ).getValue();
+
+                if ( game.getCurrentPlayerUsername().equals( username ) )
+                {
+                    //player glow is 30x30 @2x
+                    gc.drawImage( ImageLoader.getSceneImage( SceneImage.CURRENT_USER ), x - 14, y - 14, 132, 132 );
+                }
+                else
+                {
+                    gc.drawImage( ImageLoader.getSceneImage( SceneImage.OTHER_USER ), x - 14, y - 14, 132, 132 );
+                }
+
+
+                gc.drawImage( ImageLoader.getSceneImage( SceneImage.DEFAULT_AVATAR ), x, y, 104, 104 );
+
+                gc.fillText(
+                        username + " (" + game.getPlayerHands().get( username ).getPlayerHands().size() + ")",
+                        getPlayerPosition( player.getUsername() ).getKey() + 52,
+                        getPlayerPosition( player.getUsername() ).getValue() + 120 );
+            }
+
+        }
 
         try
         {
@@ -200,6 +235,19 @@ public class GameSceneHandler extends AnimationTimer
                 layoutCards();
 
                 // TODO create animation
+
+                if ( move.isCardDrawn() )
+                {
+                    animations.add( new CardAnimation( new Pair<Integer, Integer>( 526, 282 ),
+                            getPlayerPosition( move.getPlayer().getUsername() ),
+                            ImageLoader.getSceneImage( SceneImage.CARD_BACK ) ) );
+                }
+                else
+                {
+                    animations.add( new CardAnimation( getPlayerPosition( move.getPlayer().getUsername() ),
+                            new Pair<Integer, Integer>( topCardX, topCardY ),
+                            ImageLoader.getCardImage( move.getPlayedCard() ) ) );
+                }
             }
 
             //if ( gameHandler.myTurn( client.getToken(), game.getGameID() ) )
@@ -208,18 +256,18 @@ public class GameSceneHandler extends AnimationTimer
                 gc.fillText( "It is my turn", 50, 50 );
                 if ( mouseDown )
                 {
-                    if ( Utils.intersects( ( int )mousePosX, ( int )mousePosY, 1, 1, 526, 282, 74, 106 ) )
+                    if ( selectedCardButton == null )
                     {
-                        GameMove move = new GameMove( game.getCurrentGameMoveID(), me, null, true );
-
-                        if ( GameLogic.testMove( game, move ) )
+                        if ( Utils.intersects( ( int ) mousePosX, ( int ) mousePosY, 1, 1, 526, 282, CARD_WIDTH, CARD_HEIGHT ) )
                         {
-                            LOGGER.debug( "Sending gamemove to draw card" );
-                            gameHandler.sendMove( client.getToken(), game.getGameID(), move );
+                            GameMove move = new GameMove( game.getCurrentGameMoveID(), me, null, true );
+
+                            if ( GameLogic.testMove( game, move ) )
+                            {
+                                LOGGER.debug( "Sending gamemove to draw card" );
+                                gameHandler.sendMove( client.getToken(), game.getGameID(), move );
+                            }
                         }
-                    }
-                    else if ( selectedCardButton == null )
-                    {
                         for ( CardButton b : cardButtons )
                         {
                             if ( b.isIn( mousePosX, mousePosY ) )
@@ -231,15 +279,15 @@ public class GameSceneHandler extends AnimationTimer
                     }
                     else
                     {
-                        selectedCardButton.setX( ( int )mousePosX - selectedCardButton.getW() / 2 );
-                        selectedCardButton.setY( ( int )mousePosY - selectedCardButton.getH() / 2 );
+                        selectedCardButton.setX( ( int ) mousePosX - selectedCardButton.getW() / 2 );
+                        selectedCardButton.setY( ( int ) mousePosY - selectedCardButton.getH() / 2 );
                     }
                 }
                 else
                 {
                     if ( selectedCardButton != null )
                     {
-                        if ( Utils.intersects( selectedCardButton.getX(), selectedCardButton.getY(), selectedCardButton.getW(), selectedCardButton.getH(), topCardX, topCardY, 50, 75 ) )
+                        if ( Utils.intersects( selectedCardButton.getX(), selectedCardButton.getY(), selectedCardButton.getW(), selectedCardButton.getH(), topCardX, topCardY, CARD_WIDTH, CARD_HEIGHT ) )
                         {
                             GameMove move = new GameMove( game.getCurrentGameMoveID(), me, selectedCardButton.getC(), false );
 
@@ -252,27 +300,42 @@ public class GameSceneHandler extends AnimationTimer
                                     gameHandler.sendMove( client.getToken(), game.getGameID(), move );
                             }
                         }
+                        selectedCardButton = null;
+                        layoutCards();
                     }
-
-                    selectedCardButton = null;
-                    layoutCards();
                 }
             }
             else
             {
+                // TODO: draw at a better place
                 gc.fillText( "Waiting for the other players", 50, 50 );
             }
+
+            moveMyCards();
+
+            gc.fillText( "" + cardOffsetX, 150, 75 );
 
             //gc.setFill( Color.TRANSPARENT );
             Card c = game.getTopCard();
             //gc.clearRect( topCardX, topCardY, 74, 108 );
-            gc.drawImage( images.get( c ), topCardX, topCardY, 74, 108 );
+            gc.drawImage( ImageLoader.getCardImage( c ), topCardX, topCardY, CARD_WIDTH, CARD_HEIGHT );
 
 
             for ( CardButton b : cardButtons )
             {
                 b.update( mousePosX, mousePosY );
                 b.render( gc );
+            }
+
+
+            Iterator<CardAnimation> cardAnimationIterator = animations.iterator();
+            while ( cardAnimationIterator.hasNext() )
+            {
+                CardAnimation animation = cardAnimationIterator.next();
+                animation.update();
+                animation.render( gc );
+                if ( !animation.isAlive() )
+                    cardAnimationIterator.remove();
             }
         }
         catch ( InvalidTokenException e )
@@ -296,6 +359,28 @@ public class GameSceneHandler extends AnimationTimer
         }
     }
 
+    private void moveMyCards()
+    {
+        if ( getTotalCardWidth() > gameCanvas.getWidth() )
+        {
+            // Left
+            if ( Utils.intersects( 0, 444, 50, 200, ( int ) mousePosX, ( int ) mousePosY, 1, 1 ) &&
+                    cardOffsetX > -( getTotalCardWidth() - gameCanvas.getWidth() ) / 2.0 )
+            {
+                cardOffsetX -= 5;
+                layoutCards();
+            }
+
+            // Right
+            if ( Utils.intersects( 850, 444, 50, 200, ( int ) mousePosX, ( int ) mousePosY, 1, 1 ) &&
+                    cardOffsetX < ( getTotalCardWidth() - gameCanvas.getWidth() ) / 2.0 )
+            {
+                cardOffsetX += 5;
+                layoutCards();
+            }
+        }
+    }
+
     private void createChooseColourPopup( GameMove move )
     {
         LOGGER.debug( "Showing dialog to choose colour game" );
@@ -307,9 +392,9 @@ public class GameSceneHandler extends AnimationTimer
         Card c = move.getPlayedCard();
 
         c.setColour( CardColour.RED );
-        ImageView redView = new ImageView( images.get( c ) );
-        redView.setFitHeight( 75 );
-        redView.setFitWidth( 50 );
+        ImageView redView = new ImageView( ImageLoader.getCardImage( c ) );
+        redView.setFitHeight( CARD_HEIGHT );
+        redView.setFitWidth( CARD_WIDTH );
         redView.setOnMouseClicked( event ->
         {
             move.getPlayedCard().setColour( CardColour.RED );
@@ -318,9 +403,9 @@ public class GameSceneHandler extends AnimationTimer
         } );
 
         c.setColour( CardColour.GREEN );
-        ImageView greenView = new ImageView( images.get( c ) );
-        greenView.setFitHeight( 75 );
-        greenView.setFitWidth( 50 );
+        ImageView greenView = new ImageView( ImageLoader.getCardImage( c ) );
+        greenView.setFitHeight( CARD_HEIGHT );
+        greenView.setFitWidth( CARD_WIDTH );
         greenView.setOnMouseClicked( event ->
         {
             move.getPlayedCard().setColour( CardColour.GREEN );
@@ -329,9 +414,9 @@ public class GameSceneHandler extends AnimationTimer
         } );
 
         c.setColour( CardColour.YELLOW );
-        ImageView yellowView = new ImageView( images.get( c ) );
-        yellowView.setFitHeight( 75 );
-        yellowView.setFitWidth( 50 );
+        ImageView yellowView = new ImageView( ImageLoader.getCardImage( c ) );
+        yellowView.setFitHeight( CARD_HEIGHT );
+        yellowView.setFitWidth( CARD_WIDTH );
         yellowView.setOnMouseClicked( event ->
         {
             move.getPlayedCard().setColour( CardColour.YELLOW );
@@ -340,9 +425,9 @@ public class GameSceneHandler extends AnimationTimer
         } );
 
         c.setColour( CardColour.BLUE );
-        ImageView blueView = new ImageView( images.get( c ) );
-        blueView.setFitHeight( 75 );
-        blueView.setFitWidth( 50 );
+        ImageView blueView = new ImageView( ImageLoader.getCardImage( c ) );
+        blueView.setFitHeight( CARD_HEIGHT );
+        blueView.setFitWidth( CARD_WIDTH );
         blueView.setOnMouseClicked( event ->
         {
             move.getPlayedCard().setColour( CardColour.BLUE );
@@ -355,7 +440,7 @@ public class GameSceneHandler extends AnimationTimer
         HBox dialogBox = new HBox( 20 );
         dialogBox.getChildren().addAll( redView, greenView, blueView, yellowView );
 
-        Scene myDialogScene = new Scene( dialogBox, 300, 100 );
+        Scene myDialogScene = new Scene( dialogBox, CARD_WIDTH * 4 + 20 * 4, CARD_HEIGHT + 20 );
 
         myDialog.setScene( myDialogScene );
         myDialog.show();
@@ -389,17 +474,60 @@ public class GameSceneHandler extends AnimationTimer
     {
         cardButtons.clear();
         List<Card> cards = game.getCardsPerPlayer().get( client.getUsername() );
-        int        x     = ( int )gameCanvas.getWidth() / 2 - cards.size() * 80 / 2;
+        int        x     = ( int ) gameCanvas.getWidth() / 2 - cards.size() * ( CARD_WIDTH + 5 ) / 2 - cardOffsetX;
         int        y     = 475;
         for ( Card c : cards )
         {
-            cardButtons.add( new CardButton( x, y, 74, 108, c ) );
-            x += 80;
+            cardButtons.add( new CardButton( x, y, CARD_WIDTH, CARD_HEIGHT, c ) );
+            x += CARD_WIDTH + 5;
         }
+    }
+
+    private double getTotalCardWidth()
+    {
+        List<Card> cards = game.getCardsPerPlayer().get( client.getUsername() );
+        return ( cards.size() * ( CARD_WIDTH + 5 ) ) + 20; // Add extra padding
+    }
+
+    /**
+     * Returns the position of the other players.
+     *
+     * @param player The number of the other player.
+     * @return
+     */
+    public Pair<Integer, Integer> getPlayerPosition( String player )
+    {
+        return positionsPerPlayer.get( player );
     }
 
     public void setGame( Game game )
     {
         this.game = game;
+    }
+
+    /**
+     * Generate a list with player positions for easy access.
+     */
+    private void initializePositions()
+    {
+        positionsPerPlayer = new HashMap<>();
+
+        for ( Player player : game.getPlayers() )
+        {
+
+            //fixed position for current player
+            if ( player.getUsername().equals( client.getUsername() ) )
+            {
+                positionsPerPlayer.put( player.getUsername(), OWN_POSITION );
+            }
+            else if ( game.getMaximumNumberOfPlayers() == 2 )
+            {
+                positionsPerPlayer.put( player.getUsername(), positions.get( 2 ) );
+            }
+            else
+            {
+                positionsPerPlayer.put( player.getUsername(), positions.remove( 0 ) );
+            }
+        }
     }
 }
