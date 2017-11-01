@@ -476,7 +476,7 @@ public class GameSceneHandler extends AnimationTimer
     private double getTotalCardWidth()
     {
         List<Card> cards = game.getCardsPerPlayer().get( client.getUsername() );
-        return (cards.size() * (CARD_WIDTH + 5));
+        return (cards.size() * (CARD_WIDTH + 5)) + 20; // Add extra padding
     }
 
     /**
