@@ -23,7 +23,6 @@ import javafx.stage.Stage;
 import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.rmi.runtime.Log;
 
 import java.rmi.RemoteException;
 import java.util.*;
@@ -66,8 +65,9 @@ public class GameSceneHandler extends AnimationTimer
     private GraphicsContext gc;
     private Player          me;
     private CardButton selectedCardButton = null;
-    private int        topCardX           = 0;
-    private int        topCardY           = 0;
+
+    private int topCardX    = 0;
+    private int topCardY    = 0;
     private int cardOffsetX = 0;
 
     public GameSceneHandler()
@@ -86,6 +86,16 @@ public class GameSceneHandler extends AnimationTimer
         this.client = client;
         this.gameHandler = gameHandler;
         this.lobbyHandler = lobbyHandler;
+
+        animations.clear();
+        cardButtons.clear();
+        gameMoves.clear();
+
+        me = null;
+        selectedCardButton = null;
+        listenerService = null;
+
+        topCardX = topCardY = cardOffsetX = 0;
 
         gameCanvas.setOnMousePressed( e ->
         {
@@ -108,8 +118,8 @@ public class GameSceneHandler extends AnimationTimer
 
         gc = gameCanvas.getGraphicsContext2D();
 
-        topCardX = ( int )gameCanvas.getWidth() / 2 - 74 / 2;
-        topCardY = ( int )gameCanvas.getHeight() / 2 - 20;
+        topCardX = ( int ) gameCanvas.getWidth() / 2 - 74 / 2;
+        topCardY = ( int ) gameCanvas.getHeight() / 2 - 20;
 
         ImageLoader.loadImages();
 
@@ -248,7 +258,7 @@ public class GameSceneHandler extends AnimationTimer
                 {
                     if ( selectedCardButton == null )
                     {
-                        if ( Utils.intersects( ( int )mousePosX, ( int )mousePosY, 1, 1, 526, 282, CARD_WIDTH, CARD_HEIGHT ) )
+                        if ( Utils.intersects( ( int ) mousePosX, ( int ) mousePosY, 1, 1, 526, 282, CARD_WIDTH, CARD_HEIGHT ) )
                         {
                             GameMove move = new GameMove( game.getCurrentGameMoveID(), me, null, true );
 
@@ -269,8 +279,8 @@ public class GameSceneHandler extends AnimationTimer
                     }
                     else
                     {
-                        selectedCardButton.setX( ( int )mousePosX - selectedCardButton.getW() / 2 );
-                        selectedCardButton.setY( ( int )mousePosY - selectedCardButton.getH() / 2 );
+                        selectedCardButton.setX( ( int ) mousePosX - selectedCardButton.getW() / 2 );
+                        selectedCardButton.setY( ( int ) mousePosY - selectedCardButton.getH() / 2 );
                     }
                 }
                 else
@@ -351,19 +361,19 @@ public class GameSceneHandler extends AnimationTimer
 
     private void moveMyCards()
     {
-        if( getTotalCardWidth() > gameCanvas.getWidth() )
+        if ( getTotalCardWidth() > gameCanvas.getWidth() )
         {
             // Left
-            if( Utils.intersects( 0, 444, 50, 200, (int)mousePosX, (int)mousePosY, 1, 1 ) &&
-                    cardOffsetX > -(getTotalCardWidth() - gameCanvas.getWidth()) / 2.0)
+            if ( Utils.intersects( 0, 444, 50, 200, ( int ) mousePosX, ( int ) mousePosY, 1, 1 ) &&
+                    cardOffsetX > -( getTotalCardWidth() - gameCanvas.getWidth() ) / 2.0 )
             {
                 cardOffsetX -= 5;
                 layoutCards();
             }
 
             // Right
-            if( Utils.intersects( 850, 444, 50, 200, (int)mousePosX, (int)mousePosY, 1, 1 ) &&
-                    cardOffsetX < (getTotalCardWidth() - gameCanvas.getWidth()) / 2.0)
+            if ( Utils.intersects( 850, 444, 50, 200, ( int ) mousePosX, ( int ) mousePosY, 1, 1 ) &&
+                    cardOffsetX < ( getTotalCardWidth() - gameCanvas.getWidth() ) / 2.0 )
             {
                 cardOffsetX += 5;
                 layoutCards();
@@ -464,7 +474,7 @@ public class GameSceneHandler extends AnimationTimer
     {
         cardButtons.clear();
         List<Card> cards = game.getCardsPerPlayer().get( client.getUsername() );
-        int        x     = ( int )gameCanvas.getWidth() / 2 - cards.size() * (CARD_WIDTH + 5) / 2 - cardOffsetX;
+        int        x     = ( int ) gameCanvas.getWidth() / 2 - cards.size() * ( CARD_WIDTH + 5 ) / 2 - cardOffsetX;
         int        y     = 475;
         for ( Card c : cards )
         {
@@ -476,7 +486,7 @@ public class GameSceneHandler extends AnimationTimer
     private double getTotalCardWidth()
     {
         List<Card> cards = game.getCardsPerPlayer().get( client.getUsername() );
-        return (cards.size() * (CARD_WIDTH + 5)) + 20; // Add extra padding
+        return ( cards.size() * ( CARD_WIDTH + 5 ) ) + 20; // Add extra padding
     }
 
     /**

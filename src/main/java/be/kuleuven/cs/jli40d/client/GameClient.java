@@ -46,6 +46,7 @@ public class GameClient extends Application
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle( "Uno" );
         this.primaryStage.getIcons().add(new Image("/icon.png")); //TODO: make this shit working
+        this.primaryStage.setResizable( false );
 
         try
         {
