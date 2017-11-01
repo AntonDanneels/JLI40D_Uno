@@ -8,14 +8,24 @@ import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidGameMoveException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import be.kuleuven.cs.jli40d.core.model.exception.UnableToJoinGameException;
+import com.sun.javafx.tk.FontLoader;
+import com.sun.javafx.tk.Toolkit;
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.effect.Effect;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
@@ -26,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
@@ -61,6 +72,10 @@ public class GameSceneHandler extends AnimationTimer
 
     @FXML
     private Canvas gameCanvas;
+    @FXML
+    private Pane   gamePanel;
+
+    private Button backToLobbyButton;
 
     private GraphicsContext gc;
     private Player          me;
@@ -86,16 +101,6 @@ public class GameSceneHandler extends AnimationTimer
         this.client = client;
         this.gameHandler = gameHandler;
         this.lobbyHandler = lobbyHandler;
-
-        animations.clear();
-        cardButtons.clear();
-        gameMoves.clear();
-
-        me = null;
-        selectedCardButton = null;
-        listenerService = null;
-
-        topCardX = topCardY = cardOffsetX = 0;
 
         gameCanvas.setOnMousePressed( e ->
         {
@@ -123,17 +128,32 @@ public class GameSceneHandler extends AnimationTimer
 
         ImageLoader.loadImages();
 
+        backToLobbyButton = new Button( "Go to lobby" );
+        backToLobbyButton.setOnAction( event -> { client.setLobbyScene(); } );
+
     }
 
     public void run()
     {
+        gamePanel.getChildren().remove( backToLobbyButton );
+        animations.clear();
+        cardButtons.clear();
+        gameMoves.clear();
+
+        me = null;
+        selectedCardButton = null;
+        listenerService = null;
+
+        cardOffsetX = 0;
+
         LOGGER.debug( "Entering gameloop" );
 
+        gc.clearRect( 0, 0, gameCanvas.getWidth(), gameCanvas.getWidth() );
         final String msg  = "Joining the game";
-        final Text   text = new Text( msg );
-        text.setFont( gc.getFont() );
-        final double width = text.getLayoutBounds().getWidth();
-        gc.fillText( msg, gameCanvas.getWidth() / 2 - width / 2, 50 );
+        gc.setTextAlign( TextAlignment.CENTER );
+        gc.setFont( new Font( gc.getFont().getName(), 32 ) );
+        gc.fillText( msg, gameCanvas.getWidth() / 2, 50 );
+        gc.setFont( new Font( gc.getFont().getName(), 12 ) );
 
         // TODO add rotating card here
 
@@ -193,8 +213,6 @@ public class GameSceneHandler extends AnimationTimer
         //draw background
         gc.drawImage( ImageLoader.getSceneImage( SceneImage.GAME_BACKGROUND ), 0, 0, gameCanvas.getWidth(), gameCanvas.getHeight() );
 
-        gc.setTextAlign( TextAlignment.CENTER );
-
         for ( Player player : game.getPlayers() )
         {
             String username = player.getUsername();
@@ -233,8 +251,6 @@ public class GameSceneHandler extends AnimationTimer
                 GameLogic.applyMove( game, move );
                 game.setCurrentGameMoveID( game.getCurrentGameMoveID() + 1 );
                 layoutCards();
-
-                // TODO create animation
 
                 if ( move.isCardDrawn() )
                 {
@@ -313,8 +329,6 @@ public class GameSceneHandler extends AnimationTimer
 
             moveMyCards();
 
-            gc.fillText( "" + cardOffsetX, 150, 75 );
-
             //gc.setFill( Color.TRANSPARENT );
             Card c = game.getTopCard();
             //gc.clearRect( topCardX, topCardY, 74, 108 );
@@ -337,6 +351,8 @@ public class GameSceneHandler extends AnimationTimer
                 if ( !animation.isAlive() )
                     cardAnimationIterator.remove();
             }
+
+            testGameEnded();
         }
         catch ( InvalidTokenException e )
         {
@@ -356,6 +372,34 @@ public class GameSceneHandler extends AnimationTimer
         catch ( InvalidGameMoveException e )
         {
             LOGGER.debug( "Invalid game move!" );
+        }
+    }
+
+    private void testGameEnded()
+    {
+        if( GameLogic.hasGameEnded( game ) )
+        {
+            LOGGER.debug( "Game has ended" );
+
+            Player winner = GameLogic.getWinner( game );
+            int score = GameLogic.calculateScoreForPlayer( winner.getUsername(), game );
+
+            gc.applyEffect( new GaussianBlur( 50 ) );
+
+            gc.setFill( Color.WHITE );
+            gc.setFont( Font.font( gc.getFont().getName(), FontWeight.BOLD, 48 ) );
+            gc.fillText( "The game has ended", gameCanvas.getWidth() / 2, 300 );
+            gc.setFont( Font.font( gc.getFont().getName(), FontWeight.NORMAL, 32 ) );
+            gc.fillText( "" + winner.getUsername() + " has won with score: " + score, gameCanvas.getWidth() / 2, 350  );
+            gc.setFill( Color.BLACK );
+
+            backToLobbyButton.setTranslateY( 375 );
+            backToLobbyButton.setTranslateX( gameCanvas.getWidth() / 2 - 40 );
+
+            //listenerService.setActive( false );
+            stop();
+
+            gamePanel.getChildren().addAll( backToLobbyButton );
         }
     }
 

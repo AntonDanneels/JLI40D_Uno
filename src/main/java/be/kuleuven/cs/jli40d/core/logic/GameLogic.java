@@ -3,6 +3,7 @@ package be.kuleuven.cs.jli40d.core.logic;
 import be.kuleuven.cs.jli40d.core.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.rmi.runtime.Log;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -241,11 +242,23 @@ public class GameLogic
     {
         for ( Player p : game.getPlayers() )
         {
-            if ( p.getNrOfCards() == 0 )
+            if ( game.getPlayerHands().get( p.getUsername() ).getPlayerHands().size() == 0 )
                 return true;
         }
 
         return false;
+    }
+
+    public static Player getWinner( Game game )
+    {
+        for ( Player p : game.getPlayers() )
+        {
+            if( game.getPlayerHands().get( p.getUsername() ).getPlayerHands().size() == 0 )
+                return p;
+        }
+
+        LOGGER.debug( "Asked for the winning player even thought the game hasn't ended yet." );
+        return null;
     }
 
     public static int calculateScoreForPlayer( String username, Game game )
@@ -255,7 +268,7 @@ public class GameLogic
         {
             if( !p.getUsername().equals( username ) )
             {
-                for ( Card c : game.getCardsPerPlayer().get( p ) )
+                for ( Card c : game.getPlayerHands().get( p.getUsername() ).getPlayerHands() )
                     score += c.getType().getValue();
             }
         }

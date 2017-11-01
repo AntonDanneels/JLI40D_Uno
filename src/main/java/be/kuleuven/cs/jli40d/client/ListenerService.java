@@ -26,7 +26,7 @@ public class ListenerService implements Runnable
     private String token;
     private Game   game;
 
-    private boolean active;
+    private volatile boolean active;
     private int     currentGameMoveID;
 
     private Queue<GameMove> unhandledGameMoves;
@@ -64,5 +64,10 @@ public class ListenerService implements Runnable
                 active = false;
             }
         }
+    }
+
+    public synchronized void setActive( boolean active )
+    {
+        this.active = active;
     }
 }
