@@ -4,10 +4,7 @@ import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.logic.GameLogic;
 import be.kuleuven.cs.jli40d.core.model.*;
-import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
-import be.kuleuven.cs.jli40d.core.model.exception.InvalidGameMoveException;
-import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
-import be.kuleuven.cs.jli40d.core.model.exception.UnableToJoinGameException;
+import be.kuleuven.cs.jli40d.core.model.exception.*;
 import com.sun.javafx.tk.FontLoader;
 import com.sun.javafx.tk.Toolkit;
 import javafx.animation.AnimationTimer;
@@ -182,6 +179,12 @@ public class GameSceneHandler extends AnimationTimer
                     Utils.createPopup( "Something went wrong, please login again." );
                     LOGGER.debug( "Invalid token: {}", e.getMessage() );
                     client.setStartScene();
+                }
+                catch ( GameEndedException e )
+                {
+                    Utils.createPopup( "Game has ended." );
+                    LOGGER.debug( "Tried to join ended game with id {}: {}", game.getGameID(), e.getMessage() );
+                    client.setLobbyScene();
                 }
             }
         } ).start();

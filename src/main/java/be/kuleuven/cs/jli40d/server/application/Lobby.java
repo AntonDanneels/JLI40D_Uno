@@ -68,7 +68,10 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
         //Check authentication, throws error if token is invalid
         userManager.findUserByToken( token );
 
-        return games.getAllGames();
+        List<Game> currentGames = games.getAllGames();
+        currentGames.removeIf( game -> game.isEnded() );
+
+        return currentGames;
     }
 
     /**
@@ -116,7 +119,8 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
      */
     public synchronized Game joinGame( String token, long gameID ) throws
             UnableToJoinGameException,
-            InvalidTokenException
+            InvalidTokenException,
+            GameEndedException
     {
         //initial check for token and find username
         String username = userManager.findUserByToken( token );
@@ -131,6 +135,12 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
         {
             LOGGER.info( "User {} tried to join a non-existing game with id = {}.", username, gameID );
             throw new UnableToJoinGameException( "Game not found" );
+        }
+
+        if( requestedGame.isEnded() )
+        {
+            LOGGER.debug( "Tried to join ended game" );
+            throw new GameEndedException();
         }
 
         if ( requestedGame.hasPlayer( username ) )

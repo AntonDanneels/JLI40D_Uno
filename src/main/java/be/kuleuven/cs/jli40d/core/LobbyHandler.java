@@ -1,10 +1,7 @@
 package be.kuleuven.cs.jli40d.core;
 
 import be.kuleuven.cs.jli40d.core.model.Game;
-import be.kuleuven.cs.jli40d.core.model.exception.GameFullException;
-import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
-import be.kuleuven.cs.jli40d.core.model.exception.UnableToCreateGameException;
-import be.kuleuven.cs.jli40d.core.model.exception.UnableToJoinGameException;
+import be.kuleuven.cs.jli40d.core.model.exception.*;
 
 import java.io.Serializable;
 import java.rmi.Remote;
@@ -59,5 +56,6 @@ public interface LobbyHandler extends Remote, Serializable
      * @throws InvalidTokenException     When the token is invalid (expired or not found).
      * @throws RemoteException
      */
-    Game joinGame( String token, long gameId ) throws RemoteException, UnableToJoinGameException, InvalidTokenException;
+    Game joinGame( String token, long gameId ) throws RemoteException, UnableToJoinGameException, InvalidTokenException,
+            GameEndedException;
 }

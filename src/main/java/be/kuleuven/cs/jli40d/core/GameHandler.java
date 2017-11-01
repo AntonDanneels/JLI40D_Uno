@@ -1,6 +1,7 @@
 package be.kuleuven.cs.jli40d.core;
 
 import be.kuleuven.cs.jli40d.core.model.GameMove;
+import be.kuleuven.cs.jli40d.core.model.exception.GameEndedException;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidGameMoveException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
@@ -62,7 +63,8 @@ public interface GameHandler extends Remote, Serializable
     GameMove getNextMove( String token, long gameID, long nextGameMoveID ) throws
             InvalidTokenException,
             RemoteException,
-            GameNotFoundException;
+            GameNotFoundException,
+            GameEndedException;
 
     /**
      * Send a {@link GameMove} object to update the state of a certain game.

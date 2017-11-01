@@ -3,6 +3,7 @@ package be.kuleuven.cs.jli40d.client;
 import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
+import be.kuleuven.cs.jli40d.core.model.exception.GameEndedException;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import org.slf4j.Logger;
@@ -58,7 +59,7 @@ public class ListenerService implements Runnable
                 currentGameMoveID++;
 
             }
-            catch ( InvalidTokenException | RemoteException | GameNotFoundException e )
+            catch ( InvalidTokenException | RemoteException | GameNotFoundException | GameEndedException e )
             {
                 LOGGER.error( "Error while fetching next move. {}", e.getMessage() );
                 active = false;

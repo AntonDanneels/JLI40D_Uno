@@ -4,6 +4,8 @@ import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.logic.GameLogic;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
+import be.kuleuven.cs.jli40d.core.model.Player;
+import be.kuleuven.cs.jli40d.core.model.exception.GameEndedException;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidGameMoveException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
@@ -91,13 +93,16 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
     public synchronized GameMove getNextMove( String token, long gameID, long nextGameMoveID ) throws
             InvalidTokenException,
             RemoteException,
-            GameNotFoundException
+            GameNotFoundException,
+            GameEndedException
     {
         Game   game     = getGameByID( gameID );
         String username = userManager.findUserByToken( token ); //TODO check if authenticated for game
 
         while ( game.getMoves().size() <= nextGameMoveID )
         {
+            if( game.isEnded() )
+                throw new GameEndedException();
             try
             {
                 wait();
@@ -146,6 +151,16 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
         }
 
         GameLogic.applyMove( game, move );
+
+        if( GameLogic.hasGameEnded( game ) )
+        {
+            LOGGER.debug( "The game has ended, marking it & waking the other threads" );
+            game.setEnded( true );
+            Player winner = GameLogic.getWinner( game );
+            int score = GameLogic.calculateScoreForPlayer( winner.getUsername(), game );
+
+            // TODO: save score in DB here
+        }
 
         LOGGER.debug( "{} added a move to game {}", username, game );
 
