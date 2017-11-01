@@ -209,10 +209,6 @@ public class GameSceneHandler extends AnimationTimer
                     //player glow is 30x30 @2x
                     gc.drawImage( ImageLoader.getSceneImage( SceneImage.CURRENT_USER ), x - 14, y - 14, 132, 132 );
                 }
-                else
-                {
-                    gc.drawImage( ImageLoader.getSceneImage( SceneImage.OTHER_USER ), x - 14, y - 14, 132, 132 );
-                }
 
 
                 gc.drawImage( ImageLoader.getSceneImage( SceneImage.DEFAULT_AVATAR ), x, y, 104, 104 );
