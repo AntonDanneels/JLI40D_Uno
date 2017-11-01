@@ -11,19 +11,49 @@ import javax.persistence.Id;
 public class User
 {
     @Id
-    private int id;
+    private long id;
+
+    private long score;
+
+    private String password;
 
     public User()
     {
     }
 
-    public int getId()
+    public User( long score, String password )
+    {
+        this.score = score;
+        this.password = password;
+    }
+
+    public long getId()
     {
         return id;
     }
 
-    public void setId( int id )
+    public void setId( long id )
     {
         this.id = id;
+    }
+
+    public long getScore()
+    {
+        return score;
+    }
+
+    public void setScore( long score )
+    {
+        this.score = score;
+    }
+
+    public String getPassword()
+    {
+        return password;
+    }
+
+    public void setPassword( String password )
+    {
+        this.password = password;
     }
 }

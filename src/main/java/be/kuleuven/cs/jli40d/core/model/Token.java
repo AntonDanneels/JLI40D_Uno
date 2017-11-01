@@ -19,14 +19,17 @@ public class Token implements Serializable
 
     private Date expiryDate;
 
+    private User user;
+
     public Token()
     {
     }
 
-    public Token( String token, Date expiryDate )
+    public Token( String token, Date expiryDate, User user )
     {
         this.token = token;
         this.expiryDate = expiryDate;
+        this.user = user;
     }
 
     public long getId()
@@ -57,5 +60,15 @@ public class Token implements Serializable
     public void setExpiryDate( Date expiryDate )
     {
         this.expiryDate = expiryDate;
+    }
+
+    public User getUser()
+    {
+        return user;
+    }
+
+    public void setUser( User user )
+    {
+        this.user = user;
     }
 }
