@@ -13,7 +13,7 @@ import java.io.Serializable;
 public class GameMove implements Serializable
 {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long    id;
     private Player  player;
     private Card    playedCard;
