@@ -1,5 +1,6 @@
 package be.kuleuven.cs.jli40d.server.application;
 
+import be.kuleuven.cs.jli40d.core.DatabaseHandler;
 import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.logic.GameLogic;
 import be.kuleuven.cs.jli40d.core.model.Game;
@@ -14,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -25,14 +26,12 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( GameManager.class );
 
-    private List<Game> games;
-
     private UserTokenHandler userManager;
+    private DatabaseHandler  databaseHandler;
 
-    public GameManager( UserTokenHandler userManager ) throws RemoteException
+    public GameManager( UserTokenHandler userManager, DatabaseHandler databaseHandler ) throws RemoteException
     {
-        this.games = new ArrayList<>();
-
+        this.databaseHandler = databaseHandler;
         this.userManager = userManager;
     }
 
@@ -101,7 +100,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
 
         while ( game.getMoves().size() <= nextGameMoveID )
         {
-            if( game.isEnded() )
+            if ( game.isEnded() )
                 throw new GameEndedException();
             try
             {
@@ -118,7 +117,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
 
         LOGGER.debug( "Sending move with id = {} for game {} to {}", nextGameMoveID, game, username );
 
-        return game.getMoves().get( (int) nextGameMoveID );
+        return game.getMoves().get( ( int )nextGameMoveID );
     }
 
     /**
@@ -152,12 +151,12 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
 
         GameLogic.applyMove( game, move );
 
-        if( GameLogic.hasGameEnded( game ) )
+        if ( GameLogic.hasGameEnded( game ) )
         {
             LOGGER.debug( "The game has ended, marking it & waking the other threads" );
             game.setEnded( true );
             Player winner = GameLogic.getWinner( game );
-            int score = GameLogic.calculateScoreForPlayer( winner.getUsername(), game );
+            int    score  = GameLogic.calculateScoreForPlayer( winner.getUsername(), game );
 
             // TODO: save score in DB here
         }
@@ -171,33 +170,53 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
     @Override
     public void add( Game game )
     {
-        games.add( game );
-    }
-
-    @Override
-    public int nextID()
-    {
-        return games.size();
+        try
+        {
+            databaseHandler.registerGame( game );
+        }
+        catch ( RemoteException e )
+        {
+            LOGGER.error( "Error while creating game.", e.getMessage() );
+        }
     }
 
     @Override
     public Game getGameByID( long id ) throws GameNotFoundException
     {
         //if the game is not in the list, throw an error
-        if ( games.get( (int) id ) == null )
+        Game g = null;
+        try
+        {
+            g = databaseHandler.getGame( id );
+        }
+        catch ( RemoteException e )
+        {
+           LOGGER.error( "Error while fetching the game from remote. {}", e.getMessage() );
+        }
+
+        if ( g == null )
         {
             LOGGER.warn( "joinGame method called with gameId = {}, but game not found. ", id );
 
             throw new GameNotFoundException( "Game not found in the list" );
         }
 
-        return games.get( (int) id );
+        return g;
     }
 
     @Override
     public List<Game> getAllGames()
     {
-        return games;
+        try
+        {
+            return databaseHandler.getGames();
+        }
+        catch ( RemoteException e )
+        {
+            LOGGER.error( "Error while fetching list of games from remote. {}", e.getMessage() );
+        }
+
+        return Collections.emptyList();
     }
 
     @Override
@@ -205,15 +224,21 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
     {
         if ( this == o ) return true;
         if ( o == null || getClass() != o.getClass() ) return false;
+        if ( !super.equals( o ) ) return false;
 
-        GameManager manager = ( GameManager ) o;
+        GameManager manager = ( GameManager )o;
 
-        return games != null ? games.equals( manager.games ) : manager.games == null;
+        if ( userManager != null ? !userManager.equals( manager.userManager ) : manager.userManager != null )
+            return false;
+        return databaseHandler != null ? databaseHandler.equals( manager.databaseHandler ) : manager.databaseHandler == null;
     }
 
     @Override
     public int hashCode()
     {
-        return games != null ? games.hashCode() : 0;
+        int result = super.hashCode();
+        result = 31 * result + ( userManager != null ? userManager.hashCode() : 0 );
+        result = 31 * result + ( databaseHandler != null ? databaseHandler.hashCode() : 0 );
+        return result;
     }
 }
