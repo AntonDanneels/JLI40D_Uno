@@ -1,9 +1,6 @@
 package be.kuleuven.cs.jli40d.core.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.MapKey;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +16,7 @@ public class PlayerHand implements Serializable
 {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
     @OneToMany
