@@ -7,7 +7,7 @@ import be.kuleuven.cs.jli40d.core.model.User;
 import be.kuleuven.cs.jli40d.core.model.exception.AccountAlreadyExistsException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidUsernameOrPasswordException;
-import org.hibernate.cfg.NotYetImplementedException;
+import javafx.util.Pair;
 import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +16,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.RMISocketFactory;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.SecureRandom;
-import java.util.Base64;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.*;
 
 /**
  * @author Pieter
@@ -93,7 +90,7 @@ public class RemoteUserManager extends UnicastRemoteObject implements UserHandle
         {
             String token = generateRandomToken();
 
-            databaseHandler.registerToken( new Token( token, generateDateForOver( 7 ), user ) );
+            databaseHandler.registerToken( new Token(token, generateDateForOver( 7 ) , user) );
 
             LOGGER.info( "Logging user {} in and activating token {}", username, token );
 
@@ -122,7 +119,6 @@ public class RemoteUserManager extends UnicastRemoteObject implements UserHandle
             RemoteException,
             AccountAlreadyExistsException
     {
-
         //database handler will throw an error if the account already exists on the db cluster
         databaseHandler.registerUser(
                 new User( username, 0, BCrypt.hashpw( password, BCrypt.gensalt() ) ) );
@@ -150,7 +146,20 @@ public class RemoteUserManager extends UnicastRemoteObject implements UserHandle
     @Override
     public void logout( String token ) throws RemoteException
     {
-        throw new NotYetImplementedException();
+
+    }
+
+    @Override
+    public List<Pair<String, Long>> getUserScores() throws RemoteException
+    {
+        List<User> users = databaseHandler.getUsersSortedByScore();
+
+        List<Pair<String, Long>> result = new ArrayList<>();
+
+        for ( User u : users )
+            result.add( new Pair<>( u.getUsername(), u.getScore() ) );
+
+        return result;
     }
 
     /**
@@ -168,12 +177,12 @@ public class RemoteUserManager extends UnicastRemoteObject implements UserHandle
         return Base64.getEncoder().encodeToString( bytes );
     }
 
-    private static Date generateDateForOver( int days )
+    private static Date generateDateForOver(int days)
     {
         //Set the deactivation date for the token to the next week
         Calendar deactivationDate = new GregorianCalendar();
-        deactivationDate.setTime( new Date() );
-        deactivationDate.add( Calendar.DATE, days );
+        deactivationDate.setTime(new Date());
+        deactivationDate.add(Calendar.DATE, days);
 
         return deactivationDate.getTime();
     }

@@ -4,6 +4,7 @@ import be.kuleuven.cs.jli40d.core.UserHandler;
 import be.kuleuven.cs.jli40d.core.model.exception.AccountAlreadyExistsException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidUsernameOrPasswordException;
+import javafx.util.Pair;
 import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -112,6 +114,12 @@ public class SimpleUserManager extends UnicastRemoteObject implements UserHandle
     public void logout( String token )
     {
 
+    }
+
+    @Override
+    public List<Pair<String, Long>> getUserScores() throws RemoteException
+    {
+        return null;
     }
 
     /**
