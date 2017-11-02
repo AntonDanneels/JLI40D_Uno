@@ -50,10 +50,8 @@ public class Game implements Serializable
     {
     }
 
-    public Game( int gameID, int maximumNumberOfPlayers )
+    public Game( int maximumNumberOfPlayers )
     {
-        this.gameID = gameID;
-
         this.maximumNumberOfPlayers = maximumNumberOfPlayers;
 
         this.players = new ArrayList<>();
