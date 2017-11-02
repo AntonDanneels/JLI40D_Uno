@@ -21,7 +21,7 @@ import java.util.Map;
 public class Game implements Serializable
 {
     @Id
-    @GeneratedValue( strategy = GenerationType.AUTO )
+    @GeneratedValue( strategy = GenerationType.IDENTITY )
     protected long gameID;
 
     @OneToMany
