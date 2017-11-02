@@ -98,6 +98,11 @@ public class LobbySceneHandler
         }
     }
 
+    public void showLeaderboard()
+    {
+        client.setLeaderboardScene();
+    }
+
     public void refresh()
     {
         try
