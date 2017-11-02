@@ -6,6 +6,7 @@ import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.Token;
 import be.kuleuven.cs.jli40d.core.model.User;
 import be.kuleuven.cs.jli40d.core.model.exception.AccountAlreadyExistsException;
+import be.kuleuven.cs.jli40d.server.db.repository.GameRepository;
 import be.kuleuven.cs.jli40d.server.db.repository.TokenRepository;
 import be.kuleuven.cs.jli40d.server.db.repository.UserRepository;
 import org.slf4j.Logger;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Service;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * @author Pieter
@@ -28,13 +31,17 @@ public class LocalPersistenceService extends UnicastRemoteObject implements Data
 
     private UserRepository  userRepository;
     private TokenRepository tokenRepository;
+    private GameRepository  gameRepository;
 
     @Autowired
-    public LocalPersistenceService( UserRepository userRepository, TokenRepository tokenRepository ) throws
+    public LocalPersistenceService( UserRepository userRepository,
+                                    TokenRepository tokenRepository,
+                                    GameRepository gameRepository ) throws
             RemoteException
     {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
+        this.gameRepository = gameRepository;
     }
 
     protected LocalPersistenceService() throws RemoteException
@@ -44,13 +51,14 @@ public class LocalPersistenceService extends UnicastRemoteObject implements Data
     @Override
     public List<Game> getGames() throws RemoteException
     {
-        return null;
+        return StreamSupport.stream( gameRepository.findAll().spliterator(), false )
+                .collect( Collectors.toList() );
     }
 
     @Override
     public Game getGame( long id ) throws RemoteException
     {
-        return null;
+        return gameRepository.findOne( id );
     }
 
     @Override
@@ -103,8 +111,10 @@ public class LocalPersistenceService extends UnicastRemoteObject implements Data
     }
 
     @Override
-    public void registerGame( Game game ) throws RemoteException
+    public int registerGame( Game game ) throws RemoteException
     {
+        gameRepository.save( game );
 
+        return (int) game.getGameID();
     }
 }

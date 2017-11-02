@@ -1,6 +1,9 @@
 package be.kuleuven.cs.jli40d.core.model;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Id;
 import java.io.Serializable;
 
 /**
@@ -10,8 +13,7 @@ import java.io.Serializable;
 public class Card implements Serializable
 {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private int id;
 
     @Enumerated( EnumType.STRING)
     private CardType type;
@@ -29,19 +31,19 @@ public class Card implements Serializable
         this.colour = colour;
     }
 
-    public Card( long id, CardType type, CardColour colour )
+    public Card( int id, CardType type, CardColour colour )
     {
         this.id = id;
         this.type = type;
         this.colour = colour;
     }
 
-    public long getId()
+    public int getId()
     {
         return id;
     }
 
-    public void setId( long id )
+    public void setId( int id )
     {
         this.id = id;
     }

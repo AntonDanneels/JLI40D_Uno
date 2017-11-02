@@ -36,5 +36,5 @@ public interface DatabaseHandler extends Remote, Serializable
 
     List<User> getUsersSortedByScore() throws RemoteException;
 
-    void registerGame(Game game) throws RemoteException;
+    int registerGame( Game game) throws RemoteException;
 }
