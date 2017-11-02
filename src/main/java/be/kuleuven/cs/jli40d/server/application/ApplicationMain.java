@@ -1,5 +1,6 @@
 package be.kuleuven.cs.jli40d.server.application;
 
+import be.kuleuven.cs.jli40d.core.DatabaseHandler;
 import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.UserHandler;
@@ -24,19 +25,24 @@ public class ApplicationMain
     {
         try
         {
+            //remote db
+            Registry        myRegistry   = LocateRegistry.getRegistry( "localhost", 1100 );
+            DatabaseHandler databaseHandler = ( DatabaseHandler )myRegistry.lookup( DatabaseHandler.class.getName() );
+
+
             //services
-            SimpleUserManager userManager = new SimpleUserManager();
+            RemoteUserManager userManager = new RemoteUserManager(databaseHandler);
             GameManager       gameManager = new GameManager( userManager );
             LobbyHandler      lobby       = new Lobby( userManager, gameManager );
 
             // create on port 1099
-            Registry registry = LocateRegistry.createRegistry( 1099 );
+            Registry server = LocateRegistry.createRegistry( 1099 );
             // create a new service named CounterService
-            registry.rebind( LobbyHandler.class.getName(), lobby );
-            registry.rebind( UserHandler.class.getName(), userManager );
-            registry.rebind( GameHandler.class.getName(), gameManager );
+            server.rebind( LobbyHandler.class.getName(), lobby );
+            server.rebind( UserHandler.class.getName(), userManager );
+            server.rebind( GameHandler.class.getName(), gameManager );
 
-            LOGGER.info( "Application server started with following bindings: {} ", Arrays.toString( registry.list() ) );
+            LOGGER.info( "Application server started with following bindings: {} ", Arrays.toString( server.list() ) );
 
         }
         catch ( Exception e )

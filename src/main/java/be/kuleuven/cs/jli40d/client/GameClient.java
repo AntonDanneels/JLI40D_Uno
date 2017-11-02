@@ -59,7 +59,7 @@ public class GameClient extends Application
             primaryStage.setScene( loginScene );
             primaryStage.show();
 
-            String host = "notes.ipieter.be";
+            String host = "localhost";
             int    port = 1099;
 
             Registry myRegistry = LocateRegistry.getRegistry( host, port );
