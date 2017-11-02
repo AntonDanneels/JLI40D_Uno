@@ -172,7 +172,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
     {
         try
         {
-            databaseHandler.registerGame( game );
+            game.setGameID( databaseHandler.registerGame( game ) );
         }
         catch ( RemoteException e )
         {
@@ -191,7 +191,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
         }
         catch ( RemoteException e )
         {
-           LOGGER.error( "Error while fetching the game from remote. {}", e.getMessage() );
+            LOGGER.error( "Error while fetching the game from remote. {}", e.getMessage() );
         }
 
         if ( g == null )

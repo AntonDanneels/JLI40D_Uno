@@ -1,5 +1,8 @@
 package be.kuleuven.cs.jli40d.core.model;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -24,16 +27,20 @@ public class Game implements Serializable
     @GeneratedValue( strategy = GenerationType.IDENTITY )
     protected long gameID;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
+    @LazyCollection( LazyCollectionOption.FALSE)
     private List<Player> players;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
+    @LazyCollection( LazyCollectionOption.FALSE)
     private List<GameMove> moves;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.MERGE)
+    @LazyCollection( LazyCollectionOption.FALSE)
     private List<Card>     deck;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
+    @LazyCollection( LazyCollectionOption.FALSE)
     private Map<String, PlayerHand> playerHands;
 
     private int maximumNumberOfPlayers;
