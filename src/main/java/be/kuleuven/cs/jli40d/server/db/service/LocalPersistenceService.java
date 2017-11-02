@@ -101,4 +101,10 @@ public class LocalPersistenceService extends UnicastRemoteObject implements Data
     {
         return userRepository.findAllByOrderByScoreDesc();
     }
+
+    @Override
+    public void registerGame( Game game ) throws RemoteException
+    {
+
+    }
 }

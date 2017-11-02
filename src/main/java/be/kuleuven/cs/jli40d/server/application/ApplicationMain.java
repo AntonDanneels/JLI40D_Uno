@@ -32,7 +32,7 @@ public class ApplicationMain
 
             //services
             RemoteUserManager userManager = new RemoteUserManager(databaseHandler);
-            GameManager       gameManager = new GameManager( userManager );
+            GameManager       gameManager = new GameManager( userManager, databaseHandler );
             LobbyHandler      lobby       = new Lobby( userManager, gameManager );
 
             // create on port 1099
