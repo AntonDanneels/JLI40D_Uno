@@ -12,6 +12,7 @@ import java.util.Date;
 public class Token implements Serializable
 {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
     private String token;

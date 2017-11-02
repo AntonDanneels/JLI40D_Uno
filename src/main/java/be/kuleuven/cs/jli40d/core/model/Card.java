@@ -1,9 +1,6 @@
 package be.kuleuven.cs.jli40d.core.model;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
 
 /**
@@ -13,6 +10,7 @@ import java.io.Serializable;
 public class Card implements Serializable
 {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
     @Enumerated( EnumType.STRING)

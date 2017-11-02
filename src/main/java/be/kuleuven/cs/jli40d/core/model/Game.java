@@ -1,8 +1,6 @@
 package be.kuleuven.cs.jli40d.core.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +21,8 @@ import java.util.Map;
 public class Game implements Serializable
 {
     @Id
-    private long gameID;
+    @GeneratedValue( strategy = GenerationType.AUTO )
+    protected long gameID;
 
     @OneToMany
     private List<Player> players;
