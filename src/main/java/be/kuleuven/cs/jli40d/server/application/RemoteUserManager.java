@@ -8,6 +8,7 @@ import be.kuleuven.cs.jli40d.core.model.exception.AccountAlreadyExistsException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidUsernameOrPasswordException;
 import javafx.util.Pair;
+import org.hibernate.cfg.NotYetImplementedException;
 import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +91,7 @@ public class RemoteUserManager extends UnicastRemoteObject implements UserHandle
         {
             String token = generateRandomToken();
 
-            databaseHandler.registerToken( new Token(token, generateDateForOver( 7 ) , user) );
+            databaseHandler.registerToken( new Token( token, generateDateForOver( 7 ), user ) );
 
             LOGGER.info( "Logging user {} in and activating token {}", username, token );
 
@@ -119,6 +120,7 @@ public class RemoteUserManager extends UnicastRemoteObject implements UserHandle
             RemoteException,
             AccountAlreadyExistsException
     {
+
         //database handler will throw an error if the account already exists on the db cluster
         databaseHandler.registerUser(
                 new User( username, 0, BCrypt.hashpw( password, BCrypt.gensalt() ) ) );
@@ -146,7 +148,7 @@ public class RemoteUserManager extends UnicastRemoteObject implements UserHandle
     @Override
     public void logout( String token ) throws RemoteException
     {
-
+        throw new NotYetImplementedException();
     }
 
     @Override
@@ -177,12 +179,12 @@ public class RemoteUserManager extends UnicastRemoteObject implements UserHandle
         return Base64.getEncoder().encodeToString( bytes );
     }
 
-    private static Date generateDateForOver(int days)
+    private static Date generateDateForOver( int days )
     {
         //Set the deactivation date for the token to the next week
         Calendar deactivationDate = new GregorianCalendar();
-        deactivationDate.setTime(new Date());
-        deactivationDate.add(Calendar.DATE, days);
+        deactivationDate.setTime( new Date() );
+        deactivationDate.add( Calendar.DATE, days );
 
         return deactivationDate.getTime();
     }
