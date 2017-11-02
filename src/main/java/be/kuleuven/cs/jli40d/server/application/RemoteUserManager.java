@@ -2,15 +2,23 @@ package be.kuleuven.cs.jli40d.server.application;
 
 import be.kuleuven.cs.jli40d.core.DatabaseHandler;
 import be.kuleuven.cs.jli40d.core.UserHandler;
+import be.kuleuven.cs.jli40d.core.model.Token;
+import be.kuleuven.cs.jli40d.core.model.User;
 import be.kuleuven.cs.jli40d.core.model.exception.AccountAlreadyExistsException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidUsernameOrPasswordException;
+import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
 import java.rmi.server.RMISocketFactory;
 import java.rmi.server.UnicastRemoteObject;
+import java.security.SecureRandom;
+import java.util.Base64;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * @author Pieter
@@ -18,7 +26,7 @@ import java.rmi.server.UnicastRemoteObject;
  */
 public class RemoteUserManager extends UnicastRemoteObject implements UserHandler, UserTokenHandler
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteUserManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger( RemoteUserManager.class );
 
     private DatabaseHandler databaseHandler;
 
@@ -57,7 +65,7 @@ public class RemoteUserManager extends UnicastRemoteObject implements UserHandle
             LOGGER.error( "Error while fetching username from remote database. {}", e.getMessage() );
         }
 
-        if (username == null)
+        if ( username == null )
         {
             LOGGER.warn( "Token {} requested, but not found.", token );
             throw new InvalidTokenException( "Token not found." );
@@ -78,7 +86,22 @@ public class RemoteUserManager extends UnicastRemoteObject implements UserHandle
     @Override
     public String login( String username, String password ) throws RemoteException, InvalidUsernameOrPasswordException
     {
-        return null;
+        User user = databaseHandler.findUserByName( username );
+
+        if ( user != null && BCrypt.checkpw( password, user.getPassword() ) )
+        {
+            String token = generateRandomToken();
+
+            databaseHandler.registerToken( new Token(token, generateDateForOver( 7 ) , user) );
+
+            LOGGER.info( "Logging user {} in and activating token {}", username, token );
+
+            return token;
+        }
+
+        LOGGER.info( "Failed to authenticate user {}", username );
+
+        throw new InvalidUsernameOrPasswordException();
     }
 
     /**
@@ -98,6 +121,22 @@ public class RemoteUserManager extends UnicastRemoteObject implements UserHandle
             RemoteException,
             AccountAlreadyExistsException
     {
+
+        //database handler will throw an error if the account already exists on the db cluster
+        databaseHandler.registerUser(
+                new User( username, 0, BCrypt.hashpw( password, BCrypt.gensalt() ) ) );
+
+        LOGGER.info( "Created account for {} with username {}", email, username );
+
+        try
+        {
+            return login( username, password );
+        }
+        catch ( InvalidUsernameOrPasswordException e )
+        {
+            LOGGER.error( "This should never be thrown, since the method just created the account." );
+        }
+
         return null;
     }
 
@@ -111,5 +150,30 @@ public class RemoteUserManager extends UnicastRemoteObject implements UserHandle
     public void logout( String token ) throws RemoteException
     {
 
+    }
+
+    /**
+     * Generate a Base64 string.
+     *
+     * @return
+     */
+    private static String generateRandomToken()
+    {
+        SecureRandom random = new SecureRandom();
+        byte[]       bytes  = new byte[ 24 ];
+
+        random.nextBytes( bytes );
+
+        return Base64.getEncoder().encodeToString( bytes );
+    }
+
+    private static Date generateDateForOver(int days)
+    {
+        //Set the deactivation date for the token to the next week
+        Calendar deactivationDate = new GregorianCalendar();
+        deactivationDate.setTime(new Date());
+        deactivationDate.add(Calendar.DATE, days);
+
+        return deactivationDate.getTime();
     }
 }
