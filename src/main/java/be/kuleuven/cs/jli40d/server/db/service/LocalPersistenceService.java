@@ -3,8 +3,10 @@ package be.kuleuven.cs.jli40d.server.db.service;
 import be.kuleuven.cs.jli40d.core.DatabaseHandler;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
+import be.kuleuven.cs.jli40d.core.model.Token;
 import be.kuleuven.cs.jli40d.core.model.User;
 import be.kuleuven.cs.jli40d.core.model.exception.AccountAlreadyExistsException;
+import be.kuleuven.cs.jli40d.server.db.repository.TokenRepository;
 import be.kuleuven.cs.jli40d.server.db.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,12 +23,13 @@ import java.util.List;
 public class LocalPersistenceService extends UnicastRemoteObject implements DatabaseHandler
 {
 
-    private UserRepository userRepository;
+    private UserRepository  userRepository;
+    private TokenRepository tokenRepository;
 
     @Autowired
-    public LocalPersistenceService( UserRepository userRepository ) throws RemoteException
+    public LocalPersistenceService( TokenRepository tokenRepository ) throws RemoteException
     {
-        this.userRepository = userRepository;
+        this.tokenRepository = tokenRepository;
     }
 
     protected LocalPersistenceService() throws RemoteException
@@ -58,9 +61,16 @@ public class LocalPersistenceService extends UnicastRemoteObject implements Data
     }
 
     @Override
-    public String getValidTokenForUser( User user ) throws RemoteException
+    public String getUsernameForToken( String token ) throws RemoteException
     {
-        return null;
+        Token t =tokenRepository.findTokenByToken( token );
+
+        if ( t == null )
+        {
+            return null;
+        }
+
+        return t.getUser().getUsername();
     }
 
     @Override
@@ -72,6 +82,6 @@ public class LocalPersistenceService extends UnicastRemoteObject implements Data
     @Override
     public List<User> getUsersSortedByScore() throws RemoteException
     {
-        return userRepository.getAllOrderByScore();
+        return userRepository.findAllByOrderByScoreDesc();
     }
 }

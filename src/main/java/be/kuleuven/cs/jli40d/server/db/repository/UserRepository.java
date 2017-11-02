@@ -15,5 +15,5 @@ public interface UserRepository extends CrudRepository<User, Long>
 {
     User findUserByUsername(String username);
 
-    List<User> getAllOrderByScore();
+    List<User> findAllByOrderByScoreDesc();
 }
