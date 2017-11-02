@@ -2,6 +2,7 @@ package be.kuleuven.cs.jli40d.core;
 
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
+import be.kuleuven.cs.jli40d.core.model.Token;
 import be.kuleuven.cs.jli40d.core.model.User;
 import be.kuleuven.cs.jli40d.core.model.exception.AccountAlreadyExistsException;
 
@@ -28,6 +29,8 @@ public interface DatabaseHandler extends Remote, Serializable
     void registerUser( User user ) throws RemoteException, AccountAlreadyExistsException;
 
     String getUsernameForToken(String token) throws RemoteException;
+
+    void registerToken(Token token) throws RemoteException;
 
     User findUserByName(String username) throws RemoteException;
 

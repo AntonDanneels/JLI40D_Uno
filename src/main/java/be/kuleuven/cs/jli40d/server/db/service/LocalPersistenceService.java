@@ -8,6 +8,8 @@ import be.kuleuven.cs.jli40d.core.model.User;
 import be.kuleuven.cs.jli40d.core.model.exception.AccountAlreadyExistsException;
 import be.kuleuven.cs.jli40d.server.db.repository.TokenRepository;
 import be.kuleuven.cs.jli40d.server.db.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,13 +24,16 @@ import java.util.List;
 @Service
 public class LocalPersistenceService extends UnicastRemoteObject implements DatabaseHandler
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger( LocalPersistenceService.class );
 
     private UserRepository  userRepository;
     private TokenRepository tokenRepository;
 
     @Autowired
-    public LocalPersistenceService( TokenRepository tokenRepository ) throws RemoteException
+    public LocalPersistenceService( UserRepository userRepository, TokenRepository tokenRepository ) throws
+            RemoteException
     {
+        this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
     }
 
@@ -57,13 +62,19 @@ public class LocalPersistenceService extends UnicastRemoteObject implements Data
     @Override
     public void registerUser( User user ) throws RemoteException, AccountAlreadyExistsException
     {
+        if ( userRepository.findUserByUsernameIgnoreCase( user.getUsername() ) != null )
+        {
+            LOGGER.warn( "User {} is already registered.", user.getUsername() );
+            throw new AccountAlreadyExistsException( "User already found in database cluster" );
+        }
+
         userRepository.save( user );
     }
 
     @Override
     public String getUsernameForToken( String token ) throws RemoteException
     {
-        Token t =tokenRepository.findTokenByToken( token );
+        Token t = tokenRepository.findTokenByToken( token );
 
         if ( t == null )
         {
@@ -74,9 +85,15 @@ public class LocalPersistenceService extends UnicastRemoteObject implements Data
     }
 
     @Override
+    public void registerToken( Token token ) throws RemoteException
+    {
+        tokenRepository.save( token );
+    }
+
+    @Override
     public User findUserByName( String username ) throws RemoteException
     {
-        return userRepository.findUserByUsername( username );
+        return userRepository.findUserByUsernameIgnoreCase( username );
     }
 
     @Override

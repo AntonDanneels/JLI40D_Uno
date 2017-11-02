@@ -2,13 +2,14 @@ package be.kuleuven.cs.jli40d.core.model;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.io.Serializable;
 
 /**
  * @author Pieter
  * @version 1.0
  */
 @Entity
-public class User
+public class User implements Serializable
 {
     @Id
     private long id;
