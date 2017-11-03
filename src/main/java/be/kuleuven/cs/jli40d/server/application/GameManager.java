@@ -49,7 +49,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
             RemoteException,
             GameNotFoundException
     {
-        Game game = gameService.getGameByID( gameID );
+        Game game = gameService.getGameByID( (int) gameID );
         userManager.findUserByToken( token );
 
 
@@ -64,7 +64,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
             RemoteException,
             GameNotFoundException
     {
-        Game game = getGameByID( gameID );
+        Game game = gameService.getGameByID( (int) gameID );
 
         String username = userManager.findUserByToken( token );
 
@@ -93,7 +93,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
             GameNotFoundException,
             GameEndedException
     {
-        Game   game     = getGameByID( gameID );
+        Game   game     = gameService.getGameByID( (int) gameID );
         String username = userManager.findUserByToken( token ); //TODO check if authenticated for game
 
         while ( game.getMoves().size() <= nextGameMoveID )
@@ -138,7 +138,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
             GameNotFoundException,
             InvalidGameMoveException
     {
-        Game   game     = getGameByID( gameID );
+        Game   game     = gameService.getGameByID( (int) gameID );
         String username = userManager.findUserByToken( token );
 
         if ( !game.getCurrentPlayerUsername().equals( username )
