@@ -1,6 +1,7 @@
 package be.kuleuven.cs.jli40d.core;
 
 import be.kuleuven.cs.jli40d.core.model.Game;
+import be.kuleuven.cs.jli40d.core.model.GameSummary;
 import be.kuleuven.cs.jli40d.core.model.exception.*;
 
 import java.io.Serializable;
@@ -20,14 +21,14 @@ public interface LobbyHandler extends Remote, Serializable
 {
 
     /**
-     * Request a list with all games that are currently ongoing.
+     * Request a list with all {@link GameSummary} objects that are currently ongoing.
      *
      * @param token Token received by the {@link UserHandler}.
-     * @return A list of all Game objects.
+     * @return A list of all GameSummary objects.
      * @throws InvalidTokenException When the token is invalid (expired or not found).
      * @throws RemoteException
      */
-    List<Game> currentGames( String token ) throws RemoteException, InvalidTokenException;
+    List<GameSummary> currentGames( String token ) throws RemoteException, InvalidTokenException;
 
     /**
      * @param token           Token received by the {@link UserHandler}.

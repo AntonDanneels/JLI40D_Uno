@@ -1,7 +1,7 @@
 package be.kuleuven.cs.jli40d.client;
 
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
-import be.kuleuven.cs.jli40d.core.model.Game;
+import be.kuleuven.cs.jli40d.core.model.GameSummary;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import be.kuleuven.cs.jli40d.core.model.exception.UnableToCreateGameException;
 import javafx.fxml.FXML;
@@ -28,7 +28,7 @@ public class LobbySceneHandler
     private LobbyHandler lobbyHandler;
 
     @FXML
-    private ListView<Game> gamesList;
+    private ListView<GameSummary> gamesList;
 
     public LobbySceneHandler()
     {
@@ -107,18 +107,18 @@ public class LobbySceneHandler
     {
         try
         {
-            List<Game> games = lobbyHandler.currentGames( client.getToken() );
+            List<GameSummary> games = lobbyHandler.currentGames( client.getToken() );
             gamesList.getItems().clear();
 
-            gamesList.setCellFactory( new Callback<ListView<Game>, ListCell<Game>>()
+            gamesList.setCellFactory( new Callback<ListView<GameSummary>, ListCell<GameSummary>>()
             {
-                public ListCell<Game> call( ListView<Game> param )
+                public ListCell<GameSummary> call( ListView<GameSummary> param )
                 {
                     return new GameCell( client );
                 }
             } );
 
-            for ( Game game : games )
+            for ( GameSummary game : games )
                 gamesList.getItems().add( game );
         }
         catch ( RemoteException e )

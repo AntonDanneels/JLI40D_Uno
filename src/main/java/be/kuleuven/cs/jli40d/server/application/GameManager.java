@@ -1,6 +1,5 @@
 package be.kuleuven.cs.jli40d.server.application;
 
-import be.kuleuven.cs.jli40d.core.DatabaseHandler;
 import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.logic.GameLogic;
 import be.kuleuven.cs.jli40d.core.model.Game;
@@ -10,28 +9,27 @@ import be.kuleuven.cs.jli40d.core.model.exception.GameEndedException;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidGameMoveException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
+import be.kuleuven.cs.jli40d.server.application.service.RemoteGameService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Pieter
  * @version 1.0
  */
-public class GameManager extends UnicastRemoteObject implements GameHandler, GameListHandler
+public class GameManager extends UnicastRemoteObject implements GameHandler
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( GameManager.class );
 
-    private UserTokenHandler userManager;
-    private DatabaseHandler  databaseHandler;
+    private UserTokenHandler  userManager;
+    private RemoteGameService gameService;
 
-    public GameManager( UserTokenHandler userManager, DatabaseHandler databaseHandler ) throws RemoteException
+    public GameManager( UserTokenHandler userManager, RemoteGameService gameService ) throws RemoteException
     {
-        this.databaseHandler = databaseHandler;
+        this.gameService = gameService;
         this.userManager = userManager;
     }
 
@@ -51,7 +49,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
             RemoteException,
             GameNotFoundException
     {
-        Game game = getGameByID( gameID );
+        Game game = gameService.getGameByID( gameID );
         userManager.findUserByToken( token );
 
 
@@ -165,80 +163,5 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
 
         notifyAll();
 
-    }
-
-    @Override
-    public void add( Game game )
-    {
-        try
-        {
-            game.setGameID( databaseHandler.registerGame( game ) );
-        }
-        catch ( RemoteException e )
-        {
-            LOGGER.error( "Error while creating game.", e.getMessage() );
-        }
-    }
-
-    @Override
-    public Game getGameByID( long id ) throws GameNotFoundException
-    {
-        //if the game is not in the list, throw an error
-        Game g = null;
-        try
-        {
-            g = databaseHandler.getGame( id );
-        }
-        catch ( RemoteException e )
-        {
-            LOGGER.error( "Error while fetching the game from remote. {}", e.getMessage() );
-        }
-
-        if ( g == null )
-        {
-            LOGGER.warn( "joinGame method called with gameId = {}, but game not found. ", id );
-
-            throw new GameNotFoundException( "Game not found in the list" );
-        }
-
-        return g;
-    }
-
-    @Override
-    public List<Game> getAllGames()
-    {
-        try
-        {
-            return databaseHandler.getGames();
-        }
-        catch ( RemoteException e )
-        {
-            LOGGER.error( "Error while fetching list of games from remote. {}", e.getMessage() );
-        }
-
-        return Collections.emptyList();
-    }
-
-    @Override
-    public boolean equals( Object o )
-    {
-        if ( this == o ) return true;
-        if ( o == null || getClass() != o.getClass() ) return false;
-        if ( !super.equals( o ) ) return false;
-
-        GameManager manager = ( GameManager )o;
-
-        if ( userManager != null ? !userManager.equals( manager.userManager ) : manager.userManager != null )
-            return false;
-        return databaseHandler != null ? databaseHandler.equals( manager.databaseHandler ) : manager.databaseHandler == null;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        int result = super.hashCode();
-        result = 31 * result + ( userManager != null ? userManager.hashCode() : 0 );
-        result = 31 * result + ( databaseHandler != null ? databaseHandler.hashCode() : 0 );
-        return result;
     }
 }

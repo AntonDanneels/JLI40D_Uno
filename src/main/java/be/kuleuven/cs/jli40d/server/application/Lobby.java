@@ -4,6 +4,7 @@ import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.UserHandler;
 import be.kuleuven.cs.jli40d.core.logic.GameLogic;
 import be.kuleuven.cs.jli40d.core.model.Game;
+import be.kuleuven.cs.jli40d.core.model.GameSummary;
 import be.kuleuven.cs.jli40d.core.model.Player;
 import be.kuleuven.cs.jli40d.core.model.exception.*;
 import org.slf4j.Logger;
@@ -61,7 +62,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
      * @return A list of all Game objects.
      * @throws InvalidTokenException When the token is invalid (expired or not found).
      */
-    public List<Game> currentGames( String token ) throws InvalidTokenException
+    public List<GameSummary> currentGames( String token ) throws InvalidTokenException
     {
         LOGGER.debug( "Requested list of games by {}", token );
 
@@ -162,6 +163,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
             //create a new player with the next id of the list
             Player player = new Player( requestedGame.getNumberOfJoinedPlayers(), username );
             requestedGame.getPlayers().add( player );
+
 
             LOGGER.info( "Player {} added to game {}.", username, gameID );
         }

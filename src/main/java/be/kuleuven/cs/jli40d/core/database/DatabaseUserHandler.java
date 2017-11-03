@@ -1,7 +1,5 @@
-package be.kuleuven.cs.jli40d.core;
+package be.kuleuven.cs.jli40d.core.database;
 
-import be.kuleuven.cs.jli40d.core.model.Game;
-import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.Token;
 import be.kuleuven.cs.jli40d.core.model.User;
 import be.kuleuven.cs.jli40d.core.model.exception.AccountAlreadyExistsException;
@@ -13,19 +11,13 @@ import java.util.List;
 
 /**
  * This class provides an endpoint for application servers to connect to
- * database servers.
+ * database servers and manage user functions.
  *
  * @author Pieter
  * @version 1.0
  */
-public interface DatabaseHandler extends Remote, Serializable
+public interface DatabaseUserHandler extends Remote, Serializable
 {
-    List<Game> getGames() throws RemoteException;
-
-    Game getGame( long id ) throws RemoteException;
-
-    void addMove( long gameID, GameMove gameMove) throws RemoteException;
-
     void registerUser( User user ) throws RemoteException, AccountAlreadyExistsException;
 
     String getUsernameForToken(String token) throws RemoteException;
@@ -36,5 +28,4 @@ public interface DatabaseHandler extends Remote, Serializable
 
     List<User> getUsersSortedByScore() throws RemoteException;
 
-    int registerGame( Game game) throws RemoteException;
 }

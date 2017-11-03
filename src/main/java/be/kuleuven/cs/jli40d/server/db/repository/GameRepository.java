@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
  * @version 1.0
  */
 @Repository
-public interface GameRepository extends CrudRepository<Game, Long>
+public interface GameRepository extends CrudRepository<Game, Integer>
 {
 
 }
