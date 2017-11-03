@@ -69,8 +69,8 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
         //Check authentication, throws error if token is invalid
         userManager.findUserByToken( token );
 
-        List<Game> currentGames = games.getAllGames();
-        currentGames.removeIf( game -> game.isEnded() );
+        List<GameSummary> currentGames = games.getAllGames();
+        //currentGames.removeIf( game -> game.isEnded() ); TODO we might ignore it
 
         return currentGames;
     }
@@ -130,7 +130,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
         Game requestedGame;
         try
         {
-            requestedGame = games.getGameByID( gameID );
+            requestedGame = games.getGameByID( (int) gameID );
         }
         catch ( GameNotFoundException e )
         {
