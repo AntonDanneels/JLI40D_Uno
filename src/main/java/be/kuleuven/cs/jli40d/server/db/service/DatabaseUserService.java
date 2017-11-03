@@ -1,12 +1,9 @@
 package be.kuleuven.cs.jli40d.server.db.service;
 
-import be.kuleuven.cs.jli40d.core.DatabaseHandler;
-import be.kuleuven.cs.jli40d.core.model.Game;
-import be.kuleuven.cs.jli40d.core.model.GameMove;
+import be.kuleuven.cs.jli40d.core.database.DatabaseUserHandler;
 import be.kuleuven.cs.jli40d.core.model.Token;
 import be.kuleuven.cs.jli40d.core.model.User;
 import be.kuleuven.cs.jli40d.core.model.exception.AccountAlreadyExistsException;
-import be.kuleuven.cs.jli40d.server.db.repository.GameRepository;
 import be.kuleuven.cs.jli40d.server.db.repository.TokenRepository;
 import be.kuleuven.cs.jli40d.server.db.repository.UserRepository;
 import org.slf4j.Logger;
@@ -17,54 +14,30 @@ import org.springframework.stereotype.Service;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 /**
  * @author Pieter
  * @version 1.0
  */
 @Service
-public class LocalPersistenceService extends UnicastRemoteObject implements DatabaseHandler
+public class DatabaseUserService extends UnicastRemoteObject implements DatabaseUserHandler
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger( LocalPersistenceService.class );
+    private static final Logger LOGGER = LoggerFactory.getLogger( DatabaseUserHandler.class );
 
     private UserRepository  userRepository;
     private TokenRepository tokenRepository;
-    private GameRepository  gameRepository;
 
     @Autowired
-    public LocalPersistenceService( UserRepository userRepository,
-                                    TokenRepository tokenRepository,
-                                    GameRepository gameRepository ) throws
+    public DatabaseUserService( UserRepository userRepository,
+                                TokenRepository tokenRepository ) throws
             RemoteException
     {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
-        this.gameRepository = gameRepository;
     }
 
-    protected LocalPersistenceService() throws RemoteException
+    protected DatabaseUserService() throws RemoteException
     {
-    }
-
-    @Override
-    public List<Game> getGames() throws RemoteException
-    {
-        return StreamSupport.stream( gameRepository.findAll().spliterator(), false )
-                .collect( Collectors.toList() );
-    }
-
-    @Override
-    public Game getGame( long id ) throws RemoteException
-    {
-        return gameRepository.findOne( id );
-    }
-
-    @Override
-    public void addMove( long gameID, GameMove gameMove ) throws RemoteException
-    {
-
     }
 
     @Override
@@ -108,13 +81,5 @@ public class LocalPersistenceService extends UnicastRemoteObject implements Data
     public List<User> getUsersSortedByScore() throws RemoteException
     {
         return userRepository.findAllByOrderByScoreDesc();
-    }
-
-    @Override
-    public int registerGame( Game game ) throws RemoteException
-    {
-        gameRepository.save( game );
-
-        return (int) game.getGameID();
     }
 }

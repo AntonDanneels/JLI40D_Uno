@@ -27,21 +27,23 @@ public class Game implements Serializable
     @GeneratedValue( strategy = GenerationType.IDENTITY )
     protected long gameID;
 
-    @OneToMany(cascade = CascadeType.PERSIST)
-    @LazyCollection( LazyCollectionOption.FALSE)
+    @OneToMany( cascade = CascadeType.PERSIST )
+    @LazyCollection( LazyCollectionOption.FALSE )
     private List<Player> players;
 
-    @OneToMany(cascade = CascadeType.PERSIST)
-    @LazyCollection( LazyCollectionOption.FALSE)
+    @OneToMany( cascade = CascadeType.PERSIST )
+    @LazyCollection( LazyCollectionOption.FALSE )
     private List<GameMove> moves;
 
-    @OneToMany(cascade = CascadeType.MERGE)
-    @LazyCollection( LazyCollectionOption.FALSE)
-    private List<Card>     deck;
+    @OneToMany( cascade = CascadeType.MERGE )
+    @LazyCollection( LazyCollectionOption.FALSE )
+    private List<Card> deck;
 
-    @OneToMany(cascade = CascadeType.PERSIST)
-    @LazyCollection( LazyCollectionOption.FALSE)
+    @OneToMany( cascade = CascadeType.PERSIST )
+    @LazyCollection( LazyCollectionOption.FALSE )
     private Map<String, PlayerHand> playerHands;
+
+    private String name;
 
     private int maximumNumberOfPlayers;
 
@@ -72,6 +74,12 @@ public class Game implements Serializable
         this.currentPlayer = 0;
         this.currentGameMoveID = -1;
         this.clockwise = true;
+    }
+
+    public Game( String name, int maximumNumberOfPlayers )
+    {
+        this( maximumNumberOfPlayers );
+        this.name = name;
     }
 
     public Map<String, PlayerHand> getPlayerHands()
@@ -254,5 +262,15 @@ public class Game implements Serializable
         }
 
         return false;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public void setName( String name )
+    {
+        this.name = name;
     }
 }

@@ -1,7 +1,7 @@
 package be.kuleuven.cs.jli40d.server.application;
 
-import be.kuleuven.cs.jli40d.core.DatabaseHandler;
 import be.kuleuven.cs.jli40d.core.UserHandler;
+import be.kuleuven.cs.jli40d.core.database.DatabaseUserHandler;
 import be.kuleuven.cs.jli40d.core.model.Token;
 import be.kuleuven.cs.jli40d.core.model.User;
 import be.kuleuven.cs.jli40d.core.model.exception.AccountAlreadyExistsException;
@@ -26,7 +26,7 @@ public class RemoteUserManager extends UnicastRemoteObject implements UserHandle
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( RemoteUserManager.class );
 
-    private DatabaseHandler databaseHandler;
+    private DatabaseUserHandler databaseUserHandler;
 
     /**
      * Creates and exports a new UnicastRemoteObject object using an
@@ -38,9 +38,9 @@ public class RemoteUserManager extends UnicastRemoteObject implements UserHandle
      * @throws RemoteException if failed to export object
      * @since JDK1.1
      */
-    public RemoteUserManager( DatabaseHandler databaseHandler ) throws RemoteException
+    public RemoteUserManager( DatabaseUserHandler databaseUserHandler ) throws RemoteException
     {
-        this.databaseHandler = databaseHandler;
+        this.databaseUserHandler = databaseUserHandler;
     }
 
     /**
@@ -56,7 +56,7 @@ public class RemoteUserManager extends UnicastRemoteObject implements UserHandle
         String username = null;
         try
         {
-            username = databaseHandler.getUsernameForToken( token );
+            username = databaseUserHandler.getUsernameForToken( token );
         }
         catch ( RemoteException e )
         {
@@ -84,13 +84,13 @@ public class RemoteUserManager extends UnicastRemoteObject implements UserHandle
     @Override
     public String login( String username, String password ) throws RemoteException, InvalidUsernameOrPasswordException
     {
-        User user = databaseHandler.findUserByName( username );
+        User user = databaseUserHandler.findUserByName( username );
 
         if ( user != null && BCrypt.checkpw( password, user.getPassword() ) )
         {
             String token = generateRandomToken();
 
-            databaseHandler.registerToken( new Token(token, generateDateForOver( 7 ) , user) );
+            databaseUserHandler.registerToken( new Token( token, generateDateForOver( 7 ), user ) );
 
             LOGGER.info( "Logging user {} in and activating token {}", username, token );
 
@@ -119,8 +119,9 @@ public class RemoteUserManager extends UnicastRemoteObject implements UserHandle
             RemoteException,
             AccountAlreadyExistsException
     {
+
         //database handler will throw an error if the account already exists on the db cluster
-        databaseHandler.registerUser(
+        databaseUserHandler.registerUser(
                 new User( username, 0, BCrypt.hashpw( password, BCrypt.gensalt() ) ) );
 
         LOGGER.info( "Created account for {} with username {}", email, username );
@@ -146,13 +147,13 @@ public class RemoteUserManager extends UnicastRemoteObject implements UserHandle
     @Override
     public void logout( String token ) throws RemoteException
     {
-
+        throw new NotYetImplementedException();
     }
 
     @Override
     public List<Pair<String, Long>> getUserScores() throws RemoteException
     {
-        List<User> users = databaseHandler.getUsersSortedByScore();
+        List<User> users = databaseUserHandler.getUsersSortedByScore();
 
         List<Pair<String, Long>> result = new ArrayList<>();
 
@@ -177,12 +178,12 @@ public class RemoteUserManager extends UnicastRemoteObject implements UserHandle
         return Base64.getEncoder().encodeToString( bytes );
     }
 
-    private static Date generateDateForOver(int days)
+    private static Date generateDateForOver( int days )
     {
         //Set the deactivation date for the token to the next week
         Calendar deactivationDate = new GregorianCalendar();
-        deactivationDate.setTime(new Date());
-        deactivationDate.add(Calendar.DATE, days);
+        deactivationDate.setTime( new Date() );
+        deactivationDate.add( Calendar.DATE, days );
 
         return deactivationDate.getTime();
     }

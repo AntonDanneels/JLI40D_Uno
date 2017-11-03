@@ -1,6 +1,7 @@
 package be.kuleuven.cs.jli40d.client;
 
 import be.kuleuven.cs.jli40d.core.model.Game;
+import be.kuleuven.cs.jli40d.core.model.GameSummary;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -25,7 +26,7 @@ public class GameCell extends ListCell<Game>
     private Button joinButton       = new Button( "Join" );
     private Button viewButton       = new Button( "View" );
 
-    private Game game;
+    private GameSummary game;
 
     public GameCell( GameClient client )
     {
@@ -41,7 +42,7 @@ public class GameCell extends ListCell<Game>
         } );
     }
 
-    protected void updateItem( Game game, boolean empty )
+    protected void updateItem( GameSummary game, boolean empty )
     {
         super.updateItem( game, empty );
         setText( null );

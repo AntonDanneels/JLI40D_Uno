@@ -11,7 +11,7 @@ import java.util.List;
  * @version 1.0
  */
 @Repository
-public interface UserRepository extends CrudRepository<User, Long>
+public interface UserRepository extends CrudRepository<User, Integer>
 {
     User findUserByUsernameIgnoreCase(String username);
 

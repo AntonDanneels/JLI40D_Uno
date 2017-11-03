@@ -1,9 +1,11 @@
 package be.kuleuven.cs.jli40d.server.application;
 
-import be.kuleuven.cs.jli40d.core.DatabaseHandler;
 import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.UserHandler;
+import be.kuleuven.cs.jli40d.core.database.DatabaseGameHandler;
+import be.kuleuven.cs.jli40d.core.database.DatabaseUserHandler;
+import be.kuleuven.cs.jli40d.server.application.service.RemoteGameService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,14 +28,17 @@ public class ApplicationMain
         try
         {
             //remote db
-            Registry        myRegistry   = LocateRegistry.getRegistry( "localhost", 1100 );
-            DatabaseHandler databaseHandler = ( DatabaseHandler )myRegistry.lookup( DatabaseHandler.class.getName() );
+            Registry            myRegistry          = LocateRegistry.getRegistry( "localhost", 1100 );
+            DatabaseUserHandler databaseUserHandler = ( DatabaseUserHandler )myRegistry.lookup( DatabaseUserHandler.class.getName() );
+            DatabaseGameHandler databaseGameHandler = ( DatabaseGameHandler )myRegistry.lookup( DatabaseGameHandler.class.getName() );
 
 
             //services
-            RemoteUserManager userManager = new RemoteUserManager(databaseHandler);
-            GameManager       gameManager = new GameManager( userManager, databaseHandler );
-            LobbyHandler      lobby       = new Lobby( userManager, gameManager );
+            RemoteUserManager userManager = new RemoteUserManager( databaseUserHandler );
+            RemoteGameService gameService = new RemoteGameService( databaseGameHandler );
+
+            GameManager       gameManager = new GameManager( userManager, gameService );
+            LobbyHandler      lobby       = new Lobby( userManager, gameService );
 
             // create on port 1099
             Registry server = LocateRegistry.createRegistry( 1099 );

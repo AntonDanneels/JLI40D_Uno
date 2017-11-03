@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
  * @version 1.0
  */
 @Repository
-public interface TokenRepository extends CrudRepository<Token, Long>
+public interface TokenRepository extends CrudRepository<Token, Integer>
 {
     Token findTokenByToken(String token);
 }
