@@ -60,12 +60,19 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
     @Override
     public Game saveGame( Game game ) throws RemoteException
     {
+        LOGGER.debug( "saving game with players: {}", game.getPlayers() );
         return gameRepository.save( game );
     }
 
     @Override
     public int addMove( int gameID, GameMove gameMove ) throws RemoteException
     {
-        return 0;
+        Game game = gameRepository.findOne( gameID );
+
+        game.addLatestMove( gameMove );
+
+        gameRepository.save( game );
+
+        return game.getMoves().size();
     }
 }

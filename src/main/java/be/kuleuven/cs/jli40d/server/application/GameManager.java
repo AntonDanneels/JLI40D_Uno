@@ -115,7 +115,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
 
         LOGGER.debug( "Sending move with id = {} for game {} to {}", nextGameMoveID, game, username );
 
-        return game.getMoves().get( ( int )nextGameMoveID );
+        return game.getMoves().get( nextGameMoveID );
     }
 
     /**
@@ -158,6 +158,9 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
 
             // TODO: save score in DB here
         }
+
+        //Save game and move to db
+        gameService.addMove( gameID, move );
 
         LOGGER.debug( "{} added a move to game {}", username, game );
 
