@@ -191,6 +191,8 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
             LOGGER.debug( "Game not yet started, distributing cards." );
 
             GameLogic.distributeCards( requestedGame );
+
+            games.add( requestedGame );
         }
 
         notifyAll();

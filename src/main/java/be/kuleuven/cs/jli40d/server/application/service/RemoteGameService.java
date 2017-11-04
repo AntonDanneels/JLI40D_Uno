@@ -2,6 +2,7 @@ package be.kuleuven.cs.jli40d.server.application.service;
 
 import be.kuleuven.cs.jli40d.core.database.DatabaseGameHandler;
 import be.kuleuven.cs.jli40d.core.model.Game;
+import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 import be.kuleuven.cs.jli40d.server.application.GameListHandler;
@@ -49,10 +50,23 @@ public class RemoteGameService implements GameListHandler
         {
             LOGGER.debug( "Adding game with id {} to local cache.", game.getGameID() );
             this.localGameCache.put( game.getGameID(), game );
-        }
 
-        //remote persistence
-        new Thread( new PersistenceUpdateGameService( gameHandler, game ) ).start();
+            //This should be here for an accurate list
+            try
+            {
+                game = gameHandler.saveGame( game ); //this is because of RMI
+
+                LOGGER.debug( "Persisted game and received id = {}", game.getGameID() );
+            }
+            catch ( RemoteException e )
+            {
+                LOGGER.error( "Error while saving the game to remote db cluster. {}", e.getMessage() );
+            }
+        } else
+        {
+            //remote persistence
+            new Thread( new PersistenceUpdateGameService( gameHandler, game ) ).start();
+        }
     }
 
     @Override
@@ -101,5 +115,18 @@ public class RemoteGameService implements GameListHandler
         }
 
         return Collections.emptyList();
+    }
+
+    public void addMove( int gameID, GameMove move )
+    {
+        try
+        {
+            gameHandler.addMove( gameID, move  );
+        }
+        catch ( RemoteException e )
+        {
+            LOGGER.error( "Error while fetching the game from remote. {}", e.getMessage() );
+        }
+
     }
 }

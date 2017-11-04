@@ -1,8 +1,10 @@
-package be.kuleuven.cs.jli40d.server.db.dialect;
+package org.hibernate.dialect;
 
-import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.identity.IdentityColumnSupportImpl;
 
+/**
+ * @author Pieter
+ */
 public class SQLiteDialectIdentityColumnSupport extends IdentityColumnSupportImpl
 {
 

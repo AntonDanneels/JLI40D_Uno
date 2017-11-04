@@ -1,5 +1,8 @@
 package be.kuleuven.cs.jli40d.core.model;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -19,8 +22,8 @@ public class PlayerHand implements Serializable
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @OneToMany
-    @MapKey( name = "username" )
+    @OneToMany( cascade = CascadeType.MERGE )
+    @LazyCollection( LazyCollectionOption.FALSE )
     private List<Card> playerHands;
 
     public int getId()
