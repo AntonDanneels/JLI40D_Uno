@@ -11,14 +11,16 @@ import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This service is an endpoint to the {@link GameManager} and provides
  * two services:
  * <ul>
- *     <li>Maintaining a local cache of games.</li>
- *     <li>Sending updates of invalidated games to the db cluster.</li>
+ * <li>Maintaining a local cache of games.</li>
+ * <li>Sending updates of invalidated games to the db cluster.</li>
  * </ul>
  *
  * @author Pieter
@@ -26,46 +28,56 @@ import java.util.List;
  */
 public class RemoteGameService implements GameListHandler
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteGameService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger( RemoteGameService.class );
 
     private DatabaseGameHandler gameHandler;
 
-    //TODO add cache
+    //Cache
+    private Map<Integer, Game> localGameCache;
 
     public RemoteGameService( DatabaseGameHandler gameHandler )
     {
         this.gameHandler = gameHandler;
+        this.localGameCache = new HashMap<>( 32 );
     }
 
     @Override
     public void add( Game game )
     {
-        LOGGER.debug( "Persisting game {}", game.getGameID() );
+        //local persistence
+        if ( !this.localGameCache.containsKey( game.getGameID() ) )
+        {
+            LOGGER.debug( "Adding game with id {} to local cache.", game.getGameID() );
+            this.localGameCache.put( game.getGameID(), game );
+        }
 
-        try
-        {
-            game = gameHandler.saveGame( game ); //this is because of RMI
-        }
-        catch ( RemoteException e )
-        {
-            LOGGER.error( "Error while saving the game to remote db cluster. {}", e.getMessage() );
-        }
+        //remote persistence
+        new Thread( new PersistenceUpdateGameService( gameHandler, game ) ).start();
     }
 
     @Override
     public Game getGameByID( int id ) throws GameNotFoundException
     {
-        //if the game is not in the list, throw an error
         Game g = null;
-        try
+
+        if ( localGameCache.containsKey( id ) )
         {
-            g = gameHandler.getGame( id );
+            g = localGameCache.get( id );
         }
-        catch ( RemoteException e )
+        else
         {
-            LOGGER.error( "Error while fetching the game from remote. {}", e.getMessage() );
+            LOGGER.warn( "fetching game with id = {} from remote db cluster. This action is not cached.", id );
+            try
+            {
+                g = gameHandler.getGame( id );
+            }
+            catch ( RemoteException e )
+            {
+                LOGGER.error( "Error while fetching the game from remote. {}", e.getMessage() );
+            }
         }
 
+        //if the game is not in the list, throw an error
         if ( g == null )
         {
             LOGGER.warn( "joinGame method called with gameId = {}, but game not found. ", id );
