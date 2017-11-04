@@ -1,5 +1,7 @@
 package be.kuleuven.cs.jli40d.server.db;
 
+import be.kuleuven.cs.jli40d.core.database.DatabaseGameHandler;
+import be.kuleuven.cs.jli40d.core.database.DatabaseUserHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,14 +18,16 @@ import java.util.Arrays;
 @Component
 public class DatabaseRunner
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseRunner.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger( DatabaseRunner.class );
 
-    private DatabaseUserHandler localPersistenceService;
+    private DatabaseGameHandler gameHandler;
+    private DatabaseUserHandler userHandler;
 
     @Autowired
-    public DatabaseRunner( DatabaseUserHandler localPersistenceService )
+    public DatabaseRunner( DatabaseGameHandler gameHandler, DatabaseUserHandler userHandler )
     {
-        this.localPersistenceService = localPersistenceService;
+        this.gameHandler = gameHandler;
+        this.userHandler = userHandler;
 
         try
         {
@@ -31,7 +35,8 @@ public class DatabaseRunner
             // create on port 1099
             Registry registry = LocateRegistry.createRegistry( 1100 );
 
-            registry.rebind( DatabaseUserHandler.class.getName(), localPersistenceService );
+            registry.rebind( DatabaseGameHandler.class.getName(), gameHandler );
+            registry.rebind( DatabaseUserHandler.class.getName(), userHandler );
 
 
             LOGGER.info( "DB server started with following bindings: {} ", Arrays.toString( registry.list() ) );

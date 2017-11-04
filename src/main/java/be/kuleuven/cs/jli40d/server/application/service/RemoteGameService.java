@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -29,6 +30,8 @@ public class RemoteGameService implements GameListHandler
 
     private DatabaseGameHandler gameHandler;
 
+    //TODO add cache
+
     public RemoteGameService( DatabaseGameHandler gameHandler )
     {
         this.gameHandler = gameHandler;
@@ -37,9 +40,11 @@ public class RemoteGameService implements GameListHandler
     @Override
     public void add( Game game )
     {
+        LOGGER.debug( "Persisting game {}", game.getGameID() );
+
         try
         {
-            game = gameHandler.saveGame( game );
+            game = gameHandler.saveGame( game ); //this is because of RMI
         }
         catch ( RemoteException e )
         {
@@ -74,6 +79,15 @@ public class RemoteGameService implements GameListHandler
     @Override
     public List<GameSummary> getAllGames()
     {
-        return null;
+        try
+        {
+            return gameHandler.getGames();
+        }
+        catch ( RemoteException e )
+        {
+            LOGGER.error( "Error while fetching the game from remote. {}", e.getMessage() );
+        }
+
+        return Collections.emptyList();
     }
 }

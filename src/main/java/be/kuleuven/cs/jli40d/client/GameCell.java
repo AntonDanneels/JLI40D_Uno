@@ -1,6 +1,5 @@
 package be.kuleuven.cs.jli40d.client;
 
-import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -14,7 +13,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by Anton D.
  */
-public class GameCell extends ListCell<Game>
+public class GameCell extends ListCell<GameSummary>
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(GameCell.class);
 

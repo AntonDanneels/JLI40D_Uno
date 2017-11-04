@@ -44,12 +44,12 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
      * @throws GameNotFoundException When the game is not found.
      */
     @Override
-    public boolean isStarted( String token, long gameID ) throws
+    public boolean isStarted( String token, int gameID ) throws
             InvalidTokenException,
             RemoteException,
             GameNotFoundException
     {
-        Game game = gameService.getGameByID( (int) gameID );
+        Game game = gameService.getGameByID( gameID );
         userManager.findUserByToken( token );
 
 
@@ -59,12 +59,12 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
     }
 
     @Override
-    public synchronized boolean myTurn( String token, long gameID ) throws
+    public synchronized boolean myTurn( String token, int gameID ) throws
             InvalidTokenException,
             RemoteException,
             GameNotFoundException
     {
-        Game game = gameService.getGameByID( (int) gameID );
+        Game game = gameService.getGameByID( gameID );
 
         String username = userManager.findUserByToken( token );
 
@@ -87,13 +87,13 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
      * @throws GameNotFoundException When the game is not found.
      */
     @Override
-    public synchronized GameMove getNextMove( String token, long gameID, long nextGameMoveID ) throws
+    public synchronized GameMove getNextMove( String token, int gameID, int nextGameMoveID ) throws
             InvalidTokenException,
             RemoteException,
             GameNotFoundException,
             GameEndedException
     {
-        Game   game     = gameService.getGameByID( (int) gameID );
+        Game   game     = gameService.getGameByID( gameID );
         String username = userManager.findUserByToken( token ); //TODO check if authenticated for game
 
         while ( game.getMoves().size() <= nextGameMoveID )
@@ -132,13 +132,13 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
      * @throws InvalidGameMoveException When the move is invalid.
      */
     @Override
-    public synchronized void sendMove( String token, long gameID, GameMove move ) throws
+    public synchronized void sendMove( String token, int gameID, GameMove move ) throws
             InvalidTokenException,
             RemoteException,
             GameNotFoundException,
             InvalidGameMoveException
     {
-        Game   game     = gameService.getGameByID( (int) gameID );
+        Game   game     = gameService.getGameByID( gameID );
         String username = userManager.findUserByToken( token );
 
         if ( !game.getCurrentPlayerUsername().equals( username )
