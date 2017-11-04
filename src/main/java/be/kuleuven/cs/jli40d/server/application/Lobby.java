@@ -83,7 +83,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
      * @throws InvalidTokenException       When the token is invalid (expired or not found).
      * @throws UnableToCreateGameException When the game cannot be created for some reason (like exceeded limits).
      */
-    public long makeGame( String token, String gameName, int numberOfPlayers ) throws
+    public int makeGame( String token, String gameName, int numberOfPlayers ) throws
             InvalidTokenException,
             UnableToCreateGameException
     {
@@ -118,7 +118,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
      * @throws UnableToJoinGameException When the user cannot join the game for various reasons.
      * @throws InvalidTokenException     When the token is invalid (expired or not found).
      */
-    public synchronized Game joinGame( String token, long gameID ) throws
+    public synchronized Game joinGame( String token, int gameID ) throws
             UnableToJoinGameException,
             InvalidTokenException,
             GameEndedException
@@ -126,15 +126,17 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
         //initial check for token and find username
         String username = userManager.findUserByToken( token );
 
+        LOGGER.debug( "{} tries to join game with id {}.", username, gameID );
+
         //throws an error if the game is not in the list
         Game requestedGame;
         try
         {
-            requestedGame = games.getGameByID( (int) gameID );
+            requestedGame = games.getGameByID( gameID );
         }
         catch ( GameNotFoundException e )
         {
-            LOGGER.info( "User {} tried to join a non-existing game with id = {}.", username, gameID );
+            LOGGER.warn( "User {} tried to join a non-existing game with id = {}.", username, gameID );
             throw new UnableToJoinGameException( "Game not found" );
         }
 
@@ -161,9 +163,10 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
         else
         {
             //create a new player with the next id of the list
-            Player player = new Player( requestedGame.getNumberOfJoinedPlayers(), username );
+            Player player = new Player( requestedGame.getNumberOfJoinedPlayers(), username ); //TODO fix id
             requestedGame.getPlayers().add( player );
 
+            games.add( requestedGame );
 
             LOGGER.info( "Player {} added to game {}.", username, gameID );
         }

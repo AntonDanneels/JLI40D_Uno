@@ -25,13 +25,13 @@ public class Game implements Serializable
 {
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY )
-    protected long gameID;
+    protected int gameID;
 
-    @OneToMany( cascade = CascadeType.PERSIST )
+    @OneToMany( cascade = CascadeType.MERGE )
     @LazyCollection( LazyCollectionOption.FALSE )
     private List<Player> players;
 
-    @OneToMany( cascade = CascadeType.PERSIST )
+    @OneToMany( cascade = CascadeType.MERGE )
     @LazyCollection( LazyCollectionOption.FALSE )
     private List<GameMove> moves;
 
@@ -39,7 +39,7 @@ public class Game implements Serializable
     @LazyCollection( LazyCollectionOption.FALSE )
     private List<Card> deck;
 
-    @OneToMany( cascade = CascadeType.PERSIST )
+    @OneToMany( cascade = CascadeType.MERGE )
     @LazyCollection( LazyCollectionOption.FALSE )
     private Map<String, PlayerHand> playerHands;
 
@@ -190,12 +190,12 @@ public class Game implements Serializable
         return topCard;
     }
 
-    public void setGameID( long gameID )
+    public void setGameID( int gameID )
     {
         this.gameID = gameID;
     }
 
-    public long getGameID()
+    public int getGameID()
     {
         return gameID;
     }
@@ -255,7 +255,7 @@ public class Game implements Serializable
     {
         for ( Player player : players )
         {
-            if ( player.getUsername().equals( username ) )
+            if ( username.equals( player.getUsername() ) )
             {
                 return true;
             }

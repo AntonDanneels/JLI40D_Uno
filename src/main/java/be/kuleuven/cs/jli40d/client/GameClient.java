@@ -7,7 +7,7 @@ package be.kuleuven.cs.jli40d.client;/**
 import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.UserHandler;
-import be.kuleuven.cs.jli40d.core.model.Game;
+import be.kuleuven.cs.jli40d.core.model.GameSummary;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -125,9 +125,9 @@ public class GameClient extends Application
         this.primaryStage.setScene( lobbyScene );
     }
 
-    public void setGameScene( Game game )
+    public void setGameScene( GameSummary game )
     {
-        gameSceneHandler.setGame( game );
+        gameSceneHandler.setGameSummary( game );
         this.primaryStage.setScene( gameScene );
         gameSceneHandler.run();
     }

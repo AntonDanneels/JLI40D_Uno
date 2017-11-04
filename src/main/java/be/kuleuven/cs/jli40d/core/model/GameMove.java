@@ -14,7 +14,7 @@ public class GameMove implements Serializable
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long    id;
+    private int     id;
     private Player  player;
     private Card    playedCard;
     private boolean cardDrawn;
@@ -55,7 +55,7 @@ public class GameMove implements Serializable
         return cardDrawn;
     }
 
-    public long getId()
+    public int getId()
     {
         return id;
     }
@@ -70,7 +70,7 @@ public class GameMove implements Serializable
         this.activated = activated;
     }
 
-    public void setId( long id )
+    public void setId( int id )
     {
         this.id = id;
     }

@@ -76,7 +76,7 @@ public class LobbySceneHandler
         LOGGER.debug( "Creating game with name {} and {} players ", gameName, nrOfPlayers );
         try
         {
-            long id = lobbyHandler.makeGame( client.getToken(), gameName, nrOfPlayers );
+            int id = lobbyHandler.makeGame( client.getToken(), gameName, nrOfPlayers );
             LOGGER.debug( "Succesfully created a game with ID {}", id );
             refresh();
         }

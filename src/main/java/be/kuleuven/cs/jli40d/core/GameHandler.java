@@ -27,7 +27,7 @@ public interface GameHandler extends Remote, Serializable
      * @throws RemoteException
      * @throws GameNotFoundException When the game is not found.
      */
-    boolean isStarted( String token, long gameID ) throws InvalidTokenException, RemoteException, GameNotFoundException;
+    boolean isStarted( String token, int gameID ) throws InvalidTokenException, RemoteException, GameNotFoundException;
 
     /**
      * Returns true if it's the server determines the players (identified
@@ -42,7 +42,7 @@ public interface GameHandler extends Remote, Serializable
      * @throws RemoteException
      * @throws GameNotFoundException When the game is not found.
      */
-    boolean myTurn( String token, long gameID ) throws InvalidTokenException, RemoteException, GameNotFoundException;
+    boolean myTurn( String token, int gameID ) throws InvalidTokenException, RemoteException, GameNotFoundException;
 
 
     /**
@@ -60,7 +60,7 @@ public interface GameHandler extends Remote, Serializable
      * @throws RemoteException
      * @throws GameNotFoundException When the game is not found.
      */
-    GameMove getNextMove( String token, long gameID, long nextGameMoveID ) throws
+    GameMove getNextMove( String token, int gameID, int nextGameMoveID ) throws
             InvalidTokenException,
             RemoteException,
             GameNotFoundException,
@@ -79,7 +79,7 @@ public interface GameHandler extends Remote, Serializable
      * @throws GameNotFoundException    When the game is not found.
      * @throws InvalidGameMoveException When the move is invalid.
      */
-    void sendMove( String token, long gameID, GameMove move ) throws
+    void sendMove( String token, int gameID, GameMove move ) throws
             InvalidTokenException,
             RemoteException,
             GameNotFoundException,

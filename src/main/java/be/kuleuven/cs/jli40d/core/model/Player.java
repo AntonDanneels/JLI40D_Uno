@@ -40,11 +40,6 @@ public class Player implements Serializable
         this.id = id;
     }
 
-    public void setUsername( String username )
-    {
-        this.username = username;
-    }
-
     public int getNrOfCards()
     {
         return nrOfCards;
@@ -58,5 +53,10 @@ public class Player implements Serializable
     public String getUsername()
     {
         return username;
+    }
+
+    public void setUsername( String username )
+    {
+        this.username = username;
     }
 }
