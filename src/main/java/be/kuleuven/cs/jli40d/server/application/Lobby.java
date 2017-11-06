@@ -141,12 +141,6 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
             throw new UnableToJoinGameException( "Game not found" );
         }
 
-        if( requestedGame.isEnded() )
-        {
-            LOGGER.debug( "Tried to join ended game" );
-            throw new GameEndedException();
-        }
-
         if ( requestedGame.hasPlayer( username ) )
         {
             LOGGER.debug( "Player {} tried to re-join a game.", username );
@@ -193,10 +187,6 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
         if ( !requestedGame.isStarted() )
         {
             LOGGER.debug( "Game not yet started, distributing cards." );
-
-            games.add( requestedGame );
-
-            requestedGame = games.getGameByID( requestedGame.getGameID(), true );
 
             GameLogic.distributeCards( requestedGame );
 

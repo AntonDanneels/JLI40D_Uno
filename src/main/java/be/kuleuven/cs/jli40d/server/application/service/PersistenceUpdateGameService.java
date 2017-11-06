@@ -15,11 +15,13 @@ public class PersistenceUpdateGameService implements Runnable
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( PersistenceUpdateGameService.class );
 
+    private int serverID;
     private DatabaseGameHandler gameHandler;
     private Game                game;
 
-    public PersistenceUpdateGameService( DatabaseGameHandler gameHandler, Game game )
+    public PersistenceUpdateGameService( int serverID, DatabaseGameHandler gameHandler, Game game )
     {
+        this.serverID = serverID;
         this.gameHandler = gameHandler;
         this.game = game;
     }
@@ -34,7 +36,7 @@ public class PersistenceUpdateGameService implements Runnable
 
         try
         {
-            game = gameHandler.saveGame( game ); //this is because of RMI
+            gameHandler.saveGame(serverID, game );
         }
         catch ( RemoteException e )
         {
