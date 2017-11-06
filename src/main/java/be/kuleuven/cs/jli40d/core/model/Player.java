@@ -24,9 +24,8 @@ public class Player implements Serializable
     {
     }
 
-    public Player( int id, String username )
+    public Player( String username )
     {
-        this.id = id;
         this.username = username;
     }
 

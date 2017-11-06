@@ -48,9 +48,6 @@ public class RemoteGameService implements GameListHandler
         //local persistence
         if ( !this.localGameCache.containsKey( game.getGameID() ) )
         {
-            LOGGER.debug( "Adding game with id {} to local cache.", game.getGameID() );
-            this.localGameCache.put( game.getGameID(), game );
-
             //This should be here for an accurate list
             try
             {
@@ -62,7 +59,11 @@ public class RemoteGameService implements GameListHandler
             {
                 LOGGER.error( "Error while saving the game to remote db cluster. {}", e.getMessage() );
             }
-        } else
+
+            LOGGER.debug( "Adding game with id {} to local cache.", game.getGameID() );
+            this.localGameCache.put( game.getGameID(), game );
+        }
+        else
         {
             //remote persistence
             new Thread( new PersistenceUpdateGameService( gameHandler, game ) ).start();
@@ -84,6 +85,7 @@ public class RemoteGameService implements GameListHandler
             try
             {
                 g = gameHandler.getGame( id );
+                localGameCache.put( id, g );
             }
             catch ( RemoteException e )
             {
@@ -121,12 +123,33 @@ public class RemoteGameService implements GameListHandler
     {
         try
         {
-            gameHandler.addMove( gameID, move  );
+            gameHandler.addMove( gameID, move );
         }
         catch ( RemoteException e )
         {
             LOGGER.error( "Error while fetching the game from remote. {}", e.getMessage() );
         }
 
+    }
+
+    public Game getGameByID( int id, boolean forceInvalidation )
+    {
+
+        LOGGER.warn( "Fetching game from remote db, forced cache invalidation." );
+
+        Game g = null;
+        try
+        {
+            g = gameHandler.getGame( id );
+            localGameCache.put( id, g );
+        }
+        catch ( RemoteException e )
+        {
+            LOGGER.error( "Error while fetching the game from remote. {}", e.getMessage() );
+        }
+
+        localGameCache.put(g.getGameID(), g);
+
+        return g;
     }
 }

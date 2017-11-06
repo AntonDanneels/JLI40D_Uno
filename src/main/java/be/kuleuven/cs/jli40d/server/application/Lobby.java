@@ -7,6 +7,7 @@ import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
 import be.kuleuven.cs.jli40d.core.model.Player;
 import be.kuleuven.cs.jli40d.core.model.exception.*;
+import be.kuleuven.cs.jli40d.server.application.service.RemoteGameService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
 
     private UserTokenHandler userManager;
 
-    private GameListHandler games;
+    private RemoteGameService games;
 
     /**
      * Creates and exports a new UnicastRemoteObject object using an
@@ -47,7 +48,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
      * @throws RemoteException if failed to export object
      * @since JDK1.1
      */
-    Lobby( UserTokenHandler userManager, GameListHandler games ) throws RemoteException
+    Lobby( UserTokenHandler userManager, RemoteGameService games ) throws RemoteException
     {
         super();
         this.userManager = userManager;
@@ -163,12 +164,15 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
         else
         {
             //create a new player with the next id of the list
-            Player player = new Player( requestedGame.getNumberOfJoinedPlayers(), username ); //TODO fix id
+            Player player = new Player( username );
             requestedGame.getPlayers().add( player );
 
-            games.add( requestedGame );
-
-            LOGGER.info( "Player {} added to game {}.", username, gameID );
+            LOGGER.info( "Player {} added to game {} ({}/{}).",
+                    username,
+                    gameID,
+                    requestedGame.getPlayers().size(),
+                    requestedGame.getMaximumNumberOfPlayers());
+            notifyAll();
         }
 
         //blocking until all players joined
@@ -190,9 +194,12 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
         {
             LOGGER.debug( "Game not yet started, distributing cards." );
 
+            games.add( requestedGame );
+
+            requestedGame = games.getGameByID( requestedGame.getGameID(), true );
+
             GameLogic.distributeCards( requestedGame );
 
-            games.add( requestedGame );
         }
 
         notifyAll();
