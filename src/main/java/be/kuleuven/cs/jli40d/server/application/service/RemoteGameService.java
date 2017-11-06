@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * This service is an endpoint to the {@link GameManager} and provides
@@ -36,10 +37,30 @@ public class RemoteGameService implements GameListHandler
     //Cache
     private Map<Integer, Game> localGameCache;
 
+    private int serverID;
+
+    /**
+     * This creates a RemoteGameService, that communicates with a remote db cluster
+     * and implements {@link GameListHandler} to provide a list-like api.
+     * <p>
+     * On creation, this will register itself with the server as a server and receive an id.
+     *
+     * @param gameHandler The remote RMI object.
+     */
     public RemoteGameService( DatabaseGameHandler gameHandler )
     {
         this.gameHandler = gameHandler;
         this.localGameCache = new HashMap<>( 32 );
+
+        try
+        {
+            serverID = gameHandler.registerServer();
+            LOGGER.debug( "Server received id = {}.", serverID );
+        }
+        catch ( RemoteException e )
+        {
+            LOGGER.error( "Error while requesting the server id." );
+        }
     }
 
     @Override
@@ -48,26 +69,13 @@ public class RemoteGameService implements GameListHandler
         //local persistence
         if ( !this.localGameCache.containsKey( game.getGameID() ) )
         {
-            //This should be here for an accurate list
-            try
-            {
-                game = gameHandler.saveGame( game ); //this is because of RMI
-
-                LOGGER.debug( "Persisted game and received id = {}", game.getGameID() );
-            }
-            catch ( RemoteException e )
-            {
-                LOGGER.error( "Error while saving the game to remote db cluster. {}", e.getMessage() );
-            }
-
             LOGGER.debug( "Adding game with id {} to local cache.", game.getGameID() );
             this.localGameCache.put( game.getGameID(), game );
         }
-        else
-        {
-            //remote persistence
-            new Thread( new PersistenceUpdateGameService( gameHandler, game ) ).start();
-        }
+
+        //remote persistence
+        new Thread( new PersistenceUpdateGameService( serverID, gameHandler, game ) ).start();
+
     }
 
     @Override
@@ -84,8 +92,7 @@ public class RemoteGameService implements GameListHandler
             LOGGER.warn( "fetching game with id = {} from remote db cluster. This action is not cached.", id );
             try
             {
-                g = gameHandler.getGame( id );
-                localGameCache.put( id, g );
+                g = gameHandler.getGame( serverID, id );
             }
             catch ( RemoteException e )
             {
@@ -109,7 +116,22 @@ public class RemoteGameService implements GameListHandler
     {
         try
         {
-            return gameHandler.getGames();
+            //fetching remote games
+            List<GameSummary> gameSummaries = gameHandler.getGames( serverID );
+
+            //adding games hosted on this host
+            List<GameSummary> localGames = localGameCache.values().stream()
+                    .map( g -> new GameSummary(
+                            g.getGameID(),
+                            g.getName(),
+                            g.getNumberOfJoinedPlayers(),
+                            g.getMaximumNumberOfPlayers(),
+                            g.isStarted() ) )
+                    .collect( Collectors.toList() );
+
+            localGames.addAll( gameSummaries );
+
+            return localGames;
         }
         catch ( RemoteException e )
         {
@@ -123,33 +145,12 @@ public class RemoteGameService implements GameListHandler
     {
         try
         {
-            gameHandler.addMove( gameID, move );
+            gameHandler.addMove( serverID, gameID, move );
         }
         catch ( RemoteException e )
         {
             LOGGER.error( "Error while fetching the game from remote. {}", e.getMessage() );
         }
 
-    }
-
-    public Game getGameByID( int id, boolean forceInvalidation )
-    {
-
-        LOGGER.warn( "Fetching game from remote db, forced cache invalidation." );
-
-        Game g = null;
-        try
-        {
-            g = gameHandler.getGame( id );
-            localGameCache.put( id, g );
-        }
-        catch ( RemoteException e )
-        {
-            LOGGER.error( "Error while fetching the game from remote. {}", e.getMessage() );
-        }
-
-        localGameCache.put(g.getGameID(), g);
-
-        return g;
     }
 }
