@@ -63,11 +63,16 @@ public class GameLogic
         Map<String, PlayerHand> cardsPerPlayer = game.getPlayerHands();
         for ( int j = 0; j < game.getPlayers().size(); j++ )
             cardsPerPlayer.put( game.getPlayers().get( j ).getUsername(), new PlayerHand() );
+
         for ( int i = 0; i < 7; i++ )
         {
             for ( Player player : game.getPlayers() )
             {
-                cardsPerPlayer.get( player.getUsername() ).getPlayerHands().add( game.getDeck().get( index++ ) );
+                //cardsPerPlayer.get( player.getUsername() ).getPlayerHands().add( game.getDeck().get( index++ ) );
+                GameMove move = new GameMove( game.getCurrentGameMoveID(), player, null, true );
+                game.setCurrentGameMoveID( game.getCurrentGameMoveID() + 1 );
+                game.addLatestMove( move );
+                GameLogic.applyMove( game, move );
                 player.setNrOfCards( player.getNrOfCards() + 1 );
             }
         }
