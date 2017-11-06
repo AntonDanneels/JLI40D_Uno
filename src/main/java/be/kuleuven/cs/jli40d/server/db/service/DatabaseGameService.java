@@ -5,6 +5,7 @@ import be.kuleuven.cs.jli40d.core.database.DatabaseUserHandler;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
+import be.kuleuven.cs.jli40d.core.model.Player;
 import be.kuleuven.cs.jli40d.server.db.repository.GameRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,10 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
 
     private Map<Integer, Map<Integer, Integer>> gameMappingsForServers = new HashMap<>();
 
+    private Map<Integer, Integer> playersForGames = new HashMap<>();
+    private Map<Integer, Integer> gameMovesForGames = new HashMap<>();
+
+
     @Autowired
     public DatabaseGameService( GameRepository gameRepository ) throws RemoteException
     {
@@ -55,6 +60,8 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
 
         gameMappingsForServers.put( nextServerID, new HashMap<>() );
 
+        LOGGER.info( "Registering application server with id {}", nextServerID );
+
         return nextServerID;
     }
 
@@ -69,6 +76,31 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
                         g.getMaximumNumberOfPlayers(),
                         g.isStarted() ) )
                 .collect( Collectors.toList() );
+    }
+
+    @Override
+    public Game getGame( int serverID, int gameID ) throws RemoteException
+    {
+        int realGameID = gameMappingsForServers.get( serverID ).get( gameID );
+
+        return gameRepository.findOne( realGameID );
+    }
+
+    @Override
+    public void saveGame( int serverID, Game game ) throws RemoteException
+    {
+        gameRepository.save( game );
+    }
+
+    @Override
+    public void addMove( int serverID, int gameID, GameMove gameMove ) throws RemoteException
+    {
+    }
+
+    @Override
+    public void addPlayer( int serverID, int gameID, Player player ) throws RemoteException
+    {
+
     }
 
     @Override
