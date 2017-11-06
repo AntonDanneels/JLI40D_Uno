@@ -10,14 +10,14 @@ import java.io.Serializable;
 public class GameMove implements Serializable
 {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int     id;
+    @GeneratedValue( strategy = GenerationType.IDENTITY )
+    private int id;
+
+    @ManyToOne( cascade = CascadeType.PERSIST )
+    private Player player;
 
     @ManyToOne
-    private Player  player;
-
-    @ManyToOne
-    private Card    playedCard;
+    private Card playedCard;
 
     private boolean cardDrawn;
 

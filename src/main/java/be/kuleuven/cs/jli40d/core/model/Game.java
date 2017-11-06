@@ -27,7 +27,7 @@ public class Game implements Serializable
     @GeneratedValue( strategy = GenerationType.IDENTITY )
     protected int gameID;
 
-    @OneToMany( cascade = CascadeType.MERGE )
+    @OneToMany( cascade = CascadeType.PERSIST )
     @LazyCollection( LazyCollectionOption.FALSE )
     private List<Player> players;
 
@@ -39,8 +39,7 @@ public class Game implements Serializable
     @LazyCollection( LazyCollectionOption.FALSE )
     private List<Card> deck;
 
-    @OneToMany( cascade = CascadeType.MERGE )
-    @LazyCollection( LazyCollectionOption.FALSE )
+    @Transient
     private Map<String, PlayerHand> playerHands;
 
     private String name;

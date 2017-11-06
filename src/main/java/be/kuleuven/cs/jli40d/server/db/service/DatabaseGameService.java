@@ -43,7 +43,7 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
     {
         return StreamSupport.stream( gameRepository.findAll().spliterator(), true )
                 .map( g -> new GameSummary(
-                        ( int ) g.getGameID(),
+                        g.getGameID(),
                         g.getName(),
                         g.getNumberOfJoinedPlayers(),
                         g.getMaximumNumberOfPlayers(),
