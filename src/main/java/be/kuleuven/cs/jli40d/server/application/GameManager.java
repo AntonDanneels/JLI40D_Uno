@@ -52,7 +52,6 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
         Game game = gameService.getGameByID( gameID );
         userManager.findUserByToken( token );
 
-
         //If the game has ended or all players have joined it
         return game.isStarted();
 

@@ -1,4 +1,4 @@
-package be.kuleuven.cs.jli40d.server.application.service;
+package be.kuleuven.cs.jli40d.server.application.service.async;
 
 import be.kuleuven.cs.jli40d.core.database.DatabaseGameHandler;
 import be.kuleuven.cs.jli40d.core.model.Game;
@@ -11,15 +11,15 @@ import java.rmi.RemoteException;
  * @author Pieter
  * @version 1.0
  */
-public class PersistenceUpdateGameService implements Runnable
+public class AsyncGameService implements Runnable
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger( PersistenceUpdateGameService.class );
+    private static final Logger LOGGER = LoggerFactory.getLogger( AsyncGameService.class );
 
     private int serverID;
     private DatabaseGameHandler gameHandler;
     private Game                game;
 
-    public PersistenceUpdateGameService( int serverID, DatabaseGameHandler gameHandler, Game game )
+    public AsyncGameService( int serverID, DatabaseGameHandler gameHandler, Game game )
     {
         this.serverID = serverID;
         this.gameHandler = gameHandler;
