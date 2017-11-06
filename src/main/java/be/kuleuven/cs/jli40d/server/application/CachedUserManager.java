@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 
 /**
@@ -20,7 +21,7 @@ import java.util.List;
  * @author Pieter
  * @version 1.0
  */
-public class CachedUserManager implements UserHandler, UserTokenHandler
+public class CachedUserManager extends UnicastRemoteObject implements UserHandler, UserTokenHandler
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( CachedUserManager.class );
 
@@ -133,4 +134,6 @@ public class CachedUserManager implements UserHandler, UserTokenHandler
     {
         return remoteUserManager.getUserScores();
     }
+
+
 }

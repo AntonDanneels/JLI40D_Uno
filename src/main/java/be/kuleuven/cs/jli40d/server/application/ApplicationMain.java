@@ -34,7 +34,7 @@ public class ApplicationMain
 
 
             //services
-            RemoteUserManager userManager = new RemoteUserManager( databaseUserHandler );
+            CachedUserManager userManager = new CachedUserManager( databaseUserHandler );
             RemoteGameService gameService = new RemoteGameService( databaseGameHandler );
 
             GameManager       gameManager = new GameManager( userManager, gameService );
