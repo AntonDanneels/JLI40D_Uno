@@ -1,7 +1,7 @@
 package be.kuleuven.cs.jli40d.server.db.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Pieter
@@ -14,8 +14,8 @@ public class GameMapping
 
     private int gameIDOnDB;
 
-    private List<Integer> players;
-    private List<Integer> gameMoves;
+    private Map<Integer, Integer>  players;
+    private Map<Integer, Integer> gameMoves;
 
     public GameMapping()
     {
@@ -27,8 +27,8 @@ public class GameMapping
         this.gameIDOnServer = gameIDOnServer;
         this.gameIDOnDB = gameIDOnDB;
 
-        this.players = new ArrayList<>( 4 );
-        this.gameMoves = new ArrayList<>();
+        this.players = new HashMap<>( 4 );
+        this.gameMoves = new HashMap<>();
     }
 
     public int getServerID()
@@ -61,22 +61,22 @@ public class GameMapping
         this.gameIDOnDB = gameIDOnDB;
     }
 
-    public List<Integer> getPlayers()
+    public Map<Integer, Integer> getPlayers()
     {
         return players;
     }
 
-    public void setPlayers( List<Integer> players )
+    public void setPlayers( Map<Integer, Integer> players )
     {
         this.players = players;
     }
 
-    public List<Integer> getGameMoves()
+    public Map<Integer, Integer> getGameMoves()
     {
         return gameMoves;
     }
 
-    public void setGameMoves( List<Integer> gameMoves )
+    public void setGameMoves( Map<Integer, Integer> gameMoves )
     {
         this.gameMoves = gameMoves;
     }
@@ -93,12 +93,12 @@ public class GameMapping
 
     public void addGameMoveID( int serverID, int dbID )
     {
-        gameMoves.add( serverID, dbID );
+        gameMoves.put( serverID, dbID );
     }
 
     public void addPlayerID( int serverID, int dbID )
     {
-        players.add( serverID, dbID );
+        players.put( serverID, dbID );
     }
 
 }

@@ -80,7 +80,7 @@ public class IDTranslationService
 
     public void addGameMoveID( int serverID, int gameID, int gameMoveID, int gameMoveIDOnDB )
     {
-        LOGGER.debug( "Added gamemove id: server = {}, game = {}, gameMove = {} -> {}",
+        LOGGER.info( "Added gamemove id: server = {}, game = {}, gameMove = {} -> {}",
                 serverID,
                 gameID,
                 gameMoveID,
@@ -91,7 +91,7 @@ public class IDTranslationService
 
     public void addPlayerID( int serverID, int gameID, int playerID, int playerIDOnDB )
     {
-        LOGGER.debug( "Added player id: server = {}, game = {}, player = {} -> {}",
+        LOGGER.info( "Added player id: server = {}, game = {}, player = {} -> {}",
                 serverID,
                 gameID,
                 playerID,

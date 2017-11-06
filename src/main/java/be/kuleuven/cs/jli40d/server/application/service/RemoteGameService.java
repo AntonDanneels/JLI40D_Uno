@@ -8,6 +8,7 @@ import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 import be.kuleuven.cs.jli40d.server.application.GameListHandler;
 import be.kuleuven.cs.jli40d.server.application.GameManager;
 import be.kuleuven.cs.jli40d.server.application.service.async.AsyncGameMoveService;
+import be.kuleuven.cs.jli40d.server.application.service.async.AsyncGameMovesService;
 import be.kuleuven.cs.jli40d.server.application.service.async.AsyncGameService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,14 +150,14 @@ public class RemoteGameService implements GameListHandler
         //remote persistence
         new Thread( new AsyncGameMoveService( serverID, gameID, move, gameHandler ) ).start();
 
-        try
-        {
-            gameHandler.addMove( serverID, gameID, move );
-        }
-        catch ( RemoteException e )
-        {
-            LOGGER.error( "Error while fetching the game from remote. {}", e.getMessage() );
-        }
+
+
+    }
+
+    public void addMoves( int gameID, List<GameMove> moves )
+    {
+        //remote persistence
+        new Thread( new AsyncGameMovesService( serverID, gameID, moves, gameHandler ) ).start();
 
     }
 }

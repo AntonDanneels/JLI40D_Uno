@@ -163,7 +163,7 @@ public class SimpleUserManager extends UnicastRemoteObject implements UserHandle
         if ( o == null || getClass() != o.getClass() ) return false;
         if ( !super.equals( o ) ) return false;
 
-        SimpleUserManager manager = ( SimpleUserManager ) o;
+        SimpleUserManager manager = ( SimpleUserManager )o;
 
         if ( tokens != null ? !tokens.equals( manager.tokens ) : manager.tokens != null ) return false;
         return passwords != null ? passwords.equals( manager.passwords ) : manager.passwords == null;
@@ -176,5 +176,20 @@ public class SimpleUserManager extends UnicastRemoteObject implements UserHandle
         result = 31 * result + ( tokens != null ? tokens.hashCode() : 0 );
         result = 31 * result + ( passwords != null ? passwords.hashCode() : 0 );
         return result;
+    }
+
+    void forceRegistration( String email, String username, String password, String token )
+    {
+
+        passwords.put( username, BCrypt.hashpw( password, BCrypt.gensalt() ) );
+
+        LOGGER.info( "Created account for {} with username {}", email, username );
+
+        tokens.put( token, username );
+    }
+
+    void forceLogin( String username, String token )
+    {
+        tokens.put( token, username );
     }
 }

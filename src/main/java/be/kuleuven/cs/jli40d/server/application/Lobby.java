@@ -190,6 +190,9 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
 
             GameLogic.distributeCards( requestedGame );
 
+            //persist game moves that distributed cards
+            games.addMoves( gameID, requestedGame.getMoves() );
+
         }
 
         notifyAll();
