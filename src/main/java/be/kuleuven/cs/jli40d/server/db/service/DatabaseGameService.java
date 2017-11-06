@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -28,6 +30,8 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
 
     private GameRepository gameRepository;
 
+    private Map<Integer, Map<Integer, Integer>> gameMappingsForServers = new HashMap<>();
+
     @Autowired
     public DatabaseGameService( GameRepository gameRepository ) throws RemoteException
     {
@@ -36,6 +40,22 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
 
     protected DatabaseGameService() throws RemoteException
     {
+    }
+
+    /**
+     * Registers an application server to the database.
+     *
+     * @return An int with the application server id.
+     * @throws RemoteException
+     */
+    @Override
+    public synchronized int registerServer() throws RemoteException
+    {
+        int nextServerID = gameMappingsForServers.size();
+
+        gameMappingsForServers.put( nextServerID, new HashMap<>() );
+
+        return nextServerID;
     }
 
     @Override

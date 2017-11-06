@@ -18,6 +18,15 @@ import java.util.List;
  */
 public interface DatabaseGameHandler extends Remote, Serializable
 {
+
+    /**
+     * Registers an application server to the database.
+     *
+     * @return An int with the application server id.
+     * @throws RemoteException
+     */
+    int registerServer() throws RemoteException;
+
     /**
      * Obtains a list with all the games as a {@link GameSummary} list.
      *
@@ -26,10 +35,10 @@ public interface DatabaseGameHandler extends Remote, Serializable
      */
     List<GameSummary> getGames() throws RemoteException;
 
-    Game getGame( int id ) throws RemoteException;
+    Game getGame( int serverID, int gameID ) throws RemoteException;
 
-    Game saveGame( Game game ) throws RemoteException;
+    Game saveGame( int serverID, Game game ) throws RemoteException;
 
-    int addMove( int gameID, GameMove gameMove) throws RemoteException;
+    int addMove( int serverID, int gameID, GameMove gameMove) throws RemoteException;
 
 }
