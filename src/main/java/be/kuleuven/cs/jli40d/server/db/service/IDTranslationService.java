@@ -97,7 +97,7 @@ public class IDTranslationService
                 playerID,
                 playerIDOnDB );
 
-        gameMappingsForServers.get( serverID ).get( gameID ).addGameMoveID( playerID, playerIDOnDB );
+        gameMappingsForServers.get( serverID ).get( gameID ).addPlayerID( playerID, playerIDOnDB );
     }
 
     public int addServer()
