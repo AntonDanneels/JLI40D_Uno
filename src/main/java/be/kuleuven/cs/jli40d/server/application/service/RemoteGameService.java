@@ -4,12 +4,14 @@ import be.kuleuven.cs.jli40d.core.database.DatabaseGameHandler;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
+import be.kuleuven.cs.jli40d.core.model.Player;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 import be.kuleuven.cs.jli40d.server.application.GameListHandler;
 import be.kuleuven.cs.jli40d.server.application.GameManager;
 import be.kuleuven.cs.jli40d.server.application.service.async.AsyncGameMoveService;
 import be.kuleuven.cs.jli40d.server.application.service.async.AsyncGameMovesService;
 import be.kuleuven.cs.jli40d.server.application.service.async.AsyncGameService;
+import be.kuleuven.cs.jli40d.server.application.service.async.AsyncPlayerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -158,6 +160,12 @@ public class RemoteGameService implements GameListHandler
     {
         //remote persistence
         new Thread( new AsyncGameMovesService( serverID, gameID, moves, gameHandler ) ).start();
+
+    }
+
+    public void addPlayer( int id, Player player )
+    {
+        new Thread( new AsyncPlayerService(serverID, id, player, gameHandler) ).start();
 
     }
 }

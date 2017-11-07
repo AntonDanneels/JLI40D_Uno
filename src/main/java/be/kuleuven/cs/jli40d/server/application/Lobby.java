@@ -161,6 +161,9 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
             Player player = new Player( username );
             requestedGame.getPlayers().add( player );
 
+            //send player to db
+            games.addPlayer(requestedGame.getGameID(), player);
+
             LOGGER.info( "Player {} added to game {} ({}/{}).",
                     username,
                     gameID,
