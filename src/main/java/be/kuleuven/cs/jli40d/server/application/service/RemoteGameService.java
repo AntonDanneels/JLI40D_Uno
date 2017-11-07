@@ -8,18 +8,13 @@ import be.kuleuven.cs.jli40d.core.model.Player;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 import be.kuleuven.cs.jli40d.server.application.GameListHandler;
 import be.kuleuven.cs.jli40d.server.application.GameManager;
-import be.kuleuven.cs.jli40d.server.application.service.async.AsyncGameMoveService;
-import be.kuleuven.cs.jli40d.server.application.service.async.AsyncGameMovesService;
-import be.kuleuven.cs.jli40d.server.application.service.async.AsyncGameService;
-import be.kuleuven.cs.jli40d.server.application.service.async.AsyncPlayerService;
+import be.kuleuven.cs.jli40d.server.application.service.task.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +36,10 @@ public class RemoteGameService implements GameListHandler
 
     //Cache
     private Map<Integer, Game> localGameCache;
+
+    //remote async publisher
+    private TaskQueueService taskQueueService;
+    private Queue<AsyncTask> tasks;
 
     private int serverID;
 
@@ -66,6 +65,11 @@ public class RemoteGameService implements GameListHandler
         {
             LOGGER.error( "Error while requesting the server id." );
         }
+
+        tasks = new ConcurrentLinkedDeque<>();
+        taskQueueService = new TaskQueueService( tasks, gameHandler );
+        new Thread( taskQueueService ).start();
+        LOGGER.info( "Started a remote publishing service [ {} ].", taskQueueService.getClass().getSimpleName() );
     }
 
     @Override
@@ -79,8 +83,7 @@ public class RemoteGameService implements GameListHandler
         }
 
         //remote persistence
-        new Thread( new AsyncGameService( serverID, gameHandler, game ) ).start();
-
+        tasks.add( new AsyncGameTask( serverID, game ) );
     }
 
     @Override
@@ -148,24 +151,18 @@ public class RemoteGameService implements GameListHandler
 
     public void addMove( int gameID, GameMove move )
     {
-
-        //remote persistence
-        new Thread( new AsyncGameMoveService( serverID, gameID, move, gameHandler ) ).start();
-
-
-
+        tasks.add( new AsyncGameMoveTask( serverID, gameID, move ) );
     }
 
     public void addMoves( int gameID, List<GameMove> moves )
     {
-        //remote persistence
-        new Thread( new AsyncGameMovesService( serverID, gameID, moves, gameHandler ) ).start();
+        tasks.add( new AsyncGameMovesTask( serverID, gameID, moves ) );
+
 
     }
 
     public void addPlayer( int id, Player player )
     {
-        new Thread( new AsyncPlayerService(serverID, id, player, gameHandler) ).start();
-
+        tasks.add( new AsyncPlayerTask( serverID, id, player ) );
     }
 }
