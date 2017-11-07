@@ -14,7 +14,7 @@ public class GameMapping
 
     private int gameIDOnDB;
 
-    private Map<Integer, Integer>  players;
+    private Map<Integer, Integer> players;
     private Map<Integer, Integer> gameMoves;
 
     public GameMapping()
@@ -86,8 +86,21 @@ public class GameMapping
         return gameMoves.get( gameMoveID );
     }
 
-    public int getPlayerID( int playerID )
+    public synchronized int getPlayerID( int playerID )
     {
+        while ( !players.containsKey( playerID ) )
+        {
+            try
+            {
+                wait();
+            }
+            catch ( InterruptedException e )
+            {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+
         return players.get( playerID );
     }
 

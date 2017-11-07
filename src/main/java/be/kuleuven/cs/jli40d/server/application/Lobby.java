@@ -158,7 +158,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
         else
         {
             //create a new player with the next id of the list
-            Player player = new Player( username );
+            Player player = new Player( requestedGame.getPlayers().size(), username );
             requestedGame.getPlayers().add( player );
 
             //send player to db

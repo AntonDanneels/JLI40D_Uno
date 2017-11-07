@@ -1,5 +1,6 @@
 package be.kuleuven.cs.jli40d.core.model;
 
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -27,7 +28,8 @@ public class Game implements Serializable
     @GeneratedValue( strategy = GenerationType.IDENTITY )
     protected int gameID;
 
-    @OneToMany( cascade = CascadeType.PERSIST )
+    @OneToMany
+    @Cascade( org.hibernate.annotations.CascadeType.SAVE_UPDATE )
     @LazyCollection( LazyCollectionOption.FALSE )
     private List<Player> players;
 
@@ -46,10 +48,12 @@ public class Game implements Serializable
 
     private int maximumNumberOfPlayers;
 
+    @ManyToOne
+    private Card topCard;
+
     private boolean started;
     private boolean ended;
     private int     currentPlayer;
-    private Card    topCard;
     private int     currentGameMoveID;
     private boolean clockwise;
 

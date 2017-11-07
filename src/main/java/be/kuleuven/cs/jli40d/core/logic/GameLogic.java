@@ -78,9 +78,9 @@ public class GameLogic
             for ( Player player : game.getPlayers() )
             {
                 //cardsPerPlayer.get( player.getUsername() ).getPlayerHands().add( game.getDeck().get( index++ ) );
-                GameMove move = new GameMove( game.getCurrentGameMoveID(), player, null, true );
-                game.setCurrentGameMoveID( game.getCurrentGameMoveID() + 1 );
-                game.addLatestMove( move );
+                GameMove move = new GameMove( game.getMoves().size(), player, null, true );
+                move.setActivated(true);
+                game.setCurrentGameMoveID( game.getMoves().size() );
                 GameLogic.applyMove( game, move );
                 player.setNrOfCards( player.getNrOfCards() + 1 );
             }

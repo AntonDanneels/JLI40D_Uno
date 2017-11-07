@@ -155,12 +155,15 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
     @Override
     public synchronized void addMove( int serverID, int gameID, GameMove gameMove ) throws RemoteException
     {
+        LOGGER.info( "Adding move {}", gameMove.getId() );
+
         //clearing ids
         int originalMoveID = gameMove.getId();
         gameMove.setId( 0 );
 
         //remove player id
         gameMove.getPlayer().setId( translationService.translateToPlayerID( serverID, gameID, gameMove.getPlayer().getId() ) );
+        gameMove.setPlayer( playerRepository.findOne( gameMove.getPlayer().getId() ) );
 
         //step 1. save game move
         int dbID = gameMoveRepository.save( gameMove ).getId();
@@ -208,6 +211,6 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
         g.getPlayers().add( player );
         gameRepository.save( g );
 
-        translationService.addPlayerID( serverID, gameID, originalPlayerID, dbID);
+        translationService.addPlayerID( serverID, gameID, originalPlayerID, dbID );
     }
 }

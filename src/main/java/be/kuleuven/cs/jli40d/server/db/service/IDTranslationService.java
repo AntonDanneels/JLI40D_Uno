@@ -89,7 +89,7 @@ public class IDTranslationService
         gameMappingsForServers.get( serverID ).get( gameID ).addGameMoveID( gameMoveID, gameMoveIDOnDB );
     }
 
-    public void addPlayerID( int serverID, int gameID, int playerID, int playerIDOnDB )
+    public synchronized void addPlayerID( int serverID, int gameID, int playerID, int playerIDOnDB )
     {
         LOGGER.info( "Added player id: server = {}, game = {}, player = {} -> {}",
                 serverID,
@@ -98,6 +98,8 @@ public class IDTranslationService
                 playerIDOnDB );
 
         gameMappingsForServers.get( serverID ).get( gameID ).addPlayerID( playerID, playerIDOnDB );
+
+        notifyAll();
     }
 
     public int addServer()
