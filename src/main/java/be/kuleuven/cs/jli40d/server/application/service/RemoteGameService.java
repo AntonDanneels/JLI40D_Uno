@@ -73,7 +73,7 @@ public class RemoteGameService implements GameListHandler
     }
 
     @Override
-    public void add( Game game )
+    public synchronized void add( Game game )
     {
         //local persistence
         if ( !this.localGameCache.containsKey( game.getGameID() ) )
@@ -84,6 +84,8 @@ public class RemoteGameService implements GameListHandler
 
         //remote persistence
         tasks.add( new AsyncGameTask( serverID, game ) );
+
+        notifyAll();
     }
 
     @Override
@@ -149,20 +151,30 @@ public class RemoteGameService implements GameListHandler
         return Collections.emptyList();
     }
 
-    public void addMove( int gameID, GameMove move )
+    public synchronized void addMove( int gameID, GameMove move )
     {
+        LOGGER.debug( "Added move to persist async." );
+
         tasks.add( new AsyncGameMoveTask( serverID, gameID, move ) );
+
+        notifyAll();
     }
 
-    public void addMoves( int gameID, List<GameMove> moves )
+    public synchronized void addMoves( int gameID, List<GameMove> moves )
     {
+        LOGGER.debug( "Added moves to persist async." );
+
         tasks.add( new AsyncGameMovesTask( serverID, gameID, moves ) );
 
-
+        notifyAll();
     }
 
-    public void addPlayer( int id, Player player )
+    public synchronized void addPlayer( int id, Player player )
     {
+        LOGGER.debug( "Added player to persist async." );
+
         tasks.add( new AsyncPlayerTask( serverID, id, player ) );
+
+        notifyAll();
     }
 }

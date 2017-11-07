@@ -101,4 +101,13 @@ public class GameMapping
         players.put( serverID, dbID );
     }
 
+    @Override
+    public String toString()
+    {
+        return "GameMapping{" +
+                "serverID=" + serverID +
+                ", gameIDOnServer=" + gameIDOnServer +
+                ", gameIDOnDB=" + gameIDOnDB +
+                '}';
+    }
 }

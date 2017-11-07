@@ -120,6 +120,8 @@ public class IDTranslationService
     {
         GameMapping gameMapping = DBGameIDMappings.get( gameIDOnDB );
 
+        LOGGER.info( "Translating game from id. {}", gameMapping );
+
         return new Pair<>( gameMapping.getServerID(), gameMapping.getGameIDOnServer() );
 
     }
