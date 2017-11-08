@@ -1,6 +1,7 @@
 package be.kuleuven.cs.jli40d.core.logic;
 
 import be.kuleuven.cs.jli40d.core.model.*;
+import be.kuleuven.cs.jli40d.core.model.exception.InvalidGameMoveException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +82,14 @@ public class GameLogic
                 GameMove move = new GameMove( game.getMoves().size(), player, null, true );
                 move.setActivated(true);
                 game.setCurrentGameMoveID( game.getMoves().size() );
-                GameLogic.applyMove( game, move );
+                try
+                {
+                    GameLogic.applyMove( game, move );
+                }
+                catch ( InvalidGameMoveException e )
+                {
+                    e.printStackTrace();
+                }
                 player.setNrOfCards( player.getNrOfCards() + 1 );
             }
         }
@@ -150,7 +158,7 @@ public class GameLogic
      * @param game
      * @param move
      */
-    public static void applyMove( Game game, GameMove move )
+    public static void applyMove( Game game, GameMove move ) throws InvalidGameMoveException
     {
         if ( move.isCardDrawn() )
         {
@@ -169,20 +177,25 @@ public class GameLogic
         else
         {
             Card playedCard = move.getPlayedCard();
+
+            boolean removed = false;
+            for ( Player p : game.getPlayers() )
+            {
+                if ( p.getUsername().equals( move.getPlayer().getUsername() ) )
+                {
+                    removed = removed || game.getPlayerHands().get( p.getUsername() ).getPlayerHands()
+                            .removeIf( c -> c.getId() == move.getPlayedCard().getId() );
+                }
+            }
+
+            if( !removed )
+                throw new InvalidGameMoveException( "Player does not own the card" );
+
             if( game.getTopCard().getType() == CardType.PLUS4 || game.getTopCard().getType() == CardType.OTHER_COLOUR)
                 game.getTopCard().setColour( CardColour.NO_COLOUR );
             game.getDeck().add( game.getTopCard() );
             Collections.shuffle( game.getDeck() );
             game.setTopCard( playedCard );
-
-            for ( Player p : game.getPlayers() )
-            {
-                if ( p.getUsername().equals( move.getPlayer().getUsername() ) )
-                {
-                    game.getPlayerHands().get( p.getUsername() ).getPlayerHands()
-                            .removeIf( c -> c.getId() == move.getPlayedCard().getId() );
-                }
-            }
 
             //Add the game move
             game.addLatestMove( move );
