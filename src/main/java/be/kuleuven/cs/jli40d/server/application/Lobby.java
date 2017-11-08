@@ -91,7 +91,7 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
         //initial check for token
         userManager.findUserByToken( token );
 
-        Game game = new Game( numberOfPlayers );
+        Game game = new Game( gameName, numberOfPlayers );
 
         GameLogic.generateDeck( game );
         GameLogic.putInitialCardInTheMiddle( game );

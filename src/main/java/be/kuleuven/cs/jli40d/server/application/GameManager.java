@@ -155,7 +155,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
             Player winner = GameLogic.getWinner( game );
             int    score  = GameLogic.calculateScoreForPlayer( winner.getUsername(), game );
 
-            // TODO: save score in DB here
+            
         }
 
         //Save game and move to db

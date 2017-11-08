@@ -126,8 +126,11 @@ public class RemoteGameService implements GameListHandler
     {
         try
         {
+            // TODO: find a way to get these games in a synchronised way,
+            // Currently, this locks the db
+
             //fetching remote games
-            List<GameSummary> gameSummaries = gameHandler.getGames( serverID );
+            //List<GameSummary> gameSummaries = gameHandler.getGames( serverID );
 
             //adding games hosted on this host
             List<GameSummary> localGames = localGameCache.values().stream()
@@ -139,11 +142,11 @@ public class RemoteGameService implements GameListHandler
                             g.isStarted() ) )
                     .collect( Collectors.toList() );
 
-            localGames.addAll( gameSummaries );
+            //localGames.addAll( gameSummaries );
 
             return localGames;
         }
-        catch ( RemoteException e )
+        catch ( Exception e )
         {
             LOGGER.error( "Error while fetching the game from remote. {}", e.getMessage() );
         }

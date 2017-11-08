@@ -24,6 +24,9 @@ import java.util.Map;
 @Entity
 public class Game implements Serializable
 {
+    @Transient
+    private static int currentGameID = 0;
+
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY )
     protected int gameID;
@@ -63,6 +66,7 @@ public class Game implements Serializable
 
     public Game( int maximumNumberOfPlayers )
     {
+        this.gameID = currentGameID++;
         this.maximumNumberOfPlayers = maximumNumberOfPlayers;
 
         this.players = new ArrayList<>();
