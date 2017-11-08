@@ -53,7 +53,7 @@ public class GameCell extends ListCell<GameSummary>
         else
         {
             this.game = game;
-            gameNameLabel.setText( "TODO: create actual fucking name attribute" );
+            gameNameLabel.setText( game.getName() );
             nrOfPlayersLabel.setText( "Players: " + game.getNumberOfJoinedPlayers() + "/" + game.getMaximumNumberOfPlayers() );
             setGraphic( hBox );
         }
