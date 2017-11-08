@@ -162,8 +162,8 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
         gameMove.setId( 0 );
 
         //remove player id
-        gameMove.getPlayer().setId( translationService.translateToPlayerID( serverID, gameID, gameMove.getPlayer().getId() ) );
-        gameMove.setPlayer( playerRepository.findOne( gameMove.getPlayer().getId() ) );
+        int dbPlayerID = translationService.translateToPlayerID( serverID, gameID, gameMove.getPlayer().getId() );
+        gameMove.setPlayer( playerRepository.findOne( dbPlayerID ) );
 
         //step 1. save game move
         int dbID = gameMoveRepository.save( gameMove ).getId();
