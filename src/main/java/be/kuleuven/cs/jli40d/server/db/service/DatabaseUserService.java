@@ -82,4 +82,12 @@ public class DatabaseUserService extends UnicastRemoteObject implements Database
     {
         return userRepository.findAllByOrderByScoreDesc();
     }
+
+    @Override
+    public void updateScore( String username, int score ) throws RemoteException
+    {
+        User u = userRepository.findUserByUsernameIgnoreCase( username );
+        u.setScore( u.getScore() + score );
+        userRepository.save( u );
+    }
 }

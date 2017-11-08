@@ -55,4 +55,6 @@ public interface UserHandler extends Remote, Serializable
      *  @throws RemoteException
      * */
     List<Pair<String, Long>> getUserScores() throws RemoteException;
+
+    void updateScore( String username, int score ) throws RemoteException;
 }

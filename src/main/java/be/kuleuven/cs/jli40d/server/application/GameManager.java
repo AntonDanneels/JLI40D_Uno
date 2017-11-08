@@ -24,10 +24,10 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( GameManager.class );
 
-    private UserTokenHandler  userManager;
+    private CachedUserManager  userManager;
     private RemoteGameService gameService;
 
-    public GameManager( UserTokenHandler userManager, RemoteGameService gameService ) throws RemoteException
+    public GameManager( CachedUserManager userManager, RemoteGameService gameService ) throws RemoteException
     {
         this.gameService = gameService;
         this.userManager = userManager;
@@ -155,7 +155,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
             Player winner = GameLogic.getWinner( game );
             int    score  = GameLogic.calculateScoreForPlayer( winner.getUsername(), game );
 
-            
+            userManager.updateScore( winner.getUsername(), score );
         }
 
         //Save game and move to db

@@ -164,6 +164,19 @@ public class RemoteUserManager extends UnicastRemoteObject implements UserHandle
         return result;
     }
 
+    @Override
+    public void updateScore( String username, int score )
+    {
+        try
+        {
+            databaseUserHandler.updateScore( username, score );
+        }
+        catch ( RemoteException e )
+        {
+            LOGGER.debug( "Failed to update score: {}", e );
+        }
+    }
+
     /**
      * Generate a Base64 string.
      *
