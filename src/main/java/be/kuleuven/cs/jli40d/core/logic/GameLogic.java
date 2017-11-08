@@ -169,6 +169,8 @@ public class GameLogic
         else
         {
             Card playedCard = move.getPlayedCard();
+            if( game.getTopCard().getType() == CardType.PLUS4 || game.getTopCard().getType() == CardType.OTHER_COLOUR)
+                game.getTopCard().setColour( CardColour.NO_COLOUR );
             game.getDeck().add( game.getTopCard() );
             Collections.shuffle( game.getDeck() );
             game.setTopCard( playedCard );
