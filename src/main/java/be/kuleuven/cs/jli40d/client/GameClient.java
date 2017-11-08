@@ -9,6 +9,7 @@ import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.UserHandler;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -112,6 +113,12 @@ public class GameClient extends Application
             Utils.createPopup( "An unexpected error occurred" );
             LOGGER.debug( "Tried to load a non existing registry item: {}", e.getMessage() );
         }
+
+        primaryStage.setOnCloseRequest( e ->
+        {
+            Platform.exit();
+            System.exit( 0 );
+        } );
     }
 
     public void setStartScene()
