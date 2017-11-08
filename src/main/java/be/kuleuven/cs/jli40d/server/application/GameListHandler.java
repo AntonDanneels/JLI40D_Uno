@@ -1,6 +1,7 @@
 package be.kuleuven.cs.jli40d.server.application;
 
 import be.kuleuven.cs.jli40d.core.model.Game;
+import be.kuleuven.cs.jli40d.core.model.GameSummary;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 
 import java.io.Serializable;
@@ -14,9 +15,7 @@ public interface GameListHandler extends Serializable
 {
     void add( Game game );
 
-    int nextID();
+    Game getGameByID( int id ) throws GameNotFoundException;
 
-    Game getGameByID( long id ) throws GameNotFoundException;
-
-    List<Game> getAllGames();
+    List<GameSummary> getAllGames();
 }

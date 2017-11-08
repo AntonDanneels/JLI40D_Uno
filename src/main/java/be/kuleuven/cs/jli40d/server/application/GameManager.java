@@ -9,30 +9,27 @@ import be.kuleuven.cs.jli40d.core.model.exception.GameEndedException;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidGameMoveException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
+import be.kuleuven.cs.jli40d.server.application.service.RemoteGameService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Pieter
  * @version 1.0
  */
-public class GameManager extends UnicastRemoteObject implements GameHandler, GameListHandler
+public class GameManager extends UnicastRemoteObject implements GameHandler
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( GameManager.class );
 
-    private List<Game> games;
+    private UserTokenHandler  userManager;
+    private RemoteGameService gameService;
 
-    private UserTokenHandler userManager;
-
-    public GameManager( UserTokenHandler userManager ) throws RemoteException
+    public GameManager( UserTokenHandler userManager, RemoteGameService gameService ) throws RemoteException
     {
-        this.games = new ArrayList<>();
-
+        this.gameService = gameService;
         this.userManager = userManager;
     }
 
@@ -47,14 +44,13 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
      * @throws GameNotFoundException When the game is not found.
      */
     @Override
-    public boolean isStarted( String token, long gameID ) throws
+    public boolean isStarted( String token, int gameID ) throws
             InvalidTokenException,
             RemoteException,
             GameNotFoundException
     {
-        Game game = getGameByID( gameID );
+        Game game = gameService.getGameByID( gameID );
         userManager.findUserByToken( token );
-
 
         //If the game has ended or all players have joined it
         return game.isStarted();
@@ -62,12 +58,12 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
     }
 
     @Override
-    public synchronized boolean myTurn( String token, long gameID ) throws
+    public synchronized boolean myTurn( String token, int gameID ) throws
             InvalidTokenException,
             RemoteException,
             GameNotFoundException
     {
-        Game game = getGameByID( gameID );
+        Game game = gameService.getGameByID( gameID );
 
         String username = userManager.findUserByToken( token );
 
@@ -90,18 +86,18 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
      * @throws GameNotFoundException When the game is not found.
      */
     @Override
-    public synchronized GameMove getNextMove( String token, long gameID, long nextGameMoveID ) throws
+    public synchronized GameMove getNextMove( String token, int gameID, int nextGameMoveID ) throws
             InvalidTokenException,
             RemoteException,
             GameNotFoundException,
             GameEndedException
     {
-        Game   game     = getGameByID( gameID );
+        Game   game     = gameService.getGameByID( gameID );
         String username = userManager.findUserByToken( token ); //TODO check if authenticated for game
 
         while ( game.getMoves().size() <= nextGameMoveID )
         {
-            if( game.isEnded() )
+            if ( game.isEnded() )
                 throw new GameEndedException();
             try
             {
@@ -118,7 +114,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
 
         LOGGER.debug( "Sending move with id = {} for game {} to {}", nextGameMoveID, game, username );
 
-        return game.getMoves().get( (int) nextGameMoveID );
+        return game.getMoves().get( nextGameMoveID );
     }
 
     /**
@@ -135,13 +131,13 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
      * @throws InvalidGameMoveException When the move is invalid.
      */
     @Override
-    public synchronized void sendMove( String token, long gameID, GameMove move ) throws
+    public synchronized void sendMove( String token, int gameID, GameMove move ) throws
             InvalidTokenException,
             RemoteException,
             GameNotFoundException,
             InvalidGameMoveException
     {
-        Game   game     = getGameByID( gameID );
+        Game   game     = gameService.getGameByID( gameID );
         String username = userManager.findUserByToken( token );
 
         if ( !game.getCurrentPlayerUsername().equals( username )
@@ -152,68 +148,22 @@ public class GameManager extends UnicastRemoteObject implements GameHandler, Gam
 
         GameLogic.applyMove( game, move );
 
-        if( GameLogic.hasGameEnded( game ) )
+        if ( GameLogic.hasGameEnded( game ) )
         {
             LOGGER.debug( "The game has ended, marking it & waking the other threads" );
             game.setEnded( true );
             Player winner = GameLogic.getWinner( game );
-            int score = GameLogic.calculateScoreForPlayer( winner.getUsername(), game );
+            int    score  = GameLogic.calculateScoreForPlayer( winner.getUsername(), game );
 
             // TODO: save score in DB here
         }
+
+        //Save game and move to db
+        gameService.addMove( gameID, move );
 
         LOGGER.debug( "{} added a move to game {}", username, game );
 
         notifyAll();
 
-    }
-
-    @Override
-    public void add( Game game )
-    {
-        games.add( game );
-    }
-
-    @Override
-    public int nextID()
-    {
-        return games.size();
-    }
-
-    @Override
-    public Game getGameByID( long id ) throws GameNotFoundException
-    {
-        //if the game is not in the list, throw an error
-        if ( games.get( (int) id ) == null )
-        {
-            LOGGER.warn( "joinGame method called with gameId = {}, but game not found. ", id );
-
-            throw new GameNotFoundException( "Game not found in the list" );
-        }
-
-        return games.get( (int) id );
-    }
-
-    @Override
-    public List<Game> getAllGames()
-    {
-        return games;
-    }
-
-    @Override
-    public boolean equals( Object o )
-    {
-        if ( this == o ) return true;
-        if ( o == null || getClass() != o.getClass() ) return false;
-
-        GameManager manager = ( GameManager ) o;
-
-        return games != null ? games.equals( manager.games ) : manager.games == null;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return games != null ? games.hashCode() : 0;
     }
 }

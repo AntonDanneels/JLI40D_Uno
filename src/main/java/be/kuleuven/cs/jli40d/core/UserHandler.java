@@ -2,10 +2,13 @@ package be.kuleuven.cs.jli40d.core;
 
 import be.kuleuven.cs.jli40d.core.model.exception.AccountAlreadyExistsException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidUsernameOrPasswordException;
+import javafx.util.Pair;
 
 import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The UserHandler provides three functions: creating an account, logging in and logging out.
@@ -45,4 +48,11 @@ public interface UserHandler extends Remote, Serializable
      * @throws RemoteException
      */
     void logout( String token ) throws RemoteException;
+
+
+    /**
+     *  Returns a pair of usernames & scores.
+     *  @throws RemoteException
+     * */
+    List<Pair<String, Long>> getUserScores() throws RemoteException;
 }

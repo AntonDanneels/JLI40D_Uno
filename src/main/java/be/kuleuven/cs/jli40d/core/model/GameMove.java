@@ -1,7 +1,9 @@
 package be.kuleuven.cs.jli40d.core.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
+import javax.persistence.*;
 import java.io.Serializable;
 
 /**
@@ -11,9 +13,16 @@ import java.io.Serializable;
 public class GameMove implements Serializable
 {
     @Id
-    private long    id;
-    private Player  player;
-    private Card    playedCard;
+    @GeneratedValue( strategy = GenerationType.IDENTITY )
+    private int id;
+
+    @ManyToOne
+    @Cascade( CascadeType.SAVE_UPDATE )
+    private Player player;
+
+    @ManyToOne
+    private Card playedCard;
+
     private boolean cardDrawn;
 
     private boolean activated;
@@ -52,7 +61,7 @@ public class GameMove implements Serializable
         return cardDrawn;
     }
 
-    public long getId()
+    public int getId()
     {
         return id;
     }
@@ -67,7 +76,7 @@ public class GameMove implements Serializable
         this.activated = activated;
     }
 
-    public void setId( long id )
+    public void setId( int id )
     {
         this.id = id;
     }
@@ -80,5 +89,17 @@ public class GameMove implements Serializable
     public void setCardDrawn( boolean cardDrawn )
     {
         this.cardDrawn = cardDrawn;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "GameMove{" +
+                "id=" + id +
+                ", player=" + player +
+                ", playedCard=" + playedCard +
+                ", cardDrawn=" + cardDrawn +
+                ", activated=" + activated +
+                '}';
     }
 }

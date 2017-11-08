@@ -3,11 +3,8 @@ package be.kuleuven.cs.jli40d.core.logic;
 import be.kuleuven.cs.jli40d.core.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.rmi.runtime.Log;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Anton D.
@@ -18,9 +15,21 @@ public class GameLogic
 
     public static void generateDeck( Game game )
     {
+        game.getDeck().clear();
+        game.setDeck( generateCards() );
+        Collections.shuffle( game.getDeck() );
+    }
+
+    /**
+     * Generates a non-shuffled list of all cards in a deck.
+     *
+     * @return A List with {@link Card} objects.
+     */
+    public static List<Card> generateCards()
+    {
         int counter = 0;
 
-        game.getDeck().clear();
+        List<Card> cards = new ArrayList<>( 108 );
 
         for ( CardType type : CardType.values() )
         {
@@ -30,12 +39,12 @@ public class GameLogic
                     if ( colour != CardColour.NO_COLOUR )
                     {
                         Card card = new Card( counter++, type, colour );
-                        game.getDeck().add( card );
+                        cards.add( card );
 
                         if ( type != CardType.ZERO )
                         {
                             Card extra = new Card( counter++, type, colour );
-                            game.getDeck().add( extra );
+                            cards.add( extra );
                         }
                     }
 
@@ -44,11 +53,11 @@ public class GameLogic
 
         for ( int i = 0; i < 4; i++ )
         {
-            game.getDeck().add( new Card( counter++, CardType.OTHER_COLOUR, CardColour.NO_COLOUR ) );
-            game.getDeck().add( new Card( counter++, CardType.PLUS4, CardColour.NO_COLOUR ) );
+            cards.add( new Card( counter++, CardType.OTHER_COLOUR, CardColour.NO_COLOUR ) );
+            cards.add( new Card( counter++, CardType.PLUS4, CardColour.NO_COLOUR ) );
         }
 
-        Collections.shuffle( game.getDeck() );
+        return cards;
     }
 
     /**
@@ -69,9 +78,9 @@ public class GameLogic
             for ( Player player : game.getPlayers() )
             {
                 //cardsPerPlayer.get( player.getUsername() ).getPlayerHands().add( game.getDeck().get( index++ ) );
-                GameMove move = new GameMove( game.getCurrentGameMoveID(), player, null, true );
-                game.setCurrentGameMoveID( game.getCurrentGameMoveID() + 1 );
-                game.addLatestMove( move );
+                GameMove move = new GameMove( game.getMoves().size(), player, null, true );
+                move.setActivated(true);
+                game.setCurrentGameMoveID( game.getMoves().size() );
                 GameLogic.applyMove( game, move );
                 player.setNrOfCards( player.getNrOfCards() + 1 );
             }

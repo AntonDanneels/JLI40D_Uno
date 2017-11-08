@@ -18,25 +18,25 @@ import java.util.Map;
  */
 public class ImageLoader
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImageLoader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger( ImageLoader.class );
 
     private static HashMap<SceneImage, Image> sceneImages = new HashMap<>();
     private static Map<Card, Image>           cardImages  = new HashMap<>();
 
     public static void loadImages()
     {
-        LOGGER.info("Loading image pack.");
+        LOGGER.info( "Loading image pack." );
 
-        Game game = new Game( 0, 4 );
+        Game game = new Game( 4 );
         GameLogic.generateDeck( game );
-        game.getDeck().add( new Card( 0, CardType.PLUS4, CardColour.GREEN ) );
-        game.getDeck().add( new Card( 0, CardType.PLUS4, CardColour.RED ) );
-        game.getDeck().add( new Card( 0, CardType.PLUS4, CardColour.BLUE ) );
-        game.getDeck().add( new Card( 0, CardType.PLUS4, CardColour.YELLOW ) );
-        game.getDeck().add( new Card( 0, CardType.OTHER_COLOUR, CardColour.GREEN ) );
-        game.getDeck().add( new Card( 0, CardType.OTHER_COLOUR, CardColour.RED ) );
-        game.getDeck().add( new Card( 0, CardType.OTHER_COLOUR, CardColour.BLUE ) );
-        game.getDeck().add( new Card( 0, CardType.OTHER_COLOUR, CardColour.YELLOW ) );
+        game.getDeck().add( new Card( CardType.PLUS4, CardColour.GREEN ) );
+        game.getDeck().add( new Card( CardType.PLUS4, CardColour.RED ) );
+        game.getDeck().add( new Card( CardType.PLUS4, CardColour.BLUE ) );
+        game.getDeck().add( new Card( CardType.PLUS4, CardColour.YELLOW ) );
+        game.getDeck().add( new Card( CardType.OTHER_COLOUR, CardColour.GREEN ) );
+        game.getDeck().add( new Card( CardType.OTHER_COLOUR, CardColour.RED ) );
+        game.getDeck().add( new Card( CardType.OTHER_COLOUR, CardColour.BLUE ) );
+        game.getDeck().add( new Card( CardType.OTHER_COLOUR, CardColour.YELLOW ) );
 
         for ( Card c : game.getDeck() )
         {
@@ -50,26 +50,26 @@ public class ImageLoader
 
         String path = "/uno-dark-background.png";
         LOGGER.debug( "Loading image: {}", path );
-        sceneImages.put( SceneImage.GAME_BACKGROUND, new Image( path ));
+        sceneImages.put( SceneImage.GAME_BACKGROUND, new Image( path ) );
 
         path = "/cards_original/CARD_BACK.png";
         LOGGER.debug( "Loading image: {}", path );
-        sceneImages.put( SceneImage.CARD_BACK, new Image( path ));
+        sceneImages.put( SceneImage.CARD_BACK, new Image( path ) );
 
         path = "/current-player.png";
         LOGGER.debug( "Loading image: {}", path );
-        sceneImages.put( SceneImage.CURRENT_USER, new Image( path ));
+        sceneImages.put( SceneImage.CURRENT_USER, new Image( path ) );
 
         path = "/player.png";
         LOGGER.debug( "Loading image: {}", path );
-        sceneImages.put( SceneImage.OTHER_USER, new Image( path ));
+        sceneImages.put( SceneImage.OTHER_USER, new Image( path ) );
 
         path = "/user.png";
         LOGGER.debug( "Loading image: {}", path );
-        sceneImages.put( SceneImage.DEFAULT_AVATAR, new Image( path ));
+        sceneImages.put( SceneImage.DEFAULT_AVATAR, new Image( path ) );
     }
 
-    public static Image getCardImage(Card card)
+    public static Image getCardImage( Card card )
     {
         return cardImages.get( card );
     }

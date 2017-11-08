@@ -13,7 +13,7 @@ import java.io.Serializable;
 public class Card implements Serializable
 {
     @Id
-    private long id;
+    private int id;
 
     @Enumerated( EnumType.STRING)
     private CardType type;
@@ -25,19 +25,25 @@ public class Card implements Serializable
     {
     }
 
-    public Card( long id, CardType type, CardColour colour )
+    public Card( CardType type, CardColour colour )
+    {
+        this.type = type;
+        this.colour = colour;
+    }
+
+    public Card( int id, CardType type, CardColour colour )
     {
         this.id = id;
         this.type = type;
         this.colour = colour;
     }
 
-    public long getId()
+    public int getId()
     {
         return id;
     }
 
-    public void setId( long id )
+    public void setId( int id )
     {
         this.id = id;
     }

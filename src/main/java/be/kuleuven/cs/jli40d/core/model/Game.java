@@ -1,7 +1,10 @@
 package be.kuleuven.cs.jli40d.core.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,19 +25,35 @@ import java.util.Map;
 public class Game implements Serializable
 {
     @Id
-    private long gameID;
+    @GeneratedValue( strategy = GenerationType.IDENTITY )
+    protected int gameID;
 
-    private List<Player>            players;
-    private List<Card>              deck;
-    private List<GameMove>          moves;
+    @OneToMany
+    @Cascade( org.hibernate.annotations.CascadeType.SAVE_UPDATE )
+    @LazyCollection( LazyCollectionOption.FALSE )
+    private List<Player> players;
+
+    @OneToMany( cascade = CascadeType.MERGE )
+    @LazyCollection( LazyCollectionOption.FALSE )
+    private List<GameMove> moves;
+
+    @OneToMany( cascade = CascadeType.MERGE )
+    @LazyCollection( LazyCollectionOption.FALSE )
+    private List<Card> deck;
+
+    @Transient
     private Map<String, PlayerHand> playerHands;
 
+    private String name;
+
     private int maximumNumberOfPlayers;
+
+    @ManyToOne
+    private Card topCard;
 
     private boolean started;
     private boolean ended;
     private int     currentPlayer;
-    private Card    topCard;
     private int     currentGameMoveID;
     private boolean clockwise;
 
@@ -42,10 +61,8 @@ public class Game implements Serializable
     {
     }
 
-    public Game( int gameID, int maximumNumberOfPlayers )
+    public Game( int maximumNumberOfPlayers )
     {
-        this.gameID = gameID;
-
         this.maximumNumberOfPlayers = maximumNumberOfPlayers;
 
         this.players = new ArrayList<>();
@@ -60,6 +77,12 @@ public class Game implements Serializable
         this.currentPlayer = 0;
         this.currentGameMoveID = -1;
         this.clockwise = true;
+    }
+
+    public Game( String name, int maximumNumberOfPlayers )
+    {
+        this( maximumNumberOfPlayers );
+        this.name = name;
     }
 
     public Map<String, PlayerHand> getPlayerHands()
@@ -81,7 +104,8 @@ public class Game implements Serializable
     {
         Map<String, List<Card>> cardsPerPlayer = new HashMap<>();
 
-        for (String player : playerHands.keySet()) {
+        for ( String player : playerHands.keySet() )
+        {
             cardsPerPlayer.put( player, playerHands.get( player ).getPlayerHands() );
         }
 
@@ -169,12 +193,12 @@ public class Game implements Serializable
         return topCard;
     }
 
-    public void setGameID( long gameID )
+    public void setGameID( int gameID )
     {
         this.gameID = gameID;
     }
 
-    public long getGameID()
+    public int getGameID()
     {
         return gameID;
     }
@@ -234,12 +258,22 @@ public class Game implements Serializable
     {
         for ( Player player : players )
         {
-            if ( player.getUsername().equals( username ) )
+            if ( username.equals( player.getUsername() ) )
             {
                 return true;
             }
         }
 
         return false;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public void setName( String name )
+    {
+        this.name = name;
     }
 }

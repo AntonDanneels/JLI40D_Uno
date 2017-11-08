@@ -5,25 +5,19 @@ import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.logic.GameLogic;
 import be.kuleuven.cs.jli40d.core.model.*;
 import be.kuleuven.cs.jli40d.core.model.exception.*;
-import com.sun.javafx.tk.FontLoader;
-import com.sun.javafx.tk.Toolkit;
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.effect.Effect;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -33,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
@@ -56,6 +49,7 @@ public class GameSceneHandler extends AnimationTimer
     private LobbyHandler    lobbyHandler;
     private GameHandler     gameHandler;
     private Game            game;
+    private GameSummary     gameSummary;
     private ListenerService listenerService;
     private Queue<GameMove> gameMoves;
 
@@ -120,13 +114,16 @@ public class GameSceneHandler extends AnimationTimer
 
         gc = gameCanvas.getGraphicsContext2D();
 
-        topCardX = ( int ) gameCanvas.getWidth() / 2 - 74 / 2;
-        topCardY = ( int ) gameCanvas.getHeight() / 2 - 20;
+        topCardX = ( int )gameCanvas.getWidth() / 2 - 74 / 2;
+        topCardY = ( int )gameCanvas.getHeight() / 2 - 20;
 
         ImageLoader.loadImages();
 
         backToLobbyButton = new Button( "Go to lobby" );
-        backToLobbyButton.setOnAction( event -> { client.setLobbyScene(); } );
+        backToLobbyButton.setOnAction( event ->
+        {
+            client.setLobbyScene();
+        } );
 
     }
 
@@ -146,7 +143,7 @@ public class GameSceneHandler extends AnimationTimer
         LOGGER.debug( "Entering gameloop" );
 
         gc.clearRect( 0, 0, gameCanvas.getWidth(), gameCanvas.getWidth() );
-        final String msg  = "Joining the game";
+        final String msg = "Joining the game";
         gc.setTextAlign( TextAlignment.CENTER );
         gc.setFont( new Font( gc.getFont().getName(), 32 ) );
         gc.fillText( msg, gameCanvas.getWidth() / 2, 50 );
@@ -160,7 +157,7 @@ public class GameSceneHandler extends AnimationTimer
             {
                 try
                 {
-                    game = lobbyHandler.joinGame( client.getToken(), game.getGameID() );
+                    game = lobbyHandler.joinGame( client.getToken(), gameSummary.getGameID() );
                     enterGameLoop();
                 }
                 catch ( RemoteException e )
@@ -230,10 +227,6 @@ public class GameSceneHandler extends AnimationTimer
                     //player glow is 30x30 @2x
                     gc.drawImage( ImageLoader.getSceneImage( SceneImage.CURRENT_USER ), x - 14, y - 14, 132, 132 );
                 }
-                else
-                {
-                    gc.drawImage( ImageLoader.getSceneImage( SceneImage.OTHER_USER ), x - 14, y - 14, 132, 132 );
-                }
 
 
                 gc.drawImage( ImageLoader.getSceneImage( SceneImage.DEFAULT_AVATAR ), x, y, 104, 104 );
@@ -277,7 +270,7 @@ public class GameSceneHandler extends AnimationTimer
                 {
                     if ( selectedCardButton == null )
                     {
-                        if ( Utils.intersects( ( int ) mousePosX, ( int ) mousePosY, 1, 1, 526, 282, CARD_WIDTH, CARD_HEIGHT ) )
+                        if ( Utils.intersects( ( int )mousePosX, ( int )mousePosY, 1, 1, 526, 282, CARD_WIDTH, CARD_HEIGHT ) )
                         {
                             GameMove move = new GameMove( game.getCurrentGameMoveID(), me, null, true );
 
@@ -298,8 +291,8 @@ public class GameSceneHandler extends AnimationTimer
                     }
                     else
                     {
-                        selectedCardButton.setX( ( int ) mousePosX - selectedCardButton.getW() / 2 );
-                        selectedCardButton.setY( ( int ) mousePosY - selectedCardButton.getH() / 2 );
+                        selectedCardButton.setX( ( int )mousePosX - selectedCardButton.getW() / 2 );
+                        selectedCardButton.setY( ( int )mousePosY - selectedCardButton.getH() / 2 );
                     }
                 }
                 else
@@ -323,11 +316,6 @@ public class GameSceneHandler extends AnimationTimer
                         layoutCards();
                     }
                 }
-            }
-            else
-            {
-                // TODO: draw at a better place
-                gc.fillText( "Waiting for the other players", 50, 50 );
             }
 
             moveMyCards();
@@ -380,12 +368,12 @@ public class GameSceneHandler extends AnimationTimer
 
     private void testGameEnded()
     {
-        if( GameLogic.hasGameEnded( game ) )
+        if ( GameLogic.hasGameEnded( game ) )
         {
             LOGGER.debug( "Game has ended" );
 
             Player winner = GameLogic.getWinner( game );
-            int score = GameLogic.calculateScoreForPlayer( winner.getUsername(), game );
+            int    score  = GameLogic.calculateScoreForPlayer( winner.getUsername(), game );
 
             gc.applyEffect( new GaussianBlur( 50 ) );
 
@@ -393,7 +381,7 @@ public class GameSceneHandler extends AnimationTimer
             gc.setFont( Font.font( gc.getFont().getName(), FontWeight.BOLD, 48 ) );
             gc.fillText( "The game has ended", gameCanvas.getWidth() / 2, 300 );
             gc.setFont( Font.font( gc.getFont().getName(), FontWeight.NORMAL, 32 ) );
-            gc.fillText( "" + winner.getUsername() + " has won with score: " + score, gameCanvas.getWidth() / 2, 350  );
+            gc.fillText( "" + winner.getUsername() + " has won with score: " + score, gameCanvas.getWidth() / 2, 350 );
             gc.setFill( Color.BLACK );
 
             backToLobbyButton.setTranslateY( 375 );
@@ -411,7 +399,7 @@ public class GameSceneHandler extends AnimationTimer
         if ( getTotalCardWidth() > gameCanvas.getWidth() )
         {
             // Left
-            if ( Utils.intersects( 0, 444, 50, 200, ( int ) mousePosX, ( int ) mousePosY, 1, 1 ) &&
+            if ( Utils.intersects( 0, 444, 50, 200, ( int )mousePosX, ( int )mousePosY, 1, 1 ) &&
                     cardOffsetX > -( getTotalCardWidth() - gameCanvas.getWidth() ) / 2.0 )
             {
                 cardOffsetX -= 5;
@@ -419,7 +407,7 @@ public class GameSceneHandler extends AnimationTimer
             }
 
             // Right
-            if ( Utils.intersects( 850, 444, 50, 200, ( int ) mousePosX, ( int ) mousePosY, 1, 1 ) &&
+            if ( Utils.intersects( 850, 444, 50, 200, ( int )mousePosX, ( int )mousePosY, 1, 1 ) &&
                     cardOffsetX < ( getTotalCardWidth() - gameCanvas.getWidth() ) / 2.0 )
             {
                 cardOffsetX += 5;
@@ -521,7 +509,7 @@ public class GameSceneHandler extends AnimationTimer
     {
         cardButtons.clear();
         List<Card> cards = game.getCardsPerPlayer().get( client.getUsername() );
-        int        x     = ( int ) gameCanvas.getWidth() / 2 - cards.size() * ( CARD_WIDTH + 5 ) / 2 - cardOffsetX;
+        int        x     = ( int )gameCanvas.getWidth() / 2 - cards.size() * ( CARD_WIDTH + 5 ) / 2 - cardOffsetX;
         int        y     = 475;
         for ( Card c : cards )
         {
@@ -547,9 +535,9 @@ public class GameSceneHandler extends AnimationTimer
         return positionsPerPlayer.get( player );
     }
 
-    public void setGame( Game game )
+    public void setGameSummary( GameSummary gameSummary )
     {
-        this.game = game;
+        this.gameSummary = gameSummary;
     }
 
     /**
