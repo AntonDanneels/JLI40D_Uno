@@ -4,9 +4,7 @@ import be.kuleuven.cs.jli40d.core.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Anton D.
@@ -17,24 +15,36 @@ public class GameLogic
 
     public static void generateDeck( Game game )
     {
+        game.getDeck().clear();
+        game.setDeck( generateCards() );
+        Collections.shuffle( game.getDeck() );
+    }
+
+    /**
+     * Generates a non-shuffled list of all cards in a deck.
+     *
+     * @return A List with {@link Card} objects.
+     */
+    public static List<Card> generateCards()
+    {
         int counter = 0;
 
-        game.getDeck().clear();
+        List<Card> cards = new ArrayList<>( 108 );
 
         for ( CardType type : CardType.values() )
         {
             if ( type != CardType.OTHER_COLOUR && type != CardType.PLUS4 )
                 for ( CardColour colour : CardColour.values() )
                 {
-                    if (colour != CardColour.NO_COLOUR)
+                    if ( colour != CardColour.NO_COLOUR )
                     {
                         Card card = new Card( counter++, type, colour );
-                        game.getDeck().add( card );
+                        cards.add( card );
 
                         if ( type != CardType.ZERO )
                         {
                             Card extra = new Card( counter++, type, colour );
-                            game.getDeck().add( extra );
+                            cards.add( extra );
                         }
                     }
 
@@ -43,11 +53,11 @@ public class GameLogic
 
         for ( int i = 0; i < 4; i++ )
         {
-            game.getDeck().add( new Card(counter++, CardType.OTHER_COLOUR, CardColour.NO_COLOUR ) );
-            game.getDeck().add( new Card(counter++, CardType.PLUS4, CardColour.NO_COLOUR ) );
+            cards.add( new Card( counter++, CardType.OTHER_COLOUR, CardColour.NO_COLOUR ) );
+            cards.add( new Card( counter++, CardType.PLUS4, CardColour.NO_COLOUR ) );
         }
 
-        Collections.shuffle( game.getDeck() );
+        return cards;
     }
 
     /**
@@ -62,11 +72,16 @@ public class GameLogic
         Map<String, PlayerHand> cardsPerPlayer = game.getPlayerHands();
         for ( int j = 0; j < game.getPlayers().size(); j++ )
             cardsPerPlayer.put( game.getPlayers().get( j ).getUsername(), new PlayerHand() );
+
         for ( int i = 0; i < 7; i++ )
         {
             for ( Player player : game.getPlayers() )
             {
-                cardsPerPlayer.get( player.getUsername() ).getPlayerHands().add( game.getDeck().get( index++ ) );
+                //cardsPerPlayer.get( player.getUsername() ).getPlayerHands().add( game.getDeck().get( index++ ) );
+                GameMove move = new GameMove( game.getMoves().size(), player, null, true );
+                move.setActivated(true);
+                game.setCurrentGameMoveID( game.getMoves().size() );
+                GameLogic.applyMove( game, move );
                 player.setNrOfCards( player.getNrOfCards() + 1 );
             }
         }
@@ -146,7 +161,10 @@ public class GameLogic
                     move.getPlayedCard().getType(),
                     move.getPlayer().getUsername() );
 
-            game.setCurrentPlayer( wrap( game.getCurrentPlayer(), game.isClockwise(), game.getPlayers().size() ) );
+            if ( !move.isActivated() )
+            {
+                game.setCurrentPlayer( wrap( game.getCurrentPlayer(), game.isClockwise(), game.getPlayers().size() ) );
+            }
         }
         else
         {
@@ -183,6 +201,7 @@ public class GameLogic
                 for ( int i = 0; i < ( playedCard.getType() == CardType.PLUS2 ? 2 : 4 ); i++ )
                 {
                     GameMove m = new GameMove( game.getCurrentGameMoveID(), target, null, true );
+                    m.setActivated( true );
                     giveCardToPlayer( game, m );
                 }
             }
@@ -192,7 +211,7 @@ public class GameLogic
 
     }
 
-    private static int wrap( int current, boolean clockwise, int max )
+    public static int wrap( int current, boolean clockwise, int max )
     {
         int step   = ( clockwise ? 1 : -1 );
         int result = current + step;
@@ -210,7 +229,6 @@ public class GameLogic
 
         if ( game.getCardsPerPlayer().containsKey( move.getPlayer().getUsername() ) )
         {
-
             //take a card from the deck if there is no card given
             if ( move.getPlayedCard() == null )
             {
@@ -232,5 +250,43 @@ public class GameLogic
             game.addLatestMove( move );
 
         }
+    }
+
+    public static boolean hasGameEnded( Game game )
+    {
+        for ( Player p : game.getPlayers() )
+        {
+            if ( game.getPlayerHands().get( p.getUsername() ).getPlayerHands().size() == 0 )
+                return true;
+        }
+
+        return false;
+    }
+
+    public static Player getWinner( Game game )
+    {
+        for ( Player p : game.getPlayers() )
+        {
+            if( game.getPlayerHands().get( p.getUsername() ).getPlayerHands().size() == 0 )
+                return p;
+        }
+
+        LOGGER.debug( "Asked for the winning player even thought the game hasn't ended yet." );
+        return null;
+    }
+
+    public static int calculateScoreForPlayer( String username, Game game )
+    {
+        int score = 0;
+        for ( Player p : game.getPlayers() )
+        {
+            if( !p.getUsername().equals( username ) )
+            {
+                for ( Card c : game.getPlayerHands().get( p.getUsername() ).getPlayerHands() )
+                    score += c.getType().getValue();
+            }
+        }
+
+        return score;
     }
 }

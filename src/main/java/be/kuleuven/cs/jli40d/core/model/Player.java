@@ -1,6 +1,8 @@
 package be.kuleuven.cs.jli40d.core.model;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.io.Serializable;
 
@@ -11,6 +13,7 @@ import java.io.Serializable;
 public class Player implements Serializable
 {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     private int nrOfCards;
@@ -37,11 +40,6 @@ public class Player implements Serializable
         this.id = id;
     }
 
-    public void setUsername( String username )
-    {
-        this.username = username;
-    }
-
     public int getNrOfCards()
     {
         return nrOfCards;
@@ -55,5 +53,10 @@ public class Player implements Serializable
     public String getUsername()
     {
         return username;
+    }
+
+    public void setUsername( String username )
+    {
+        this.username = username;
     }
 }

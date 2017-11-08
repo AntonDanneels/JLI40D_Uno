@@ -45,7 +45,7 @@ public class CardButton
             gc.setStroke( Color.BLACK );
         }
 
-        gc.drawImage( GameSceneHandler.images.get( c ), x, y, w, h );
+        gc.drawImage( ImageLoader.getCardImage( c ), x, y, w, h );
     }
 
     public int getX()

@@ -7,10 +7,11 @@ package be.kuleuven.cs.jli40d.client;/**
 import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.UserHandler;
-import be.kuleuven.cs.jli40d.core.model.Game;
+import be.kuleuven.cs.jli40d.core.model.GameSummary;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -26,9 +27,10 @@ public class GameClient extends Application
     private static final Logger LOGGER = LoggerFactory.getLogger(GameClient.class);
 
     private Stage primaryStage;
-    private Scene loginScene, lobbyScene, gameScene;
+    private Scene loginScene, lobbyScene, gameScene, leaderboardScene;
     private LobbySceneHandler lobbySceneHandler;
     private GameSceneHandler gameSceneHandler;
+    private LeaderboardSceneHandler leaderboardSceneHandler;
 
     // TODO: find a better way to store these..
     private String token;
@@ -44,6 +46,8 @@ public class GameClient extends Application
     {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle( "Uno" );
+        this.primaryStage.getIcons().add(new Image("/icon.png")); //TODO: make this shit working
+        this.primaryStage.setResizable( false );
 
         try
         {
@@ -85,6 +89,16 @@ public class GameClient extends Application
             gameSceneHandler.init( this, lobbyHandler, gameHandler );
             this.gameSceneHandler = gameSceneHandler;
 
+            loader = new FXMLLoader();
+            loader.setLocation( getClass().getResource( "/leaderboard.fxml" ) );
+            Pane leaderboardPane = loader.load();
+
+            leaderboardScene = new Scene( leaderboardPane );
+
+            LeaderboardSceneHandler leaderboardSceneHandler = loader.getController();
+            leaderboardSceneHandler.init( this, userManager );
+            this.leaderboardSceneHandler = leaderboardSceneHandler;
+
             gameScene = new Scene( gamePane );
 
         }
@@ -111,11 +125,17 @@ public class GameClient extends Application
         this.primaryStage.setScene( lobbyScene );
     }
 
-    public void setGameScene( Game game )
+    public void setGameScene( GameSummary game )
     {
-        gameSceneHandler.setGame( game );
+        gameSceneHandler.setGameSummary( game );
         this.primaryStage.setScene( gameScene );
         gameSceneHandler.run();
+    }
+
+    public void setLeaderboardScene()
+    {
+        leaderboardSceneHandler.refresh();
+        this.primaryStage.setScene( leaderboardScene );
     }
 
     public String getToken()

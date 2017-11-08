@@ -3,6 +3,9 @@ package be.kuleuven.cs.jli40d.server.application;
 import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.UserHandler;
+import be.kuleuven.cs.jli40d.core.database.DatabaseGameHandler;
+import be.kuleuven.cs.jli40d.core.database.DatabaseUserHandler;
+import be.kuleuven.cs.jli40d.server.application.service.RemoteGameService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,19 +27,27 @@ public class ApplicationMain
     {
         try
         {
+            //remote db
+            Registry            myRegistry          = LocateRegistry.getRegistry( "localhost", 1100 );
+            DatabaseUserHandler databaseUserHandler = ( DatabaseUserHandler )myRegistry.lookup( DatabaseUserHandler.class.getName() );
+            DatabaseGameHandler databaseGameHandler = ( DatabaseGameHandler )myRegistry.lookup( DatabaseGameHandler.class.getName() );
+
+
             //services
-            SimpleUserManager userManager = new SimpleUserManager();
-            GameManager       gameManager = new GameManager( userManager );
-            LobbyHandler      lobby       = new Lobby( userManager, gameManager );
+            CachedUserManager userManager = new CachedUserManager( databaseUserHandler );
+            RemoteGameService gameService = new RemoteGameService( databaseGameHandler );
+
+            GameManager       gameManager = new GameManager( userManager, gameService );
+            LobbyHandler      lobby       = new Lobby( userManager, gameService );
 
             // create on port 1099
-            Registry registry = LocateRegistry.createRegistry( 1099 );
+            Registry server = LocateRegistry.createRegistry( 1099 );
             // create a new service named CounterService
-            registry.rebind( LobbyHandler.class.getName(), lobby );
-            registry.rebind( UserHandler.class.getName(), userManager );
-            registry.rebind( GameHandler.class.getName(), gameManager );
+            server.rebind( LobbyHandler.class.getName(), lobby );
+            server.rebind( UserHandler.class.getName(), userManager );
+            server.rebind( GameHandler.class.getName(), gameManager );
 
-            LOGGER.info( "Application server started with following bindings: {} ", Arrays.toString( registry.list() ) );
+            LOGGER.info( "Application server started with following bindings: {} ", Arrays.toString( server.list() ) );
 
         }
         catch ( Exception e )

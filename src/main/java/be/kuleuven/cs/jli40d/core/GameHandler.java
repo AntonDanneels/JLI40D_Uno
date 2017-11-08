@@ -1,6 +1,7 @@
 package be.kuleuven.cs.jli40d.core;
 
 import be.kuleuven.cs.jli40d.core.model.GameMove;
+import be.kuleuven.cs.jli40d.core.model.exception.GameEndedException;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidGameMoveException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
@@ -26,7 +27,7 @@ public interface GameHandler extends Remote, Serializable
      * @throws RemoteException
      * @throws GameNotFoundException When the game is not found.
      */
-    boolean isStarted( String token, long gameID ) throws InvalidTokenException, RemoteException, GameNotFoundException;
+    boolean isStarted( String token, int gameID ) throws InvalidTokenException, RemoteException, GameNotFoundException;
 
     /**
      * Returns true if it's the server determines the players (identified
@@ -41,7 +42,7 @@ public interface GameHandler extends Remote, Serializable
      * @throws RemoteException
      * @throws GameNotFoundException When the game is not found.
      */
-    boolean myTurn( String token, long gameID ) throws InvalidTokenException, RemoteException, GameNotFoundException;
+    boolean myTurn( String token, int gameID ) throws InvalidTokenException, RemoteException, GameNotFoundException;
 
 
     /**
@@ -59,10 +60,11 @@ public interface GameHandler extends Remote, Serializable
      * @throws RemoteException
      * @throws GameNotFoundException When the game is not found.
      */
-    GameMove getNextMove( String token, long gameID, long nextGameMoveID ) throws
+    GameMove getNextMove( String token, int gameID, int nextGameMoveID ) throws
             InvalidTokenException,
             RemoteException,
-            GameNotFoundException;
+            GameNotFoundException,
+            GameEndedException;
 
     /**
      * Send a {@link GameMove} object to update the state of a certain game.
@@ -77,7 +79,7 @@ public interface GameHandler extends Remote, Serializable
      * @throws GameNotFoundException    When the game is not found.
      * @throws InvalidGameMoveException When the move is invalid.
      */
-    void sendMove( String token, long gameID, GameMove move ) throws
+    void sendMove( String token, int gameID, GameMove move ) throws
             InvalidTokenException,
             RemoteException,
             GameNotFoundException,

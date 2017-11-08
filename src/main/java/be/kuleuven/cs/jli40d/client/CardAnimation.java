@@ -49,7 +49,7 @@ public class CardAnimation
 
     public void render( GraphicsContext gc )
     {
-        gc.setGlobalAlpha( 1.0 / steps );
+        gc.setGlobalAlpha( 1.0 / steps / 2.0 );
         gc.drawImage( image, currentX, currentY, GameSceneHandler.CARD_WIDTH, GameSceneHandler.CARD_HEIGHT );
         gc.setGlobalAlpha( 1.0 );
     }

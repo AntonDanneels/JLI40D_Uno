@@ -9,12 +9,12 @@ import org.springframework.context.annotation.Configuration;
  * @version 1.0
  */
 @Configuration
-public class DateConfig
+public class DataConfig
 {
     private final GameRepository gameRepository;
 
     @Autowired
-    public DateConfig( GameRepository gameRepository )
+    public DataConfig( GameRepository gameRepository )
     {
         this.gameRepository = gameRepository;
     }
