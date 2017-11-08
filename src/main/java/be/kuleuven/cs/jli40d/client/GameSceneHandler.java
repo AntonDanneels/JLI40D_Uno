@@ -362,7 +362,7 @@ public class GameSceneHandler extends AnimationTimer
         }
         catch ( InvalidGameMoveException e )
         {
-            LOGGER.debug( "Invalid game move!" );
+            LOGGER.debug( "Invalid game move! {}", e );
         }
     }
 
