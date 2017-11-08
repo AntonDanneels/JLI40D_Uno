@@ -507,6 +507,8 @@ public class GameSceneHandler extends AnimationTimer
 
     public void layoutCards()
     {
+        if( getTotalCardWidth() < gameCanvas.getWidth() )
+            cardOffsetX = 0;
         cardButtons.clear();
         List<Card> cards = game.getCardsPerPlayer().get( client.getUsername() );
         int        x     = ( int )gameCanvas.getWidth() / 2 - cards.size() * ( CARD_WIDTH + 5 ) / 2 - cardOffsetX;
