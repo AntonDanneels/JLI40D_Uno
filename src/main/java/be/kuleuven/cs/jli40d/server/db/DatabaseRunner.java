@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Arrays;
@@ -34,12 +35,22 @@ public class DatabaseRunner
         this.gameHandler = gameHandler;
         this.userHandler = userHandler;
 
+
+        Registry dispatcherRegistry = null;
         try
         {
-            Registry                  dispatcherRegistry  = LocateRegistry.getRegistry( DispatcherMain.DISPATCHER.getHost(), DispatcherMain.DISPATCHER.getPort() );
-            ServerRegistrationHandler registrationHandler = (ServerRegistrationHandler)dispatcherRegistry.lookup( ServerRegistrationHandler.class.getName() );
+            dispatcherRegistry = LocateRegistry.getRegistry( DispatcherMain.DISPATCHER.getHost(), DispatcherMain.DISPATCHER.getPort() );
+        }
+        catch ( RemoteException e )
+        {
+            LOGGER.error( "Failed to connect to dispatcher {}. Check these settings.", DispatcherMain.DISPATCHER );
+        }
 
+
+        try
+        {
             LOGGER.info( "Obtaining port. Now creating registry." );
+            ServerRegistrationHandler registrationHandler = ( ServerRegistrationHandler )dispatcherRegistry.lookup( ServerRegistrationHandler.class.getName() );
 
             Server me = registrationHandler.obtainPort( "localhost", ServerType.DATABASE );
 
@@ -48,7 +59,7 @@ public class DatabaseRunner
             registry.rebind( DatabaseGameHandler.class.getName(), gameHandler );
             registry.rebind( DatabaseUserHandler.class.getName(), userHandler );
 
-            LOGGER.info( "Created registry, now registering database." );
+            LOGGER.info( "Created registry on {}, now registering database.", me );
 
             Set<Server> dbs = registrationHandler.registerDatabase( me );
 
@@ -64,4 +75,5 @@ public class DatabaseRunner
             LOGGER.error( "Error while creating a registry. {}", e.getMessage() );
         }
     }
+
 }

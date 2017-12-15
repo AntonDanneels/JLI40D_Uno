@@ -24,11 +24,7 @@ public interface GameHandler extends Remote, Serializable
      * @throws RemoteException
      * @throws GameNotFoundException When the game is not found.
      */
-    boolean isStarted( String token, String gameUuid ) throws
-            InvalidTokenException,
-            RemoteException,
-            GameNotFoundException,
-            WrongServerException;
+    boolean isStarted( String token, String gameUuid ) throws InvalidTokenException, RemoteException, GameNotFoundException, WrongServerException;
 
     /**
      * Returns true if it's the server determines the players (identified
@@ -43,11 +39,7 @@ public interface GameHandler extends Remote, Serializable
      * @throws RemoteException
      * @throws GameNotFoundException When the game is not found.
      */
-    boolean myTurn( String token, String gameUuid ) throws
-            InvalidTokenException,
-            RemoteException,
-            GameNotFoundException,
-            WrongServerException;
+    boolean myTurn( String token, String gameUuid ) throws InvalidTokenException, RemoteException, GameNotFoundException, WrongServerException;
 
 
     /**
@@ -65,12 +57,7 @@ public interface GameHandler extends Remote, Serializable
      * @throws RemoteException
      * @throws GameNotFoundException When the game is not found.
      */
-    GameMove getNextMove( String token, String gameUuid, int nextGameMoveID ) throws
-            InvalidTokenException,
-            RemoteException,
-            GameNotFoundException,
-            GameEndedException,
-            WrongServerException;
+    GameMove getNextMove( String token, String gameUuid, int nextGameMoveID ) throws InvalidTokenException, RemoteException, GameNotFoundException, GameEndedException, WrongServerException;
 
     /**
      * Send a {@link GameMove} object to update the state of a certain game.
@@ -85,10 +72,5 @@ public interface GameHandler extends Remote, Serializable
      * @throws GameNotFoundException    When the game is not found.
      * @throws InvalidGameMoveException When the move is invalid.
      */
-    void sendMove( String token, String gameUuid, GameMove move ) throws
-            InvalidTokenException,
-            RemoteException,
-            GameNotFoundException,
-            InvalidGameMoveException,
-            WrongServerException;
+    void sendMove( String token, String gameUuid, GameMove move ) throws InvalidTokenException, RemoteException, GameNotFoundException, InvalidGameMoveException, WrongServerException;
 }

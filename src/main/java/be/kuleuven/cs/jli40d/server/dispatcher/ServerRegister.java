@@ -126,7 +126,7 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
      */
     public synchronized Server registerAppServer( Server self ) throws RemoteException
     {
-        LOGGER.info( "Registring application server: " + self.getHost() + ":" + self.getPort() );
+        LOGGER.info( "Registering application server: " + self.getHost() + ":" + self.getPort() );
 
         applicationServers.add( self );
 
