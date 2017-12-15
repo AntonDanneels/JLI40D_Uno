@@ -16,8 +16,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ServerRegister implements ServerRegistrationHandler
 {
-    private static final int MIN_PORT = 1101;
-    private static final int MAX_PORT = 1200;
+    private static final int MIN_PORT        = 1101;
+    private static final int MAX_PORT        = 1200;
     private static final int DATABASE_SERVER = 3;
 
     private Map<String, AtomicInteger> portsOnHosts;
@@ -62,7 +62,6 @@ public class ServerRegister implements ServerRegistrationHandler
 
         Server server = new Server( host, port, serverType );
 
-        applicationServers.add( server );
 
         return server;
     }
@@ -72,7 +71,7 @@ public class ServerRegister implements ServerRegistrationHandler
      * his RMI server, this function can be called.
      * <p>
      * It provides al list with all known other servers. This is blocking and
-     * will only return when all expected servers have also called this function and
+     * will only return when all database servers have also called this function and
      * are registered on the deployer.
      *
      * @param self The {@link Server} object given by {@link #obtainPort(String, ServerType)}.
@@ -82,26 +81,27 @@ public class ServerRegister implements ServerRegistrationHandler
     @Override
     public synchronized Set<Server> register( Server self ) throws RemoteException
     {
-        if (self.getServerType() == ServerType.DATABASE)
+        if ( self.getServerType() == ServerType.DATABASE )
         {
             databaseServers.add( self );
-
             notifyAll();
-
-            while ( databaseServers.size() < DATABASE_SERVER )
-            {
-                try
-                {
-                    wait();
-                }
-                catch ( InterruptedException e )
-                {
-                    e.printStackTrace();
-                }
-            }
-            return databaseServers;
+        } else if (self.getServerType() == ServerType.APPLICATION)
+        {
+            applicationServers.add( self );
         }
 
-        return applicationServers;
+        while ( databaseServers.size() < DATABASE_SERVER )
+        {
+            try
+            {
+                wait();
+            }
+            catch ( InterruptedException e )
+            {
+                e.printStackTrace();
+            }
+        }
+        return databaseServers;
+
     }
 }
