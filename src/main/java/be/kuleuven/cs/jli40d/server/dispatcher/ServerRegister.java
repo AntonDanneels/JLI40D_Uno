@@ -10,7 +10,6 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Pieter
