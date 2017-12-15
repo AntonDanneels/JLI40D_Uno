@@ -183,13 +183,18 @@ public class GameSceneHandler extends AnimationTimer
                     LOGGER.debug( "Tried to join ended game with id {}: {}", game.getGameID(), e.getMessage() );
                     client.setLobbyScene();
                 }
+                catch ( WrongServerException e )
+                {
+                    LOGGER.debug( "Changing server" );
+                    client.resetConnection( e );
+                }
             }
         } ).start();
     }
 
     private synchronized void enterGameLoop()
     {
-        listenerService = new ListenerService( gameHandler, client.getToken(), game, gameMoves );
+        listenerService = new ListenerService( client, gameHandler, client.getToken(), game, gameMoves );
 
         for ( Player p : game.getPlayers() )
         {
@@ -364,6 +369,11 @@ public class GameSceneHandler extends AnimationTimer
         {
             LOGGER.debug( "Invalid game move! {}", e );
         }
+        catch ( WrongServerException e )
+        {
+            LOGGER.debug( "Changing server" );
+            client.resetConnection( e );
+        }
     }
 
     private void testGameEnded()
@@ -503,6 +513,11 @@ public class GameSceneHandler extends AnimationTimer
         {
             e.printStackTrace();
         }
+        catch ( WrongServerException e )
+        {
+            LOGGER.debug( "Changing server" );
+            client.resetConnection( e );
+        }
     }
 
     public void layoutCards()
@@ -566,5 +581,16 @@ public class GameSceneHandler extends AnimationTimer
                 positionsPerPlayer.put( player.getUsername(), positions.remove( 0 ) );
             }
         }
+    }
+
+    public void setLobbyHandler( LobbyHandler lobbyHandler )
+    {
+        this.lobbyHandler = lobbyHandler;
+        listenerService = new ListenerService( client, gameHandler, client.getToken(), game, gameMoves );
+    }
+
+    public void setGameHandler( GameHandler gameHandler )
+    {
+        this.gameHandler = gameHandler;
     }
 }

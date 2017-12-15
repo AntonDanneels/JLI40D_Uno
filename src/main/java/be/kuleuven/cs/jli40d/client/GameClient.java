@@ -8,6 +8,7 @@ import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.UserHandler;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
+import be.kuleuven.cs.jli40d.core.model.exception.WrongServerException;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -20,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
@@ -119,6 +121,34 @@ public class GameClient extends Application
             Platform.exit();
             System.exit( 0 );
         } );
+    }
+
+    public void resetConnection( WrongServerException serverException )
+    {
+        try
+        {
+            Registry registry = LocateRegistry.getRegistry( serverException.getServer(), serverException.getPort() );
+
+            LobbyHandler lobbyHandler = ( LobbyHandler )registry.lookup( LobbyHandler.class.getName() );
+            UserHandler  userManager  = ( UserHandler )registry.lookup( UserHandler.class.getName() );
+            GameHandler  gameHandler  = ( GameHandler )registry.lookup( GameHandler.class.getName() );
+
+            lobbySceneHandler.setLobbyHandler( lobbyHandler );
+
+            gameSceneHandler.setGameHandler( gameHandler );
+            gameSceneHandler.setLobbyHandler( lobbyHandler );
+
+            leaderboardSceneHandler.setUserHandler( userManager );
+        }
+        catch ( RemoteException e )
+        {
+            e.printStackTrace();
+        }
+        catch ( NotBoundException e )
+        {
+            e.printStackTrace();
+        }
+
     }
 
     public void setStartScene()

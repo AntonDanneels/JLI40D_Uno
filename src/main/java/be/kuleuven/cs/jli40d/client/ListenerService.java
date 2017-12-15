@@ -6,6 +6,7 @@ import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.exception.GameEndedException;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
+import be.kuleuven.cs.jli40d.core.model.exception.WrongServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,14 +27,16 @@ public class ListenerService implements Runnable
 
     private String token;
     private Game   game;
+    private GameClient client;
 
     private volatile boolean active;
     private int     currentGameMoveID;
 
     private Queue<GameMove> unhandledGameMoves;
 
-    public ListenerService( GameHandler gameHandler, String token, Game game, Queue<GameMove> unhandledGameMoves )
+    public ListenerService( GameClient client, GameHandler gameHandler, String token, Game game, Queue<GameMove> unhandledGameMoves )
     {
+        this.client = client;
         this.game = game;
         this.gameHandler = gameHandler;
         this.token = token;
@@ -64,7 +67,17 @@ public class ListenerService implements Runnable
                 LOGGER.error( "Error while fetching next move. {}", e.getMessage() );
                 active = false;
             }
+            catch ( WrongServerException e )
+            {
+                LOGGER.debug( "Changing server" );
+                client.resetConnection( e );
+            }
         }
+    }
+
+    public void setGameHandler( GameHandler gameHandler )
+    {
+        this.gameHandler = gameHandler;
     }
 
     public synchronized void setActive( boolean active )

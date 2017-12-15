@@ -4,6 +4,7 @@ import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import be.kuleuven.cs.jli40d.core.model.exception.UnableToCreateGameException;
+import be.kuleuven.cs.jli40d.core.model.exception.WrongServerException;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -96,6 +97,11 @@ public class LobbySceneHandler
             Utils.createPopup( "An error occurred when trying to create your game, please try again." );
             LOGGER.debug( "Error while creating game: {}", e.getMessage() );
         }
+        catch ( WrongServerException e )
+        {
+            LOGGER.debug( "Changing server" );
+            client.resetConnection( e );
+        }
     }
 
     public void showLeaderboard()
@@ -132,5 +138,15 @@ public class LobbySceneHandler
             client.setStartScene();
             LOGGER.debug( "User has an invalid token: {}", e.getMessage() );
         }
+        catch ( WrongServerException e )
+        {
+            LOGGER.debug( "Changing server" );
+            client.resetConnection( e );
+        }
+    }
+
+    public void setLobbyHandler( LobbyHandler lobbyHandler )
+    {
+        this.lobbyHandler = lobbyHandler;
     }
 }

@@ -1,10 +1,7 @@
 package be.kuleuven.cs.jli40d.core;
 
 import be.kuleuven.cs.jli40d.core.model.GameMove;
-import be.kuleuven.cs.jli40d.core.model.exception.GameEndedException;
-import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
-import be.kuleuven.cs.jli40d.core.model.exception.InvalidGameMoveException;
-import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
+import be.kuleuven.cs.jli40d.core.model.exception.*;
 
 import java.io.Serializable;
 import java.rmi.Remote;
@@ -27,7 +24,7 @@ public interface GameHandler extends Remote, Serializable
      * @throws RemoteException
      * @throws GameNotFoundException When the game is not found.
      */
-    boolean isStarted( String token, int gameID ) throws InvalidTokenException, RemoteException, GameNotFoundException;
+    boolean isStarted( String token, int gameID ) throws InvalidTokenException, RemoteException, GameNotFoundException, WrongServerException;
 
     /**
      * Returns true if it's the server determines the players (identified
@@ -42,7 +39,7 @@ public interface GameHandler extends Remote, Serializable
      * @throws RemoteException
      * @throws GameNotFoundException When the game is not found.
      */
-    boolean myTurn( String token, int gameID ) throws InvalidTokenException, RemoteException, GameNotFoundException;
+    boolean myTurn( String token, int gameID ) throws InvalidTokenException, RemoteException, GameNotFoundException, WrongServerException;
 
 
     /**
@@ -64,7 +61,8 @@ public interface GameHandler extends Remote, Serializable
             InvalidTokenException,
             RemoteException,
             GameNotFoundException,
-            GameEndedException;
+            GameEndedException,
+            WrongServerException;
 
     /**
      * Send a {@link GameMove} object to update the state of a certain game.
@@ -83,5 +81,6 @@ public interface GameHandler extends Remote, Serializable
             InvalidTokenException,
             RemoteException,
             GameNotFoundException,
-            InvalidGameMoveException;
+            InvalidGameMoveException,
+            WrongServerException;
 }
