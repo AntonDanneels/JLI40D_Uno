@@ -35,4 +35,10 @@ public class Server implements Serializable
     {
         return serverType;
     }
+
+    @Override
+    public String toString()
+    {
+        return host + ':' + port;
+    }
 }
