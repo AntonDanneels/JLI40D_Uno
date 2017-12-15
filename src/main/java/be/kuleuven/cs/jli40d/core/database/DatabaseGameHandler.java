@@ -22,14 +22,6 @@ public interface DatabaseGameHandler extends Remote, Serializable
 {
 
     /**
-     * Registers an application server to the database.
-     *
-     * @return An int with the application server id.
-     * @throws RemoteException
-     */
-    int registerServer() throws RemoteException;
-
-    /**
      * Obtains a list with all the games as a {@link GameSummary} list.
      *
      * @return A {@link List} with {@link GameSummary} objects.
@@ -38,33 +30,23 @@ public interface DatabaseGameHandler extends Remote, Serializable
     List<GameSummary> getGames() throws RemoteException;
 
     /**
-     * Like {@link #getGames()}, this returns a list with {@link GameSummary} objects,
-     * but removes the games hosted by the provided server.
-     *
-     * @param serverID The id provided by {@link #registerServer()} as an int.
-     * @return A {@link List} with {@link GameSummary} objects, filtered to remove those hosted by one server.
-     * @throws RemoteException
-     */
-    List<GameSummary> getGames( int serverID ) throws RemoteException;
-
-    /**
      * Returns a single {@link Game} object. The ID parameter of the game will be as the application
      * server expects it to be.
      *
-     * @param serverID The id provided by {@link #registerServer()} as an int.
-     * @param gameID The id of the {@link Game} as seen by the application server.
+     * @param serverID The id provided by the server as an int.
+     * @param uuid The uuid of the {@link Game} as seen by the application server.
      * @return A {@link Game} object.
      * @throws GameNotFoundException When a game is not found in the db cluster.
      * @throws RemoteException
      */
-    Game getGame( int serverID, int gameID ) throws GameNotFoundException, RemoteException;
+    Game getGame( int serverID, String uuid ) throws GameNotFoundException, RemoteException;
 
     /**
      * Save a game to the database. If it already exists, it will be updated instead.
      *
      * It's not recommended to update the {@link}
      *
-     * @param serverID The id provided by {@link #registerServer()} as an int.
+     * @param serverID The id provided by the server as an int.
      * @param game The object to persist to the database cluster.
      * @throws RemoteException
      */
@@ -74,31 +56,31 @@ public interface DatabaseGameHandler extends Remote, Serializable
      * Add a {@link GameMove} to a {@link Game} object, specified by both the serverID
      * and the gameID.
      *
-     * @param serverID The id provided by {@link #registerServer()} as an int.
-     * @param gameID The id of the {@link Game} as seen by the application server.
+     * @param serverID The id provided by the server as an int.
+     * @param gameUuid The uuid of the {@link Game} as seen by the application server.
      * @param gameMove The {@link GameMove} object to add to the {@link Game}.
      * @throws RemoteException
      */
-    void addMove( int serverID, int gameID, GameMove gameMove ) throws RemoteException;
+    void addMove( int serverID,String gameUuid, GameMove gameMove ) throws RemoteException;
 
     /**
      * Add a list {@link GameMove}  objects to a {@link Game} object, specified by both
      * the serverID and the gameID.
      *
-     * @param serverID The id provided by {@link #registerServer()} as an int.
-     * @param gameID The id of the {@link Game} as seen by the application server.
+     * @param serverID The id provided by the server as an int.
+     * @param gameUuid The uuid of the {@link Game} as seen by the application server.
      * @param gameMoves A list of {@link GameMove} objects.
      * @throws RemoteException
      */
-    void addMoves( int serverID, int gameID, List<GameMove> gameMoves ) throws RemoteException;
+    void addMoves( int serverID, String gameUuid, List<GameMove> gameMoves ) throws RemoteException;
 
     /**
      * Add a {@link Player} object to the {@link Game}.
      *
      * @param serverID
-     * @param gameID
+     * @param gameUuid The uuid of the {@link Game} as seen by the application server.
      * @param player
      * @throws RemoteException
      */
-    void addPlayer( int serverID, int gameID, Player player ) throws RemoteException;
+    void addPlayer( int serverID, String gameUuid, Player player ) throws RemoteException;
 }

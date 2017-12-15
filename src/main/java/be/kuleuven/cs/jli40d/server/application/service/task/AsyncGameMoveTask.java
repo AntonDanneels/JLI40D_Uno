@@ -17,9 +17,9 @@ public class AsyncGameMoveTask extends AsyncTask
 
     private GameMove gameMove;
 
-    public AsyncGameMoveTask( int serverID, int gameID, GameMove gameMove )
+    public AsyncGameMoveTask( int serverID, String gameUuid, GameMove gameMove )
     {
-        super( serverID, gameID );
+        super( serverID, gameUuid );
         this.gameMove = gameMove;
     }
 
@@ -38,7 +38,7 @@ public class AsyncGameMoveTask extends AsyncTask
 
         try
         {
-            databaseGameHandler.addMove( getServerID(), getGameID(), gameMove );
+            databaseGameHandler.addMove( getServerID(), getGameUuid(), gameMove );
         }
         catch ( RemoteException e )
         {

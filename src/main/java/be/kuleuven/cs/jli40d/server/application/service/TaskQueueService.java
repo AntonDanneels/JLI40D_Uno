@@ -36,7 +36,7 @@ public class TaskQueueService implements Runnable
                 AsyncTask task = tasks.poll();
                 LOGGER.debug( "Publishing task {} for game {} from server {}",
                         task.getClass().getSimpleName(),
-                        task.getGameID(),
+                        task.getGameUuid(),
                         task.getServerID() );
                 task.publish( databaseGameHandler );
             }

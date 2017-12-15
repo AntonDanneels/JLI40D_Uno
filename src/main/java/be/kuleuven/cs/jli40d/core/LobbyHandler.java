@@ -34,12 +34,12 @@ public interface LobbyHandler extends Remote, Serializable
      * @param token           Token received by the {@link UserHandler}.
      * @param gameName        The desired name of the game, this is displayed in the lobby.
      * @param numberOfPlayers The number of games the game should have.
-     * @return
+     * @return The uuid of the game as a string
      * @throws InvalidTokenException       When the token is invalid (expired or not found).
      * @throws UnableToCreateGameException When the game cannot be created for some reason (like exceeded limits).
      * @throws RemoteException
      */
-    int makeGame( String token, String gameName, int numberOfPlayers ) throws RemoteException, InvalidTokenException, UnableToCreateGameException;
+    String makeGame( String token, String gameName, int numberOfPlayers ) throws RemoteException, InvalidTokenException, UnableToCreateGameException;
 
     /**
      * Join a game with an id, either provided by the {@link #makeGame} or {@link #currentGames} method.
@@ -51,12 +51,12 @@ public interface LobbyHandler extends Remote, Serializable
      * object only when all players have joined.
      *
      * @param token  Token received by the {@link UserHandler}.
-     * @param gameId The id of the game to join.
+     * @param gameUuid The uuid of the game to join.
      * @return A Game object.
      * @throws UnableToJoinGameException When the user cannot join the game for various reasons.
      * @throws InvalidTokenException     When the token is invalid (expired or not found).
      * @throws RemoteException
      */
-    Game joinGame( String token, int gameId ) throws RemoteException, UnableToJoinGameException, InvalidTokenException,
+    Game joinGame( String token, String gameUuid ) throws RemoteException, UnableToJoinGameException, InvalidTokenException,
             GameEndedException;
 }
