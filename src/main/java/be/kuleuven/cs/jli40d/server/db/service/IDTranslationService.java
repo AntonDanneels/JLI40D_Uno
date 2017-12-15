@@ -20,6 +20,7 @@ import java.util.Map;
  *
  * @author Pieter
  * @version 1.0
+ * @deprecated
  */
 @Service
 public class IDTranslationService

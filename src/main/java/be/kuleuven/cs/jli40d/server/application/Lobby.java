@@ -16,6 +16,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.RMISocketFactory;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Implementation of a {@link LobbyHandler} interface.
@@ -92,6 +93,8 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
         userManager.findUserByToken( token );
 
         Game game = new Game( gameName, numberOfPlayers );
+
+        game.setUuid( UUID.randomUUID().toString() );
 
         GameLogic.generateDeck( game );
         GameLogic.putInitialCardInTheMiddle( game );

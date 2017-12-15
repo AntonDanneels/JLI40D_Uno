@@ -31,6 +31,8 @@ public class Game implements Serializable
     @GeneratedValue( strategy = GenerationType.IDENTITY )
     protected int gameID;
 
+    private String uuid;
+
     @OneToMany
     @Cascade( org.hibernate.annotations.CascadeType.SAVE_UPDATE )
     @LazyCollection( LazyCollectionOption.FALSE )
@@ -279,5 +281,15 @@ public class Game implements Serializable
     public void setName( String name )
     {
         this.name = name;
+    }
+
+    public String getUuid()
+    {
+        return uuid;
+    }
+
+    public void setUuid( String uuid )
+    {
+        this.uuid = uuid;
     }
 }
