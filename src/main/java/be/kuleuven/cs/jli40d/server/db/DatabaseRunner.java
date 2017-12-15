@@ -32,6 +32,12 @@ public class DatabaseRunner
         try
         {
 
+            //remote deployer
+            Registry            myRegistry          = LocateRegistry.getRegistry( "localhost", 5000 );
+            DatabaseUserHandler databaseUserHandler = ( DatabaseUserHandler )myRegistry.lookup( DatabaseUserHandler.class.getName() );
+            DatabaseGameHandler databaseGameHandler = ( DatabaseGameHandler )myRegistry.lookup( DatabaseGameHandler.class.getName() );
+
+
             // create on port 1099
             Registry registry = LocateRegistry.createRegistry( 1100 );
 
