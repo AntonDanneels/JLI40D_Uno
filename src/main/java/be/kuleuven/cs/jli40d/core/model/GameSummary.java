@@ -10,30 +10,30 @@ import java.io.Serializable;
  */
 public class GameSummary implements Serializable
 {
-    private int gameID;
+    private String uuid;
 
     private String name;
     private int numberOfJoinedPlayers;
     private int maximumNumberOfPlayers;
     private boolean started;
 
-    public GameSummary( int gameID, String name, int numberOfJoinedPlayers, int maximumNumberOfPlayers, boolean started )
+    public GameSummary( String uuid, String name, int numberOfJoinedPlayers, int maximumNumberOfPlayers, boolean started )
     {
-        this.gameID = gameID;
+        this.uuid = uuid;
         this.name = name;
         this.numberOfJoinedPlayers = numberOfJoinedPlayers;
         this.maximumNumberOfPlayers = maximumNumberOfPlayers;
         this.started = started;
     }
 
-    public int getGameID()
+    public String getUuid()
     {
-        return gameID;
+        return uuid;
     }
 
-    public void setGameID( int gameID )
+    public void setUuid( String uuid )
     {
-        this.gameID = gameID;
+        this.uuid = uuid;
     }
 
     public String getName()

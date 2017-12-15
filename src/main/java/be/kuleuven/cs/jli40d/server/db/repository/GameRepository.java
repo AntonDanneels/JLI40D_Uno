@@ -11,5 +11,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface GameRepository extends CrudRepository<Game, Integer>
 {
-
+    Game findOneByUuid( String uuid );
 }
