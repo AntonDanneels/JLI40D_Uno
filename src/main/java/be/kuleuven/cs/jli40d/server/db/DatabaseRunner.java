@@ -2,6 +2,11 @@ package be.kuleuven.cs.jli40d.server.db;
 
 import be.kuleuven.cs.jli40d.core.database.DatabaseGameHandler;
 import be.kuleuven.cs.jli40d.core.database.DatabaseUserHandler;
+import be.kuleuven.cs.jli40d.core.deployer.Server;
+import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
+import be.kuleuven.cs.jli40d.core.deployer.ServerType;
+import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherMain;
+import be.kuleuven.cs.jli40d.server.dispatcher.ServerRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +15,7 @@ import org.springframework.stereotype.Component;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Arrays;
+import java.util.Set;
 
 /**
  * @author Pieter
@@ -31,7 +37,14 @@ public class DatabaseRunner
 
         try
         {
-            Registry registry = LocateRegistry.createRegistry( 1101 );
+            Registry                  dispatcherRegistry  = LocateRegistry.getRegistry( DispatcherMain.DISPATCHER.getHost(), DispatcherMain.DISPATCHER.getPort() );
+            ServerRegistrationHandler registrationHandler = (ServerRegistrationHandler)dispatcherRegistry.lookup( ServerRegistrationHandler.class.getName() );
+
+            Server me = registrationHandler.obtainPort( "localhost", ServerType.DATABASE );
+
+            Set<Server> dbs = registrationHandler.registerDatabase( me );
+
+            Registry registry = LocateRegistry.createRegistry( me.getPort() );
 
             registry.rebind( DatabaseGameHandler.class.getName(), gameHandler );
             registry.rebind( DatabaseUserHandler.class.getName(), userHandler );
