@@ -10,7 +10,6 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Pieter
@@ -131,7 +130,7 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
 
         applicationServers.add( self );
 
-        while (databaseServers.size() < 1)
+        while (databaseServers.size() < DATABASE_SERVER)
         {
             try
             {
