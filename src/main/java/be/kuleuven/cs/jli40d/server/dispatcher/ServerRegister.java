@@ -73,6 +73,8 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
 
         Server server = new Server( host, port, serverType );
 
+        LOGGER.info( "Server {} registered.", server );
+
         applicationServers.add( server );
 
         return server;
@@ -143,11 +145,11 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
 
         Server lowestLoad = null;
         int lowestAmount = Integer.MAX_VALUE;
-        for( Object key : serverMapping.keySet() )
+        for( Server key : serverMapping.keySet() )
         {
-            if( serverMapping.get( (Server) key ).size() < lowestAmount )
+            if( serverMapping.get( key ).size() < lowestAmount )
             {
-                lowestLoad = (Server)key;
+                lowestLoad = key;
                 lowestAmount = serverMapping.get( lowestLoad ).size();
             }
         }

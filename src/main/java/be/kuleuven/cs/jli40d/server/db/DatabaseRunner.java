@@ -6,7 +6,6 @@ import be.kuleuven.cs.jli40d.core.deployer.Server;
 import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.deployer.ServerType;
 import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherMain;
-import be.kuleuven.cs.jli40d.server.dispatcher.ServerRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,9 +39,15 @@ public class DatabaseRunner
             Registry                  dispatcherRegistry  = LocateRegistry.getRegistry( DispatcherMain.DISPATCHER.getHost(), DispatcherMain.DISPATCHER.getPort() );
             ServerRegistrationHandler registrationHandler = (ServerRegistrationHandler)dispatcherRegistry.lookup( ServerRegistrationHandler.class.getName() );
 
+            LOGGER.info( "Obtaining port." );
+
             Server me = registrationHandler.obtainPort( "localhost", ServerType.DATABASE );
 
+            LOGGER.info( "Obtained port {}, now registering database." );
+
             Set<Server> dbs = registrationHandler.registerDatabase( me );
+
+            LOGGER.info( "Received {} databases. Now creating registry.", dbs.size() );
 
             Registry registry = LocateRegistry.createRegistry( me.getPort() );
 
