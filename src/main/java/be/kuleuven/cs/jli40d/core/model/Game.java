@@ -85,6 +85,26 @@ public class Game implements Serializable
         this.clockwise = true;
     }
 
+    public Game( int gameID, List<Player> players, List<GameMove> moves, List<Card> deck,
+                 Map<String, PlayerHand> playerHands, String name, int maximumNumberOfPlayers,
+                 Card topCard, boolean started, boolean ended, int currentPlayer,
+                 int currentGameMoveID, boolean clockwise )
+    {
+        this.gameID = gameID;
+        this.players = players;
+        this.moves = moves;
+        this.deck = deck;
+        this.playerHands = playerHands;
+        this.name = name;
+        this.maximumNumberOfPlayers = maximumNumberOfPlayers;
+        this.topCard = topCard;
+        this.started = started;
+        this.ended = ended;
+        this.currentPlayer = currentPlayer;
+        this.currentGameMoveID = currentGameMoveID;
+        this.clockwise = clockwise;
+    }
+
     public Game( String name, int maximumNumberOfPlayers )
     {
         this( maximumNumberOfPlayers );

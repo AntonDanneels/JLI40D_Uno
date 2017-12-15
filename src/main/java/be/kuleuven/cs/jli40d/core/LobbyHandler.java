@@ -28,7 +28,7 @@ public interface LobbyHandler extends Remote, Serializable
      * @throws InvalidTokenException When the token is invalid (expired or not found).
      * @throws RemoteException
      */
-    List<GameSummary> currentGames( String token ) throws RemoteException, InvalidTokenException;
+    List<GameSummary> currentGames( String token ) throws RemoteException, InvalidTokenException, WrongServerException;
 
     /**
      * @param token           Token received by the {@link UserHandler}.
@@ -39,7 +39,7 @@ public interface LobbyHandler extends Remote, Serializable
      * @throws UnableToCreateGameException When the game cannot be created for some reason (like exceeded limits).
      * @throws RemoteException
      */
-    String makeGame( String token, String gameName, int numberOfPlayers ) throws RemoteException, InvalidTokenException, UnableToCreateGameException;
+    String makeGame( String token, String gameName, int numberOfPlayers ) throws RemoteException, InvalidTokenException, UnableToCreateGameException, WrongServerException;
 
     /**
      * Join a game with an id, either provided by the {@link #makeGame} or {@link #currentGames} method.
@@ -58,5 +58,5 @@ public interface LobbyHandler extends Remote, Serializable
      * @throws RemoteException
      */
     Game joinGame( String token, String gameUuid ) throws RemoteException, UnableToJoinGameException, InvalidTokenException,
-            GameEndedException;
+            GameEndedException, WrongServerException;
 }
