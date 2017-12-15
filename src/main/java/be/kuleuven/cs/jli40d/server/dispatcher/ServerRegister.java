@@ -22,9 +22,9 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
 
     private static final int MIN_PORT = 1101;
     private static final int MAX_PORT = 1200;
-    private static final int DATABASE_SERVER = 3;
+    private static final int DATABASE_SERVER = 1;
 
-    private Map<String, AtomicInteger> portsOnHosts;
+    private Map<String, Integer> portsOnHosts;
 
     private Set<Server> applicationServers;
     private Set<Server> databaseServers;
@@ -57,18 +57,18 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
      * @throws RemoteException
      */
     @Override
-    public Server obtainPort( String host, ServerType serverType ) throws RemoteException
+    public synchronized Server obtainPort( String host, ServerType serverType ) throws RemoteException
     {
         LOGGER.info( "Server obtaining port: " + host + " for servertype: " + serverType );
         int port = MIN_PORT;
 
         if ( portsOnHosts.containsKey( host ) )
         {
-            port = portsOnHosts.get( host ).getAndAdd( 1 );
+            port = portsOnHosts.get( host ) + 1;
         }
         else
         {
-            portsOnHosts.put( host, new AtomicInteger( port ) );
+            portsOnHosts.put( host, new Integer( port ) );
         }
 
         Server server = new Server( host, port, serverType );
