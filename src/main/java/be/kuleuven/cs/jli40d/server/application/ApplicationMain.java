@@ -5,7 +5,11 @@ import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.UserHandler;
 import be.kuleuven.cs.jli40d.core.database.DatabaseGameHandler;
 import be.kuleuven.cs.jli40d.core.database.DatabaseUserHandler;
+import be.kuleuven.cs.jli40d.core.deployer.Server;
+import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
+import be.kuleuven.cs.jli40d.core.deployer.ServerType;
 import be.kuleuven.cs.jli40d.server.application.service.RemoteGameService;
+import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherMain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,8 +31,15 @@ public class ApplicationMain
     {
         try
         {
+            Registry                  dispatcherRegistry  = LocateRegistry.getRegistry( DispatcherMain.DISPATCHER.getHost(), DispatcherMain.DISPATCHER.getPort() );
+            ServerRegistrationHandler registrationHandler = (ServerRegistrationHandler)dispatcherRegistry.lookup( ServerRegistrationHandler.class.getName() );
+
+            Server me = registrationHandler.obtainPort( "localhost", ServerType.APPLICATION );
+
+            Server db = registrationHandler.registerAppServer( me );
+
             //remote db
-            Registry            myRegistry          = LocateRegistry.getRegistry( "localhost", 1101 );
+            Registry            myRegistry          = LocateRegistry.getRegistry( db.getHost(), db.getPort() );
             DatabaseUserHandler databaseUserHandler = ( DatabaseUserHandler )myRegistry.lookup( DatabaseUserHandler.class.getName() );
             DatabaseGameHandler databaseGameHandler = ( DatabaseGameHandler )myRegistry.lookup( DatabaseGameHandler.class.getName() );
 
@@ -41,7 +52,7 @@ public class ApplicationMain
             LobbyHandler      lobby       = new Lobby( userManager, gameService );
 
             // create on port 1099
-            Registry server = LocateRegistry.createRegistry( 1099 );
+            Registry server = LocateRegistry.createRegistry( me.getPort() );
             // create a new service named CounterService
             server.rebind( LobbyHandler.class.getName(), lobby );
             server.rebind( UserHandler.class.getName(), userManager );
@@ -52,6 +63,7 @@ public class ApplicationMain
         }
         catch ( Exception e )
         {
+            e.printStackTrace();
             LOGGER.error( "Error while creating a registry. {}", e.getMessage() );
         }
     }

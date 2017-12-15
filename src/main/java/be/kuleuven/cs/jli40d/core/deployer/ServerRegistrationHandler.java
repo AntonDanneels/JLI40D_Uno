@@ -44,6 +44,16 @@ public interface ServerRegistrationHandler extends Remote, Serializable
      * @return A set of all {@link Server} objects, including the caller itself.
      * @throws RemoteException
      */
-    Set<Server> register( Server self ) throws RemoteException;
+    Set<Server> registerDatabase( Server self ) throws RemoteException;
 
+    /**
+     * Returns a database server for an application server. The Dispatcher has load balancing
+     * and chooses the database with the least amount of load.
+     * <p>
+     * This method is blocking until all db's are registered.
+     * @param self The {@link Server} object given by {@link #obtainPort(String, ServerType)}.
+     * @return A database {@link Server} for the application server to connect to.
+     * @throws RemoteException
+     */
+    Server registerAppServer( Server self ) throws RemoteException;
 }

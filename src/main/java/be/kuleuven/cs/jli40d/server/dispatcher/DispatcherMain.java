@@ -23,10 +23,10 @@ public class DispatcherMain
     public static void main( String[] args )
     {
 
-        ServerRegister serverRegister = new ServerRegister();
-
         try
         {
+            ServerRegister serverRegister = new ServerRegister();
+
             Registry server = LocateRegistry.createRegistry( DISPATCHER.getPort() );
             server.rebind( ServerRegistrationHandler.class.getName(), serverRegister );
 
