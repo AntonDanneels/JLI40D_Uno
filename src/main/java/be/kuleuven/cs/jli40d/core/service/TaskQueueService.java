@@ -1,11 +1,11 @@
-package be.kuleuven.cs.jli40d.server.application.service;
+package be.kuleuven.cs.jli40d.core.service;
 
 import be.kuleuven.cs.jli40d.core.database.DatabaseGameHandler;
-import be.kuleuven.cs.jli40d.server.application.service.task.AsyncTask;
+import be.kuleuven.cs.jli40d.core.service.task.AsyncTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Queue;
+import java.util.Deque;
 
 /**
  * @author Pieter
@@ -17,10 +17,10 @@ public class TaskQueueService implements Runnable
 
     private boolean active = true;
 
-    private Queue<AsyncTask>    tasks;
+    private Deque<AsyncTask>    tasks;
     private DatabaseGameHandler databaseGameHandler;
 
-    public TaskQueueService( Queue<AsyncTask> tasks, DatabaseGameHandler databaseGameHandler )
+    public TaskQueueService( Deque<AsyncTask> tasks, DatabaseGameHandler databaseGameHandler )
     {
         this.tasks = tasks;
         this.databaseGameHandler = databaseGameHandler;
@@ -41,5 +41,15 @@ public class TaskQueueService implements Runnable
                 task.publish( databaseGameHandler );
             }
         }
+    }
+
+    public void setActive( boolean active )
+    {
+        this.active = active;
+    }
+
+    public Deque <AsyncTask> getTasks()
+    {
+        return tasks;
     }
 }

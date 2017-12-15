@@ -6,9 +6,10 @@ import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
 import be.kuleuven.cs.jli40d.core.model.Player;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
+import be.kuleuven.cs.jli40d.core.service.TaskQueueService;
+import be.kuleuven.cs.jli40d.core.service.task.*;
 import be.kuleuven.cs.jli40d.server.application.GameListHandler;
 import be.kuleuven.cs.jli40d.server.application.GameManager;
-import be.kuleuven.cs.jli40d.server.application.service.task.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,7 @@ public class RemoteGameService implements GameListHandler
 
     //remote async publisher
     private TaskQueueService taskQueueService;
-    private Queue<AsyncTask> tasks;
+    private Deque<AsyncTask> tasks;
 
     private int serverID;
 
