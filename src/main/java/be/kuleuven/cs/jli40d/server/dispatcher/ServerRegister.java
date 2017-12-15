@@ -18,11 +18,12 @@ public class ServerRegister implements ServerRegistrationHandler
 {
     private static final int MIN_PORT = 1101;
     private static final int MAX_PORT = 1200;
+    private static final int DATABASE_SERVER = 3;
 
     private Map<String, AtomicInteger> portsOnHosts;
 
-    private Set<Server> servers;
-    private Set<Server> databases;
+    private Set<Server> applicationServers;
+    private Set<Server> databaseServers;
 
     public ServerRegister()
     {
@@ -61,7 +62,7 @@ public class ServerRegister implements ServerRegistrationHandler
 
         Server server = new Server( host, port, serverType );
 
-        servers.add( server );
+        applicationServers.add( server );
 
         return server;
     }
@@ -81,22 +82,26 @@ public class ServerRegister implements ServerRegistrationHandler
     @Override
     public synchronized Set<Server> register( Server self ) throws RemoteException
     {
-        databases.add( self );
-
-        notifyAll();
-
-        while (databases.size() < 3)
+        if (self.getServerType() == ServerType.DATABASE)
         {
-            try
+            databaseServers.add( self );
+
+            notifyAll();
+
+            while ( databaseServers.size() < DATABASE_SERVER )
             {
-                wait();
+                try
+                {
+                    wait();
+                }
+                catch ( InterruptedException e )
+                {
+                    e.printStackTrace();
+                }
             }
-            catch ( InterruptedException e )
-            {
-                e.printStackTrace();
-            }
+            return databaseServers;
         }
 
-        return databases;
+        return applicationServers;
     }
 }
