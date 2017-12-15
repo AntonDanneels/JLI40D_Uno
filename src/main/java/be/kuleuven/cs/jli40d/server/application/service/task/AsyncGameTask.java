@@ -19,7 +19,7 @@ public class AsyncGameTask extends AsyncTask
 
     public AsyncGameTask( int serverID, Game game )
     {
-        super( serverID, game.getGameID() );
+        super( serverID, game.getUuid() );
         this.game = game;
     }
 

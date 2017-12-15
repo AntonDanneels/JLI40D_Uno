@@ -30,22 +30,19 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( DatabaseUserHandler.class );
 
-    private GameRepository       gameRepository;
-    private PlayerRepository     playerRepository;
-    private GameMoveRepository   gameMoveRepository;
-    private IDTranslationService translationService;
+    private GameRepository     gameRepository;
+    private PlayerRepository   playerRepository;
+    private GameMoveRepository gameMoveRepository;
 
     @Autowired
     public DatabaseGameService( GameRepository gameRepository,
                                 PlayerRepository playerRepository,
-                                GameMoveRepository gameMoveRepository,
-                                IDTranslationService translationService ) throws
+                                GameMoveRepository gameMoveRepository ) throws
             RemoteException
     {
         this.gameRepository = gameRepository;
         this.playerRepository = playerRepository;
         this.gameMoveRepository = gameMoveRepository;
-        this.translationService = translationService;
     }
 
 
@@ -53,28 +50,12 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
     {
     }
 
-    /**
-     * Registers an application server to the database.
-     *
-     * @return An int with the application server id.
-     * @throws RemoteException
-     */
-    @Override
-    public synchronized int registerServer() throws RemoteException
-    {
-        int nextServerID = translationService.addServer();
-
-        LOGGER.info( "Registering application server with id {}", nextServerID );
-
-        return nextServerID;
-    }
-
     @Override
     public synchronized List<GameSummary> getGames() throws RemoteException
     {
         return StreamSupport.stream( gameRepository.findAll().spliterator(), true )
                 .map( g -> new GameSummary(
-                        translationService.translateFromGameID( g.getGameID() ).getValue(),
+                        g.getUuid(),
                         g.getName(),
                         g.getNumberOfJoinedPlayers(),
                         g.getMaximumNumberOfPlayers(),
@@ -82,34 +63,12 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
                 .collect( Collectors.toList() );
     }
 
-    /**
-     * Like {@link #getGames()}, this returns a list with {@link GameSummary} objects,
-     * but removes the games hosted by the provided server.
-     *
-     * @param serverID The id provided by {@link #registerServer()} as an int.
-     * @return A {@link List} with {@link GameSummary} objects, filtered to remove those hosted by one server.
-     * @throws RemoteException
-     */
-    @Override
-    public List<GameSummary> getGames( int serverID ) throws RemoteException
-    {
-        return StreamSupport.stream( gameRepository.findAll().spliterator(), true )
-                .filter( g -> serverID != translationService.translateFromGameID( g.getGameID() ).getKey() )
-                .map( g -> new GameSummary(
-                        translationService.translateFromGameID( g.getGameID() ).getValue(),
-                        g.getName(),
-                        g.getNumberOfJoinedPlayers(),
-                        g.getMaximumNumberOfPlayers(),
-                        g.isStarted() ) )
-                .collect( Collectors.toList() );
-    }
 
     @Override
-    public Game getGame( int serverID, int gameID ) throws RemoteException, GameNotFoundException
+    public Game getGame( int serverID, String gameUuid ) throws RemoteException, GameNotFoundException
     {
-        int realGameID = translationService.translateToGameID( serverID, gameID );
 
-        return gameRepository.findOne( realGameID );
+        return gameRepository.findOneByUuid( gameUuid );
     }
 
     @Override
@@ -123,20 +82,23 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
         //remove player ids
         for ( Player p : game.getPlayers() )
         {
-            p.setId( translationService.translateToPlayerID( serverID, originalGameID, p.getId() ) );
+            playerRepository.findOneByUuid( p.getUuid() );
+
+            p.setId( p.getId() );
         }
 
         //remove gamemove ids
-        for ( GameMove gm : game.getMoves() )
+        /*for ( GameMove gm : game.getMoves() )
         {
             gm.setId( translationService.translateToGameMoveID( serverID, originalGameID, gm.getId() ) );
-        }
+        }*/
 
         LOGGER.info( "Saving game with id {}", originalGameID );
 
-        if ( translationService.containsGameID( serverID, originalGameID ) )
+        Game g = gameRepository.findOneByUuid( game.getUuid() );
+        if ( g != null )
         {
-            game.setGameID( translationService.translateToGameID( serverID, originalGameID ) );
+            game.setGameID( g.getGameID() );
             gameRepository.save( game );
 
         }
@@ -145,7 +107,6 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
             gameRepository.save( game );
 
             int dbID = game.getGameID();
-            translationService.addGame( serverID, originalGameID, dbID );
 
             LOGGER.info( "Game not found, persisting as new entity with db id = {}.", dbID );
         }
@@ -153,7 +114,7 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
     }
 
     @Override
-    public synchronized void addMove( int serverID, int gameID, GameMove gameMove ) throws RemoteException
+    public synchronized void addMove( int serverID, String gameUuid, GameMove gameMove ) throws RemoteException
     {
         LOGGER.info( "Adding move {}", gameMove.getId() );
 
@@ -162,48 +123,45 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
         gameMove.setId( 0 );
 
         //remove player id
-        int dbPlayerID = translationService.translateToPlayerID( serverID, gameID, gameMove.getPlayer().getId() );
-        gameMove.setPlayer( playerRepository.findOne( dbPlayerID ) );
+        gameMove.setPlayer( playerRepository.findOneByUuid(  gameMove.getPlayer().getUuid() ) );
 
         //step 1. save game move
         int dbID = gameMoveRepository.save( gameMove ).getId();
 
         //step 2. save game as well
-        Game g = gameRepository.findOne( translationService.translateToGameID( serverID, gameID ) );
+        Game g = gameRepository.findOneByUuid( gameUuid );
         g.getMoves().add( gameMove );
 
         gameRepository.save( g );
-
-        translationService.addGameMoveID( serverID, gameID, originalMoveID, dbID );
     }
 
     /**
      * Add a list {@link GameMove}  objects to a {@link Game} object, specified by both
      * the serverID and the gameID.
      *
-     * @param serverID  The id provided by {@link #registerServer()} as an int.
-     * @param gameID    The id of the {@link Game} as seen by the application server.
+     * @param serverID  The id provided by the server as an int.
+     * @param gameUuid  The id of the {@link Game} as seen by the application server.
      * @param gameMoves A list of {@link GameMove} objects.
      * @throws RemoteException
      */
     @Override
-    public synchronized void addMoves( int serverID, int gameID, List<GameMove> gameMoves ) throws RemoteException
+    public synchronized void addMoves( int serverID, String gameUuid, List<GameMove> gameMoves ) throws RemoteException
     {
         for ( GameMove gameMove : gameMoves )
         {
-            addMove( serverID, gameID, gameMove );
+            addMove( serverID, gameUuid, gameMove );
         }
     }
 
     @Override
-    public synchronized void addPlayer( int serverID, int gameID, Player player ) throws RemoteException
+    public synchronized void addPlayer( int serverID, String gameUuid, Player player ) throws RemoteException
     {
         int originalPlayerID = player.getId();
         player.setId( 0 );
 
         LOGGER.info( "Saving player {} with original id = {} from server {}", player.getUsername(), originalPlayerID, serverID );
 
-        Game g = gameRepository.findOne( translationService.translateToGameID( serverID, gameID ) );
+        Game g = gameRepository.findOneByUuid( gameUuid );
 
         //step 1. save player
         int dbID = playerRepository.save( player ).getId();
@@ -211,6 +169,5 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
         g.getPlayers().add( player );
         gameRepository.save( g );
 
-        translationService.addPlayerID( serverID, gameID, originalPlayerID, dbID );
     }
 }

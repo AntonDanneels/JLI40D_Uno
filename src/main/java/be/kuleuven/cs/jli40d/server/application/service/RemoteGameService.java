@@ -35,7 +35,7 @@ public class RemoteGameService implements GameListHandler
     private DatabaseGameHandler gameHandler;
 
     //Cache
-    private Map<Integer, Game> localGameCache;
+    private Map<String, Game> localGameCache;
 
     //remote async publisher
     private TaskQueueService taskQueueService;
@@ -56,15 +56,8 @@ public class RemoteGameService implements GameListHandler
         this.gameHandler = gameHandler;
         this.localGameCache = new HashMap<>( 32 );
 
-        try
-        {
-            serverID = gameHandler.registerServer();
-            LOGGER.debug( "Server received id = {}.", serverID );
-        }
-        catch ( RemoteException e )
-        {
-            LOGGER.error( "Error while requesting the server id." );
-        }
+        serverID = UUID.randomUUID().hashCode();
+        LOGGER.debug( "Server received id = {} (self-generated).", serverID );
 
         tasks = new ConcurrentLinkedDeque<>();
         taskQueueService = new TaskQueueService( tasks, gameHandler );
@@ -79,7 +72,7 @@ public class RemoteGameService implements GameListHandler
         if ( !this.localGameCache.containsKey( game.getGameID() ) )
         {
             LOGGER.debug( "Adding game with id {} to local cache.", game.getGameID() );
-            this.localGameCache.put( game.getGameID(), game );
+            this.localGameCache.put( game.getUuid(), game );
         }
 
         //remote persistence
@@ -89,20 +82,20 @@ public class RemoteGameService implements GameListHandler
     }
 
     @Override
-    public Game getGameByID( int id ) throws GameNotFoundException
+    public Game getGameByUuid( String uuid ) throws GameNotFoundException
     {
         Game g = null;
 
-        if ( localGameCache.containsKey( id ) )
+        if ( localGameCache.containsKey( uuid ) )
         {
-            g = localGameCache.get( id );
+            g = localGameCache.get( uuid );
         }
         else
         {
-            LOGGER.warn( "fetching game with id = {} from remote db cluster. This action is not cached.", id );
+            LOGGER.warn( "fetching game with id = {} from remote db cluster. This action is not cached.", uuid );
             try
             {
-                g = gameHandler.getGame( serverID, id );
+                g = gameHandler.getGame( serverID, uuid );
             }
             catch ( RemoteException e )
             {
@@ -113,7 +106,7 @@ public class RemoteGameService implements GameListHandler
         //if the game is not in the list, throw an error
         if ( g == null )
         {
-            LOGGER.warn( "joinGame method called with gameId = {}, but game not found. ", id );
+            LOGGER.warn( "joinGame method called with gameId = {}, but game not found. ", uuid );
 
             throw new GameNotFoundException( "Game not found in the list" );
         }
@@ -135,7 +128,7 @@ public class RemoteGameService implements GameListHandler
             //adding games hosted on this host
             List<GameSummary> localGames = localGameCache.values().stream()
                     .map( g -> new GameSummary(
-                            g.getGameID(),
+                            g.getUuid(),
                             g.getName(),
                             g.getNumberOfJoinedPlayers(),
                             g.getMaximumNumberOfPlayers(),
@@ -154,29 +147,29 @@ public class RemoteGameService implements GameListHandler
         return Collections.emptyList();
     }
 
-    public synchronized void addMove( int gameID, GameMove move )
+    public synchronized void addMove( String gameUuid, GameMove move )
     {
         LOGGER.debug( "Added move to persist async." );
 
-        tasks.add( new AsyncGameMoveTask( serverID, gameID, move ) );
+        tasks.add( new AsyncGameMoveTask( serverID, gameUuid, move ) );
 
         notifyAll();
     }
 
-    public synchronized void addMoves( int gameID, List<GameMove> moves )
+    public synchronized void addMoves( String gameUuid, List<GameMove> moves )
     {
         LOGGER.debug( "Added moves to persist async." );
 
-        tasks.add( new AsyncGameMovesTask( serverID, gameID, moves ) );
+        tasks.add( new AsyncGameMovesTask( serverID, gameUuid, moves ) );
 
         notifyAll();
     }
 
-    public synchronized void addPlayer( int id, Player player )
+    public synchronized void addPlayer( String gameUuid, Player player )
     {
         LOGGER.debug( "Added player to persist async." );
 
-        tasks.add( new AsyncPlayerTask( serverID, id, player ) );
+        tasks.add( new AsyncPlayerTask( serverID, gameUuid, player ) );
 
         notifyAll();
     }

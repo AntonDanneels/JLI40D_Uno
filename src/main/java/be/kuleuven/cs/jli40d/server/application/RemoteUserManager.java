@@ -125,6 +125,7 @@ public class RemoteUserManager extends UnicastRemoteObject implements UserHandle
         databaseUserHandler.registerUser(
                 new User( username, 0, BCrypt.hashpw( password, BCrypt.gensalt() ) ) );
 
+
         LOGGER.info( "Created account for {} with username {}", email, username );
 
         try

@@ -157,7 +157,7 @@ public class GameSceneHandler extends AnimationTimer
             {
                 try
                 {
-                    game = lobbyHandler.joinGame( client.getToken(), gameSummary.getGameID() );
+                    game = lobbyHandler.joinGame( client.getToken(), gameSummary.getUuid() );
                     enterGameLoop();
                 }
                 catch ( RemoteException e )
@@ -277,7 +277,7 @@ public class GameSceneHandler extends AnimationTimer
                             if ( GameLogic.testMove( game, move ) )
                             {
                                 LOGGER.debug( "Sending gamemove to draw card" );
-                                gameHandler.sendMove( client.getToken(), game.getGameID(), move );
+                                gameHandler.sendMove( client.getToken(), game.getUuid(), move );
                             }
                         }
                         for ( CardButton b : cardButtons )
@@ -309,7 +309,7 @@ public class GameSceneHandler extends AnimationTimer
                                 if ( move.getPlayedCard().getType() == CardType.OTHER_COLOUR || move.getPlayedCard().getType() == CardType.PLUS4 )
                                     createChooseColourPopup( move );
                                 else
-                                    gameHandler.sendMove( client.getToken(), game.getGameID(), move );
+                                    gameHandler.sendMove( client.getToken(), game.getUuid(), move );
                             }
                         }
                         selectedCardButton = null;
@@ -485,7 +485,7 @@ public class GameSceneHandler extends AnimationTimer
     {
         try
         {
-            gameHandler.sendMove( client.getToken(), game.getGameID(), move );
+            gameHandler.sendMove( client.getToken(), game.getUuid(), move );
         }
         catch ( InvalidTokenException e )
         {

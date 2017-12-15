@@ -35,7 +35,7 @@ public class GameCell extends ListCell<GameSummary>
         HBox.setHgrow( pane1, Priority.ALWAYS );
         joinButton.setOnAction( e ->
         {
-            LOGGER.debug( "Joining game: {}", game.getGameID() );
+            LOGGER.debug( "Joining game: {}", game.getUuid() );
             LOGGER.debug( "Switching to the game scene." );
             client.setGameScene( game );
         } );
