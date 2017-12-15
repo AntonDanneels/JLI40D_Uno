@@ -12,11 +12,13 @@ public class Server implements Serializable
 {
     private String host;
     private int port;
+    private ServerType serverType;
 
-    public Server( String host, int port )
+    public Server( String host, int port, ServerType type )
     {
         this.host = host;
         this.port = port;
+        serverType = type;
     }
 
     public String getHost()
@@ -27,5 +29,10 @@ public class Server implements Serializable
     public int getPort()
     {
         return port;
+    }
+
+    public ServerType getServerType()
+    {
+        return serverType;
     }
 }

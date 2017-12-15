@@ -28,7 +28,7 @@ public class ApplicationMain
         try
         {
             //remote db
-            Registry            myRegistry          = LocateRegistry.getRegistry( "localhost", 1100 );
+            Registry            myRegistry          = LocateRegistry.getRegistry( "localhost", 1101 );
             DatabaseUserHandler databaseUserHandler = ( DatabaseUserHandler )myRegistry.lookup( DatabaseUserHandler.class.getName() );
             DatabaseGameHandler databaseGameHandler = ( DatabaseGameHandler )myRegistry.lookup( DatabaseGameHandler.class.getName() );
 

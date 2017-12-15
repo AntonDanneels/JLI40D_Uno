@@ -31,9 +31,7 @@ public class DatabaseRunner
 
         try
         {
-
-            // create on port 1099
-            Registry registry = LocateRegistry.createRegistry( 1100 );
+            Registry registry = LocateRegistry.createRegistry( 1101 );
 
             registry.rebind( DatabaseGameHandler.class.getName(), gameHandler );
             registry.rebind( DatabaseUserHandler.class.getName(), userHandler );
