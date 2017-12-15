@@ -131,7 +131,7 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
 
         applicationServers.add( self );
 
-        while (databaseServers.size() < 1)
+        while (databaseServers.size() < DATABASE_SERVER)
         {
             try
             {

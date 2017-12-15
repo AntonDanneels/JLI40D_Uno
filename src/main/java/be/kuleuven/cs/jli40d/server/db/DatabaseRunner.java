@@ -39,21 +39,22 @@ public class DatabaseRunner
             Registry                  dispatcherRegistry  = LocateRegistry.getRegistry( DispatcherMain.DISPATCHER.getHost(), DispatcherMain.DISPATCHER.getPort() );
             ServerRegistrationHandler registrationHandler = (ServerRegistrationHandler)dispatcherRegistry.lookup( ServerRegistrationHandler.class.getName() );
 
-            LOGGER.info( "Obtaining port." );
+            LOGGER.info( "Obtaining port. Now creating registry." );
 
             Server me = registrationHandler.obtainPort( "localhost", ServerType.DATABASE );
-
-            LOGGER.info( "Obtained port {}, now registering database." );
-
-            Set<Server> dbs = registrationHandler.registerDatabase( me );
-
-            LOGGER.info( "Received {} databases. Now creating registry.", dbs.size() );
 
             Registry registry = LocateRegistry.createRegistry( me.getPort() );
 
             registry.rebind( DatabaseGameHandler.class.getName(), gameHandler );
             registry.rebind( DatabaseUserHandler.class.getName(), userHandler );
 
+            LOGGER.info( "Created registry, now registering database." );
+
+            Set<Server> dbs = registrationHandler.registerDatabase( me );
+
+            LOGGER.info( "Received {} databases. ", dbs.size() );
+
+            // Note: still need to register db's locally here
 
             LOGGER.info( "DB server started with following bindings: {} ", Arrays.toString( registry.list() ) );
 
@@ -63,5 +64,4 @@ public class DatabaseRunner
             LOGGER.error( "Error while creating a registry. {}", e.getMessage() );
         }
     }
-
 }
