@@ -6,13 +6,17 @@ package be.kuleuven.cs.jli40d.client;/**
 
 import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
+import be.kuleuven.cs.jli40d.core.ResourceHandler;
 import be.kuleuven.cs.jli40d.core.UserHandler;
 import be.kuleuven.cs.jli40d.core.deployer.Server;
 import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
+import be.kuleuven.cs.jli40d.core.model.exception.WrongServerException;
+import be.kuleuven.cs.jli40d.server.application.ResourceManager;
 import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherMain;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -22,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -79,6 +84,7 @@ public class GameClient extends Application
             LobbyHandler lobbyHandler = ( LobbyHandler )myRegistry.lookup( LobbyHandler.class.getName() );
             UserHandler  userManager  = ( UserHandler )myRegistry.lookup( UserHandler.class.getName() );
             GameHandler  gameHandler  = ( GameHandler )myRegistry.lookup( GameHandler.class.getName() );
+            ResourceHandler resourceHandler = (ResourceHandler) myRegistry.lookup( ResourceHandler.class.getName() );
 
             StartSceneController startSceneController = loader.getController();
             startSceneController.init( this, userManager );
@@ -98,7 +104,7 @@ public class GameClient extends Application
             Pane gamePane = loader.load();
 
             GameSceneHandler gameSceneHandler = loader.getController();
-            gameSceneHandler.init( this, lobbyHandler, gameHandler, registrationHandler );
+            gameSceneHandler.init( this, lobbyHandler, gameHandler, registrationHandler, resourceHandler );
             this.gameSceneHandler = gameSceneHandler;
 
             loader = new FXMLLoader();
@@ -123,6 +129,7 @@ public class GameClient extends Application
 
             gameScene = new Scene( gamePane );
 
+            loadImages( resourceHandler );
         }
         catch ( IOException e )
         {
@@ -140,6 +147,18 @@ public class GameClient extends Application
             Platform.exit();
             System.exit( 0 );
         } );
+    }
+
+    private void loadImages( ResourceHandler resourceHandler )
+    {
+        try
+        {
+            ImageLoader.loadImages( resourceHandler );
+        }
+        catch ( MalformedURLException e )
+        {
+            e.printStackTrace();
+        }
     }
 
     public void resetConnection( Server server )

@@ -2,6 +2,7 @@ package be.kuleuven.cs.jli40d.server.application;
 
 import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
+import be.kuleuven.cs.jli40d.core.ResourceHandler;
 import be.kuleuven.cs.jli40d.core.UserHandler;
 import be.kuleuven.cs.jli40d.core.database.DatabaseGameHandler;
 import be.kuleuven.cs.jli40d.core.database.DatabaseUserHandler;
@@ -61,12 +62,15 @@ public class ApplicationMain
             GameManager  gameManager = new GameManager( userManager, gameService );
             LobbyHandler lobby       = new Lobby( userManager, gameService, registrationHandler, me );
 
+            ResourceHandler resourceHandler = new ResourceManager();
+
             // create on port 1099
             Registry server = LocateRegistry.createRegistry( me.getPort() );
             // create a new service named CounterService
             server.rebind( LobbyHandler.class.getName(), lobby );
             server.rebind( UserHandler.class.getName(), userManager );
             server.rebind( GameHandler.class.getName(), gameManager );
+            server.rebind( ResourceHandler.class.getName(), resourceHandler );
 
             LOGGER.info( "Application server started with following bindings: {} ", Arrays.toString( server.list() ) );
 
