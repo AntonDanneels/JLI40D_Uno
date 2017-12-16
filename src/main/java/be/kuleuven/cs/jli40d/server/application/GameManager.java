@@ -21,7 +21,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( GameManager.class );
 
-    private CachedUserManager  userManager;
+    private CachedUserManager userManager;
     private RemoteGameService gameService;
 
     public GameManager( CachedUserManager userManager, RemoteGameService gameService ) throws RemoteException
@@ -33,7 +33,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
     /**
      * Returns if a game is started (can also be finished) or not.
      *
-     * @param token  The token given to the user for authentication.
+     * @param token    The token given to the user for authentication.
      * @param gameUuid The uuid of the game.
      * @return False if the game is not yet started, true otherwise.
      * @throws InvalidTokenException When the token is invalid (expired or not found).
@@ -77,7 +77,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
      * is ready.
      *
      * @param token          The token given to the user for authentication.
-     * @param gameUuid         The uuid of the game.
+     * @param gameUuid       The uuid of the game.
      * @param nextGameMoveID The id of the next gameMove for a certain game.
      * @return The next GameMove when one is ready.
      * @throws InvalidTokenException When the token is invalid (expired or not found).
@@ -123,7 +123,7 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
      * This method also checks if the player was authorised and it was his/her
      * turn to make a move.
      *
-     * @param token  The token given to the user for authentication.
+     * @param token    The token given to the user for authentication.
      * @param gameUuid The uuid of the game.
      * @throws InvalidTokenException
      * @throws RemoteException
@@ -147,6 +147,8 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
             throw new InvalidGameMoveException( "Either not your turn or invalid move" );
         }
 
+        int currentMove = game.getMoves().size();
+
         GameLogic.applyMove( game, move );
 
         if ( GameLogic.hasGameEnded( game ) )
@@ -158,9 +160,10 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
 
             userManager.updateScore( winner.getUsername(), score );
         }
+        int endMove = game.getMoves().size();
 
-        //Save game and move to db
-        gameService.addMove( gameUuid, move );
+        for ( int i = currentMove; i < endMove; i++ )
+            gameService.addMove( gameUuid, game.getMoves().get( i ) );
 
         LOGGER.debug( "{} added a move to game {}", username, game );
 
