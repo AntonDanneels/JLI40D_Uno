@@ -18,7 +18,8 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  * @author Pieter
@@ -32,7 +33,7 @@ public class ClusterService
     //cluster async publishers
     private Map <Server, TaskQueueService> clusterServices;
 
-    private Set<Integer> databases;
+    private Set <Integer> databases;
 
     private Set <Deque <AsyncTask>> clusterQueues;
 
@@ -49,7 +50,7 @@ public class ClusterService
     /**
      * This method initializes a server connections through RMI and registers a {@link AsyncTask} queue
      * to publish those tasks to other databases.
-     *
+     * <p>
      * To prevent threads from running without use, close the connection with {@link #closeConnection(Server)}.
      *
      * @param server The {@link Server} object of the remote database server.
@@ -57,7 +58,10 @@ public class ClusterService
     public void addServer( Server server )
     {
         if ( clusterServices.containsKey( server ) )
-            LOGGER.warn( "This server ({}) is already registered. To prevent performance leaks, unregister it first." );
+            LOGGER.warn( "This server ({} with id {}) is already registered. To prevent performance leaks, unregister it first.", server, server.getID() );
+
+        if (serverID == server.getID())
+            return;
 
         LOGGER.info( "opening connection to remote game handler for server {}.", server );
         try
@@ -68,8 +72,8 @@ public class ClusterService
             DatabaseGameHandler remoteGameHandler = ( DatabaseGameHandler ) myRegistry.lookup( DatabaseGameHandler.class.getName() );
 
             //start new thread and create a queue
-            Deque <AsyncTask> tasks            = new ConcurrentLinkedDeque <>();
-            TaskQueueService  taskQueueService = new TaskQueueService( tasks, remoteGameHandler );
+            BlockingDeque<AsyncTask> tasks            = new LinkedBlockingDeque<>();
+            TaskQueueService         taskQueueService = new TaskQueueService( tasks, remoteGameHandler );
             new Thread( taskQueueService ).start();
             LOGGER.info( "Started a remote publishing service [ {} ].", taskQueueService.getClass().getSimpleName() );
 
@@ -77,6 +81,9 @@ public class ClusterService
             clusterServices.put( server, taskQueueService );
             clusterQueues.add( tasks );
             databases.add( server.getID() );
+
+            LOGGER.info( "registered server {} with id {}.", server, server.getID() );
+
 
         }
         catch ( RemoteException | NotBoundException e )
@@ -90,7 +97,7 @@ public class ClusterService
      *
      * @param server The {@link Server} object of the remote database server.
      */
-    public void closeConnection(Server server)
+    public void closeConnection( Server server )
     {
         clusterServices.get( server ).setActive( false );
 
@@ -146,8 +153,8 @@ public class ClusterService
         this.serverID = serverID;
     }
 
-    public boolean isDatbaseServer(int serverID)
+    public boolean isDatabaseServer( int id )
     {
-        return databases.contains( serverID );
+        return databases.contains( id );
     }
 }

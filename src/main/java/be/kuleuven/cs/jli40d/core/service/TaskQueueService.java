@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Deque;
+import java.util.concurrent.BlockingDeque;
 
 /**
  * @author Pieter
@@ -17,10 +18,10 @@ public class TaskQueueService implements Runnable
 
     private boolean active = true;
 
-    private Deque<AsyncTask>    tasks;
-    private DatabaseGameHandler databaseGameHandler;
+    private BlockingDeque<AsyncTask> tasks;
+    private DatabaseGameHandler      databaseGameHandler;
 
-    public TaskQueueService( Deque<AsyncTask> tasks, DatabaseGameHandler databaseGameHandler )
+    public TaskQueueService( BlockingDeque<AsyncTask> tasks, DatabaseGameHandler databaseGameHandler )
     {
         this.tasks = tasks;
         this.databaseGameHandler = databaseGameHandler;
@@ -31,15 +32,20 @@ public class TaskQueueService implements Runnable
     {
         while ( active )
         {
-            while ( tasks.peek() != null )
+            try
             {
-                AsyncTask task = tasks.poll();
+                AsyncTask task = tasks.takeFirst();
                 LOGGER.debug( "Publishing task {} for game {} from server {}",
                         task.getClass().getSimpleName(),
                         task.getGameUuid(),
                         task.getServerID() );
                 task.publish( databaseGameHandler );
             }
+            catch ( InterruptedException e )
+            {
+                e.printStackTrace();
+            }
+
         }
     }
 
