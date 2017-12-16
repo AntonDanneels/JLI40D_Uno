@@ -10,9 +10,7 @@ import be.kuleuven.cs.jli40d.core.UserHandler;
 import be.kuleuven.cs.jli40d.core.deployer.Server;
 import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
-import be.kuleuven.cs.jli40d.core.model.exception.WrongServerException;
 import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherMain;
-import be.kuleuven.cs.jli40d.server.dispatcher.ServerRegister;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -35,9 +33,10 @@ public class GameClient extends Application
     private static final Logger LOGGER = LoggerFactory.getLogger(GameClient.class);
 
     private Stage primaryStage;
-    private Scene loginScene, lobbyScene, gameScene, leaderboardScene;
+    private Scene loginScene, lobbyScene, spectateScene, gameScene, leaderboardScene;
     private LobbySceneHandler lobbySceneHandler;
     private GameSceneHandler gameSceneHandler;
+    private SpectateSceneHandler spectateSceneHandler;
     private LeaderboardSceneHandler leaderboardSceneHandler;
 
     // TODO: find a better way to store these..
@@ -101,6 +100,16 @@ public class GameClient extends Application
             GameSceneHandler gameSceneHandler = loader.getController();
             gameSceneHandler.init( this, lobbyHandler, gameHandler, registrationHandler );
             this.gameSceneHandler = gameSceneHandler;
+
+            loader = new FXMLLoader();
+            loader.setLocation( getClass().getResource( "/spectate.fxml" ) );
+            Pane spectatePane = loader.load();
+
+            SpectateSceneHandler spectateSceneHandler = loader.getController();
+            spectateSceneHandler.init( this, lobbyHandler, gameHandler, registrationHandler );
+            this.spectateSceneHandler = spectateSceneHandler;
+
+            spectateScene = new Scene( spectatePane );
 
             loader = new FXMLLoader();
             loader.setLocation( getClass().getResource( "/leaderboard.fxml" ) );
@@ -177,6 +186,13 @@ public class GameClient extends Application
         gameSceneHandler.setGameSummary( game );
         this.primaryStage.setScene( gameScene );
         gameSceneHandler.run();
+    }
+
+    public void setSpectatingScene( GameSummary game )
+    {
+        spectateSceneHandler.setGameSummary( game );
+        this.primaryStage.setScene( spectateScene );
+        spectateSceneHandler.run();
     }
 
     public void setLeaderboardScene()

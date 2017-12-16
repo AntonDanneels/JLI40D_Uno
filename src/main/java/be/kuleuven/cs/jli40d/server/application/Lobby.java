@@ -10,20 +10,14 @@ import be.kuleuven.cs.jli40d.core.model.GameSummary;
 import be.kuleuven.cs.jli40d.core.model.Player;
 import be.kuleuven.cs.jli40d.core.model.exception.*;
 import be.kuleuven.cs.jli40d.server.application.service.RemoteGameService;
-import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherMain;
-import be.kuleuven.cs.jli40d.server.dispatcher.ServerRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.rmi.server.RMISocketFactory;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -222,6 +216,58 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
         notifyAll();
 
         LOGGER.debug( "Returning joinGame method calls." );
+
+        return requestedGame;
+    }
+
+    /**
+     * This method is in spirit the same as {@link #joinGame(String, String)}, but without the joining part. It also
+     * hosts the game on a server, and will only return is the server actually hosts the game.
+     * <p>
+     * If the game has ended, the user is also unable to spectate. This is because watching a deck in the middle of
+     * the table without anything happening isn't that interesting.
+     *
+     * @param token    Token received by the {@link UserHandler}.
+     * @param gameUuid The uuid of the game to join.
+     * @return A {@link Game} object.
+     * @throws InvalidTokenException When the token is invalid (expired or not found).
+     * @throws UnableToJoinGameException When the user cannot join the game for various reasons.
+     * @throws GameEndedException    An error when the game has ended.
+     * @throws WrongServerException  When the {@link Game} is not hosted on this server.
+     */
+    @Override
+    public synchronized Game spectateGame( String token, String gameUuid ) throws RemoteException, UnableToJoinGameException, InvalidTokenException, GameEndedException, WrongServerException
+    {
+        //initial check for token and find username
+        String username = userManager.findUserByToken( token );
+
+        LOGGER.debug( "{} tries to join game with id {}.", username, gameUuid );
+
+        //throws an error if the game is not in the list
+        Game requestedGame;
+        try
+        {
+            requestedGame = games.getGameByUuid( gameUuid );
+        }
+        catch ( GameNotFoundException e )
+        {
+            LOGGER.warn( "User {} tried to join a non-existing game with id = {}.", username, gameUuid );
+            throw new UnableToJoinGameException( "Game not found" );
+        }
+
+        //blocking until all players joined
+        while ( requestedGame.getNumberOfJoinedPlayers() < requestedGame.getMaximumNumberOfPlayers() )
+        {
+            try
+            {
+                wait();
+            }
+            catch ( InterruptedException e )
+            {
+                LOGGER.error( "Thread interrupted. SAD. {}", e.getMessage() );
+                Thread.currentThread().interrupt();
+            }
+        }
 
         return requestedGame;
     }

@@ -52,6 +52,10 @@ public class ImageLoader
         LOGGER.debug( "Loading image: {}", path );
         sceneImages.put( SceneImage.GAME_BACKGROUND, new Image( path ) );
 
+        path = "/uno-spectate.png";
+        LOGGER.debug( "Loading image: {}", path );
+        sceneImages.put( SceneImage.SPECTATOR_BACKGROUND, new Image( path ) );
+
         path = "/cards_original/CARD_BACK.png";
         LOGGER.debug( "Loading image: {}", path );
         sceneImages.put( SceneImage.CARD_BACK, new Image( path ) );
