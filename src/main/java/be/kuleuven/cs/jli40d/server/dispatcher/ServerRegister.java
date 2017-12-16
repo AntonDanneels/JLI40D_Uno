@@ -70,7 +70,7 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
             portsOnHosts.put( host, new Integer( port ) );
         }
 
-        Server server = new Server( host, port, serverType );
+        Server server = new Server( host, port, serverType, UUID.randomUUID().toString() );
 
         LOGGER.info( "Server {} registered.", server );
 

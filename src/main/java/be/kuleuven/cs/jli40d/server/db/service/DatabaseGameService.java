@@ -33,16 +33,18 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
     private GameRepository     gameRepository;
     private PlayerRepository   playerRepository;
     private GameMoveRepository gameMoveRepository;
+    private ClusterService     clusterService;
 
     @Autowired
     public DatabaseGameService( GameRepository gameRepository,
                                 PlayerRepository playerRepository,
-                                GameMoveRepository gameMoveRepository ) throws
-            RemoteException
+                                GameMoveRepository gameMoveRepository,
+                                ClusterService clusterService ) throws RemoteException
     {
         this.gameRepository = gameRepository;
         this.playerRepository = playerRepository;
         this.gameMoveRepository = gameMoveRepository;
+        this.clusterService = clusterService;
     }
 
 
@@ -51,7 +53,7 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
     }
 
     @Override
-    public synchronized List<GameSummary> getGames() throws RemoteException
+    public synchronized List <GameSummary> getGames() throws RemoteException
     {
         return StreamSupport.stream( gameRepository.findAll().spliterator(), true )
                 .map( g -> new GameSummary(
@@ -108,7 +110,8 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
 
             int dbID = game.getGameID();
 
-            LOGGER.info( "Game not found, persisting as new entity with db id = {}.", dbID );
+            LOGGER.info( "Game not found, persisting as new entity with db id = {} and propagating to cluster.", dbID );
+            clusterService.addGame( game );
         }
 
     }
@@ -123,7 +126,7 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
         gameMove.setId( 0 );
 
         //remove player id
-        gameMove.setPlayer( playerRepository.findOneByUuid(  gameMove.getPlayer().getUuid() ) );
+        gameMove.setPlayer( playerRepository.findOneByUuid( gameMove.getPlayer().getUuid() ) );
 
         //step 1. save game move
         int dbID = gameMoveRepository.save( gameMove ).getId();
@@ -145,7 +148,7 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
      * @throws RemoteException
      */
     @Override
-    public synchronized void addMoves( int serverID, String gameUuid, List<GameMove> gameMoves ) throws RemoteException
+    public synchronized void addMoves( int serverID, String gameUuid, List <GameMove> gameMoves ) throws RemoteException
     {
         for ( GameMove gameMove : gameMoves )
         {

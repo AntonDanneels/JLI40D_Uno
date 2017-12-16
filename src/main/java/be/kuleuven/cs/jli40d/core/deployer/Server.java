@@ -14,11 +14,14 @@ public class Server implements Serializable
     private int port;
     private ServerType serverType;
 
-    public Server( String host, int port, ServerType type )
+    private String uuid;
+
+    public Server( String host, int port, ServerType type, String uuid )
     {
         this.host = host;
         this.port = port;
         serverType = type;
+        this.uuid = uuid;
     }
 
     public String getHost()
@@ -34,6 +37,16 @@ public class Server implements Serializable
     public ServerType getServerType()
     {
         return serverType;
+    }
+
+    public String getUuid()
+    {
+        return uuid;
+    }
+
+    public int getID()
+    {
+        return uuid.hashCode();
     }
 
     @Override
