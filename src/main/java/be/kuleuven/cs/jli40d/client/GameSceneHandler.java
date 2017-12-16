@@ -2,6 +2,7 @@ package be.kuleuven.cs.jli40d.client;
 
 import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
+import be.kuleuven.cs.jli40d.core.ResourceHandler;
 import be.kuleuven.cs.jli40d.core.deployer.Server;
 import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.logic.GameLogic;
@@ -27,6 +28,7 @@ import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -91,7 +93,7 @@ public class GameSceneHandler extends AnimationTimer
         positions.addAll( Arrays.asList( new Pair<>( 83, 83 ), new Pair<>( 709, 83 ), new Pair<>( 396, 9 ) ) );
     }
 
-    public void init( GameClient client, LobbyHandler lobbyHandler, GameHandler gameHandler, ServerRegistrationHandler registrationHandler )
+    public void init( GameClient client, LobbyHandler lobbyHandler, GameHandler gameHandler, ServerRegistrationHandler registrationHandler, ResourceHandler resourceHandler )
     {
         this.client = client;
         this.gameHandler = gameHandler;
@@ -121,8 +123,6 @@ public class GameSceneHandler extends AnimationTimer
 
         topCardX = ( int )gameCanvas.getWidth() / 2 - 74 / 2;
         topCardY = ( int )gameCanvas.getHeight() / 2 - 20;
-
-        ImageLoader.loadImages();
 
         backToLobbyButton = new Button( "Go to lobby" );
         backToLobbyButton.setOnAction( event ->
