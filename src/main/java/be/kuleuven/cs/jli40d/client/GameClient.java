@@ -7,8 +7,12 @@ package be.kuleuven.cs.jli40d.client;/**
 import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.UserHandler;
+import be.kuleuven.cs.jli40d.core.deployer.Server;
+import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
 import be.kuleuven.cs.jli40d.core.model.exception.WrongServerException;
+import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherMain;
+import be.kuleuven.cs.jli40d.server.dispatcher.ServerRegister;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -24,6 +28,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.UUID;
 
 public class GameClient extends Application
 {
@@ -38,6 +43,7 @@ public class GameClient extends Application
     // TODO: find a better way to store these..
     private String token;
     private String username;
+    private String uuid;
 
     public static void main( String[] args )
     {
@@ -63,10 +69,14 @@ public class GameClient extends Application
             primaryStage.setScene( loginScene );
             primaryStage.show();
 
-            String host = "localhost";
-            int    port = 1103;
+            Registry                  dispatcherRegistry  = LocateRegistry.getRegistry( DispatcherMain.DISPATCHER.getHost(), DispatcherMain.DISPATCHER.getPort() );
+            ServerRegistrationHandler registrationHandler = (ServerRegistrationHandler)dispatcherRegistry.lookup( ServerRegistrationHandler.class.getName() );
 
-            Registry myRegistry = LocateRegistry.getRegistry( host, port );
+            uuid = UUID.randomUUID().toString();
+
+            Server appServer = registrationHandler.registerGameClient( uuid );
+
+            Registry myRegistry = LocateRegistry.getRegistry( appServer.getHost(), appServer.getPort() );
             LobbyHandler lobbyHandler = ( LobbyHandler )myRegistry.lookup( LobbyHandler.class.getName() );
             UserHandler  userManager  = ( UserHandler )myRegistry.lookup( UserHandler.class.getName() );
             GameHandler  gameHandler  = ( GameHandler )myRegistry.lookup( GameHandler.class.getName() );
@@ -193,5 +203,10 @@ public class GameClient extends Application
     public void setUsername( String username )
     {
         this.username = username;
+    }
+
+    public String getUuid()
+    {
+        return uuid;
     }
 }

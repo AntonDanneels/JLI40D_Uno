@@ -56,4 +56,14 @@ public interface ServerRegistrationHandler extends Remote, Serializable
      * @throws RemoteException
      */
     Server registerAppServer( Server self ) throws RemoteException;
+
+    /**
+     *  Registers a game client and returns an application server with the least amount of load.
+     *  The game server will update the dispatcher if the client loses connection.
+     *  @param uuid An {@link java.util.UUID } string to uniqly represent a client, note that this
+     *              is separate from tokens: a client cannot pretend to be someone else.
+     *  @return An Application Server.
+     *  @throws RemoteException
+     * */
+    Server registerGameClient( String uuid ) throws RemoteException;
 }
