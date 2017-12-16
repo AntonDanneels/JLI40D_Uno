@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
+import java.util.Random;
 
 /**
  * @author Pieter
@@ -22,7 +23,7 @@ public class AppConfig
     {
         DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
         dataSourceBuilder.driverClassName( "org.sqlite.JDBC" );
-        dataSourceBuilder.url( "jdbc:sqlite:uno.db" );
+        dataSourceBuilder.url( "jdbc:sqlite:uno_" + new Random().nextInt(1000) + ".db" );
         return dataSourceBuilder.build();
     }
 }

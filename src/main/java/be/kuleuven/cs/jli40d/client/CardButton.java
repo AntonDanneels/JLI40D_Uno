@@ -39,13 +39,9 @@ public class CardButton
     public void render( GraphicsContext gc )
     {
         if ( hovered )
-        {
-            gc.setStroke( Color.RED );
-            gc.strokeRect( x, y, w, h );
-            gc.setStroke( Color.BLACK );
-        }
-
-        gc.drawImage( ImageLoader.getCardImage( c ), x, y, w, h );
+            gc.drawImage( ImageLoader.getCardImage( c ), x - 5, y - 5, w + 10, h + 10 );
+        else
+            gc.drawImage( ImageLoader.getCardImage( c ), x, y, w, h );
     }
 
     public int getX()

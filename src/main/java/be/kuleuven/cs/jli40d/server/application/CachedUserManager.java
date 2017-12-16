@@ -135,5 +135,11 @@ public class CachedUserManager extends UnicastRemoteObject implements UserHandle
         return remoteUserManager.getUserScores();
     }
 
+    @Override
+    public void updateScore( String username, int score )
+    {
+        remoteUserManager.updateScore( username, score );
+    }
+
 
 }

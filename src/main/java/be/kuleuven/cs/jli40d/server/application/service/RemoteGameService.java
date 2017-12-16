@@ -1,20 +1,27 @@
 package be.kuleuven.cs.jli40d.server.application.service;
 
 import be.kuleuven.cs.jli40d.core.database.DatabaseGameHandler;
+import be.kuleuven.cs.jli40d.core.deployer.Server;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
 import be.kuleuven.cs.jli40d.core.model.Player;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
+import be.kuleuven.cs.jli40d.core.model.exception.WrongServerException;
+import be.kuleuven.cs.jli40d.core.service.TaskQueueService;
+import be.kuleuven.cs.jli40d.core.service.task.*;
 import be.kuleuven.cs.jli40d.server.application.GameListHandler;
 import be.kuleuven.cs.jli40d.server.application.GameManager;
-import be.kuleuven.cs.jli40d.server.application.service.task.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
-import java.util.*;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
 
 /**
@@ -35,11 +42,11 @@ public class RemoteGameService implements GameListHandler
     private DatabaseGameHandler gameHandler;
 
     //Cache
-    private Map<Integer, Game> localGameCache;
+    private Map <String, Game> localGameCache;
 
     //remote async publisher
-    private TaskQueueService taskQueueService;
-    private Queue<AsyncTask> tasks;
+    private TaskQueueService          taskQueueService;
+    private BlockingDeque <AsyncTask> tasks;
 
     private int serverID;
 
@@ -50,23 +57,17 @@ public class RemoteGameService implements GameListHandler
      * On creation, this will register itself with the server as a server and receive an id.
      *
      * @param gameHandler The remote RMI object.
+     * @param me
      */
-    public RemoteGameService( DatabaseGameHandler gameHandler )
+    public RemoteGameService( DatabaseGameHandler gameHandler, Server me )
     {
         this.gameHandler = gameHandler;
-        this.localGameCache = new HashMap<>( 32 );
+        this.localGameCache = new HashMap <>( 32 );
 
-        try
-        {
-            serverID = gameHandler.registerServer();
-            LOGGER.debug( "Server received id = {}.", serverID );
-        }
-        catch ( RemoteException e )
-        {
-            LOGGER.error( "Error while requesting the server id." );
-        }
+        serverID = me.getID();
+        LOGGER.debug( "Server received id = {} from deployer.", serverID );
 
-        tasks = new ConcurrentLinkedDeque<>();
+        tasks = new LinkedBlockingDeque <>();
         taskQueueService = new TaskQueueService( tasks, gameHandler );
         new Thread( taskQueueService ).start();
         LOGGER.info( "Started a remote publishing service [ {} ].", taskQueueService.getClass().getSimpleName() );
@@ -79,7 +80,7 @@ public class RemoteGameService implements GameListHandler
         if ( !this.localGameCache.containsKey( game.getGameID() ) )
         {
             LOGGER.debug( "Adding game with id {} to local cache.", game.getGameID() );
-            this.localGameCache.put( game.getGameID(), game );
+            this.localGameCache.put( game.getUuid(), game );
         }
 
         //remote persistence
@@ -89,31 +90,24 @@ public class RemoteGameService implements GameListHandler
     }
 
     @Override
-    public Game getGameByID( int id ) throws GameNotFoundException
+    public Game getGameByUuid( String uuid ) throws GameNotFoundException, WrongServerException
     {
         Game g = null;
 
-        if ( localGameCache.containsKey( id ) )
+        if ( localGameCache.containsKey( uuid ) )
         {
-            g = localGameCache.get( id );
+            g = localGameCache.get( uuid );
         }
         else
         {
-            LOGGER.warn( "fetching game with id = {} from remote db cluster. This action is not cached.", id );
-            try
-            {
-                g = gameHandler.getGame( serverID, id );
-            }
-            catch ( RemoteException e )
-            {
-                LOGGER.error( "Error while fetching the game from remote. {}", e.getMessage() );
-            }
+            LOGGER.warn( "Game {} is hosted on another server, throwing exception.", uuid );
+            throw new WrongServerException();
         }
 
         //if the game is not in the list, throw an error
         if ( g == null )
         {
-            LOGGER.warn( "joinGame method called with gameId = {}, but game not found. ", id );
+            LOGGER.warn( "joinGame method called with gameId = {}, but game not found. ", uuid );
 
             throw new GameNotFoundException( "Game not found in the list" );
         }
@@ -122,17 +116,20 @@ public class RemoteGameService implements GameListHandler
     }
 
     @Override
-    public List<GameSummary> getAllGames()
+    public List <GameSummary> getAllGames()
     {
         try
         {
+            // TODO: find a way to get these games in a synchronised way,
+            // Currently, this locks the db
+
             //fetching remote games
-            List<GameSummary> gameSummaries = gameHandler.getGames( serverID );
+            List<GameSummary> gameSummaries = gameHandler.getGames();
 
             //adding games hosted on this host
-            List<GameSummary> localGames = localGameCache.values().stream()
+            List <GameSummary> localGames = localGameCache.values().stream()
                     .map( g -> new GameSummary(
-                            g.getGameID(),
+                            g.getUuid(),
                             g.getName(),
                             g.getNumberOfJoinedPlayers(),
                             g.getMaximumNumberOfPlayers(),
@@ -143,7 +140,7 @@ public class RemoteGameService implements GameListHandler
 
             return localGames;
         }
-        catch ( RemoteException e )
+        catch ( Exception e )
         {
             LOGGER.error( "Error while fetching the game from remote. {}", e.getMessage() );
         }
@@ -151,29 +148,29 @@ public class RemoteGameService implements GameListHandler
         return Collections.emptyList();
     }
 
-    public synchronized void addMove( int gameID, GameMove move )
+    public synchronized void addMove( String gameUuid, GameMove move )
     {
         LOGGER.debug( "Added move to persist async." );
 
-        tasks.add( new AsyncGameMoveTask( serverID, gameID, move ) );
+        tasks.add( new AsyncGameMoveTask( serverID, gameUuid, move ) );
 
         notifyAll();
     }
 
-    public synchronized void addMoves( int gameID, List<GameMove> moves )
+    public synchronized void addMoves( String gameUuid, List <GameMove> moves )
     {
         LOGGER.debug( "Added moves to persist async." );
 
-        tasks.add( new AsyncGameMovesTask( serverID, gameID, moves ) );
+        tasks.add( new AsyncGameMovesTask( serverID, gameUuid, moves ) );
 
         notifyAll();
     }
 
-    public synchronized void addPlayer( int id, Player player )
+    public synchronized void addPlayer( String gameUuid, Player player )
     {
         LOGGER.debug( "Added player to persist async." );
 
-        tasks.add( new AsyncPlayerTask( serverID, id, player ) );
+        tasks.add( new AsyncPlayerTask( serverID, gameUuid, player ) );
 
         notifyAll();
     }

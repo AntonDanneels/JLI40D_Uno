@@ -3,6 +3,7 @@ package be.kuleuven.cs.jli40d.client;
 import be.kuleuven.cs.jli40d.core.UserHandler;
 import be.kuleuven.cs.jli40d.core.model.exception.AccountAlreadyExistsException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidUsernameOrPasswordException;
+import be.kuleuven.cs.jli40d.core.model.exception.WrongServerException;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -60,6 +61,10 @@ public class StartSceneController
             Utils.createPopup( "Invalid username or password." );
             LOGGER.debug( "User entered invalid username or password" );
         }
+        catch ( WrongServerException e )
+        {
+            LOGGER.debug( "Changing server" );
+        }
     }
 
     public void register()
@@ -86,5 +91,14 @@ public class StartSceneController
             Utils.createPopup( "Account already exists." );
             LOGGER.debug( "User tried to register an already existing account" );
         }
+        catch ( WrongServerException e )
+        {
+            LOGGER.debug( "Changing server" );
+        }
+    }
+
+    public void setUserHandler( UserHandler userHandler )
+    {
+        this.userHandler = userHandler;
     }
 }

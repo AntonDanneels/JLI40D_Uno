@@ -122,6 +122,12 @@ public class SimpleUserManager extends UnicastRemoteObject implements UserHandle
         return null;
     }
 
+    @Override
+    public void updateScore( String username, int score )
+    {
+
+    }
+
     /**
      * Generate a Base64 string.
      *

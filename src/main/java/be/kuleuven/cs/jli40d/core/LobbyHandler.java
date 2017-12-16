@@ -28,18 +28,18 @@ public interface LobbyHandler extends Remote, Serializable
      * @throws InvalidTokenException When the token is invalid (expired or not found).
      * @throws RemoteException
      */
-    List<GameSummary> currentGames( String token ) throws RemoteException, InvalidTokenException;
+    List <GameSummary> currentGames( String token ) throws RemoteException, InvalidTokenException, WrongServerException;
 
     /**
      * @param token           Token received by the {@link UserHandler}.
      * @param gameName        The desired name of the game, this is displayed in the lobby.
      * @param numberOfPlayers The number of games the game should have.
-     * @return
+     * @return The uuid of the game as a string
      * @throws InvalidTokenException       When the token is invalid (expired or not found).
      * @throws UnableToCreateGameException When the game cannot be created for some reason (like exceeded limits).
      * @throws RemoteException
      */
-    int makeGame( String token, String gameName, int numberOfPlayers ) throws RemoteException, InvalidTokenException, UnableToCreateGameException;
+    String makeGame( String token, String gameName, int numberOfPlayers ) throws RemoteException, InvalidTokenException, UnableToCreateGameException, WrongServerException;
 
     /**
      * Join a game with an id, either provided by the {@link #makeGame} or {@link #currentGames} method.
@@ -50,13 +50,31 @@ public interface LobbyHandler extends Remote, Serializable
      * This method is blocking. This means that if no exception is thrown, the method will return a {@link Game}
      * object only when all players have joined.
      *
-     * @param token  Token received by the {@link UserHandler}.
-     * @param gameId The id of the game to join.
-     * @return A Game object.
-     * @throws UnableToJoinGameException When the user cannot join the game for various reasons.
+     * @param token    Token received by the {@link UserHandler}.
+     * @param gameUuid The uuid of the game to join.
+     * @return A {@link Game} object.
+     * @throws UnableToJoinGameException When the user cannot join the game for various re.
      * @throws InvalidTokenException     When the token is invalid (expired or not found).
+     * @throws GameEndedException        An error when the game has ended.
+     * @throws WrongServerException      When the {@link Game} is not hosted on this server.
      * @throws RemoteException
      */
-    Game joinGame( String token, int gameId ) throws RemoteException, UnableToJoinGameException, InvalidTokenException,
-            GameEndedException;
+    Game joinGame( String token, String gameUuid ) throws RemoteException, UnableToJoinGameException, InvalidTokenException,
+            GameEndedException, WrongServerException;
+
+    /**
+     * This method is in spirit the same as {@link #joinGame(String, String)}, but without the joining part. It also
+     * hosts the game on a server, and will only return is the server actually hosts the game.
+     * <p>
+     * If the game has ended, the user is also unable to spectate. This is because watching a deck in the middle of
+     * the table without anything happening isn't that interesting.
+     *
+     * @param token    Token received by the {@link UserHandler}.
+     * @param gameUuid The uuid of the game to join.
+     * @return A {@link Game} object.
+     * @throws InvalidTokenException When the token is invalid (expired or not found).
+     * @throws GameEndedException    An error when the game has ended.
+     * @throws WrongServerException  When the {@link Game} is not hosted on this server.
+     */
+    Game spectateGame( String token, String gameUuid ) throws RemoteException, UnableToJoinGameException, InvalidTokenException, GameEndedException, WrongServerException;
 }

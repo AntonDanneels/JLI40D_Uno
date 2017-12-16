@@ -2,6 +2,7 @@ package be.kuleuven.cs.jli40d.core;
 
 import be.kuleuven.cs.jli40d.core.model.exception.AccountAlreadyExistsException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidUsernameOrPasswordException;
+import be.kuleuven.cs.jli40d.core.model.exception.WrongServerException;
 import javafx.util.Pair;
 
 import java.io.Serializable;
@@ -25,7 +26,7 @@ public interface UserHandler extends Remote, Serializable
      * @throws InvalidUsernameOrPasswordException Thrown if either password or username don't match/exist.
      * @throws RemoteException
      */
-    String login( String username, String password ) throws RemoteException, InvalidUsernameOrPasswordException;
+    String login( String username, String password ) throws RemoteException, InvalidUsernameOrPasswordException, WrongServerException;
 
     /**
      * Register a user account.
@@ -39,7 +40,7 @@ public interface UserHandler extends Remote, Serializable
      * @throws AccountAlreadyExistsException
      * @throws RemoteException
      */
-    String register( String email, String username, String password ) throws RemoteException, AccountAlreadyExistsException;
+    String register( String email, String username, String password ) throws RemoteException, AccountAlreadyExistsException, WrongServerException;
 
     /**
      * Invalidates the token.
@@ -47,12 +48,14 @@ public interface UserHandler extends Remote, Serializable
      * @param token The token to invalidate.
      * @throws RemoteException
      */
-    void logout( String token ) throws RemoteException;
+    void logout( String token ) throws RemoteException, WrongServerException;
 
 
     /**
      *  Returns a pair of usernames & scores.
      *  @throws RemoteException
      * */
-    List<Pair<String, Long>> getUserScores() throws RemoteException;
+    List<Pair<String, Long>> getUserScores() throws RemoteException, WrongServerException;
+
+    void updateScore( String username, int score ) throws RemoteException, WrongServerException;
 }

@@ -2,6 +2,8 @@ package be.kuleuven.cs.jli40d.server.application;
 
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.UserHandler;
+import be.kuleuven.cs.jli40d.core.deployer.Server;
+import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.logic.GameLogic;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
@@ -16,6 +18,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.RMISocketFactory;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Implementation of a {@link LobbyHandler} interface.
@@ -36,6 +39,10 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
 
     private RemoteGameService games;
 
+    private ServerRegistrationHandler dispatcherRegister;
+
+    private Server me;
+
     /**
      * Creates and exports a new UnicastRemoteObject object using an
      * anonymous port.
@@ -48,12 +55,13 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
      * @throws RemoteException if failed to export object
      * @since JDK1.1
      */
-    Lobby( UserTokenHandler userManager, RemoteGameService games ) throws RemoteException
+    Lobby( UserTokenHandler userManager, RemoteGameService games, ServerRegistrationHandler dispatcherRegister, Server server ) throws RemoteException
     {
         super();
         this.userManager = userManager;
         this.games = games;
-
+        this.dispatcherRegister = dispatcherRegister;
+        this.me = server;
     }
 
     /**
@@ -84,21 +92,26 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
      * @throws InvalidTokenException       When the token is invalid (expired or not found).
      * @throws UnableToCreateGameException When the game cannot be created for some reason (like exceeded limits).
      */
-    public int makeGame( String token, String gameName, int numberOfPlayers ) throws
+    public String makeGame( String token, String gameName, int numberOfPlayers ) throws
             InvalidTokenException,
-            UnableToCreateGameException
+            UnableToCreateGameException,
+            RemoteException
     {
         //initial check for token
         userManager.findUserByToken( token );
 
-        Game game = new Game( numberOfPlayers );
+        Game game = new Game( gameName, numberOfPlayers );
+
+        game.setUuid( UUID.randomUUID().toString() );
 
         GameLogic.generateDeck( game );
         GameLogic.putInitialCardInTheMiddle( game );
 
         games.add( game );
 
-        return game.getGameID();
+        dispatcherRegister.registerGame( game.getUuid(), me.getUuid() );
+
+        return game.getUuid();
     }
 
     /**
@@ -114,30 +127,31 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
      * and will not throw a {@link UnableToJoinGameException} exception either.
      *
      * @param token  Token received by the {@link UserHandler}.
-     * @param gameID The id of the game to join.
+     * @param gameUuid The uuid of the game to join.
      * @return A Game object.
      * @throws UnableToJoinGameException When the user cannot join the game for various reasons.
      * @throws InvalidTokenException     When the token is invalid (expired or not found).
      */
-    public synchronized Game joinGame( String token, int gameID ) throws
+    public synchronized Game joinGame( String token, String gameUuid ) throws
             UnableToJoinGameException,
             InvalidTokenException,
-            GameEndedException
+            GameEndedException,
+            WrongServerException
     {
         //initial check for token and find username
         String username = userManager.findUserByToken( token );
 
-        LOGGER.debug( "{} tries to join game with id {}.", username, gameID );
+        LOGGER.debug( "{} tries to join game with id {}.", username, gameUuid );
 
         //throws an error if the game is not in the list
         Game requestedGame;
         try
         {
-            requestedGame = games.getGameByID( gameID );
+            requestedGame = games.getGameByUuid( gameUuid );
         }
         catch ( GameNotFoundException e )
         {
-            LOGGER.warn( "User {} tried to join a non-existing game with id = {}.", username, gameID );
+            LOGGER.warn( "User {} tried to join a non-existing game with id = {}.", username, gameUuid );
             throw new UnableToJoinGameException( "Game not found" );
         }
 
@@ -147,26 +161,27 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
         }
         else if ( requestedGame.getNumberOfJoinedPlayers() >= requestedGame.getMaximumNumberOfPlayers() )
         {
-            LOGGER.info( "{} tried to join a full game ( {} ).", username, gameID );
+            LOGGER.info( "{} tried to join a full game ( {} ).", username, gameUuid );
             throw new UnableToJoinGameException( "Game full." );
         }
         else if ( requestedGame.isEnded() )
         {
-            LOGGER.info( "{} tried to join a game ( {} ) that has ended.", username, gameID );
+            LOGGER.info( "{} tried to join a game ( {} ) that has ended.", username, gameUuid );
             throw new UnableToJoinGameException( "Game has ended." );
         }
         else
         {
             //create a new player with the next id of the list
             Player player = new Player( requestedGame.getPlayers().size(), username );
+            player.setUuid( UUID.randomUUID().toString() );
             requestedGame.getPlayers().add( player );
 
             //send player to db
-            games.addPlayer(requestedGame.getGameID(), player);
+            games.addPlayer(requestedGame.getUuid(), player);
 
             LOGGER.info( "Player {} added to game {} ({}/{}).",
                     username,
-                    gameID,
+                    gameUuid,
                     requestedGame.getPlayers().size(),
                     requestedGame.getMaximumNumberOfPlayers());
             notifyAll();
@@ -194,13 +209,65 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
             GameLogic.distributeCards( requestedGame );
 
             //persist game moves that distributed cards
-            games.addMoves( gameID, requestedGame.getMoves() );
+            games.addMoves( gameUuid, requestedGame.getMoves() );
 
         }
 
         notifyAll();
 
         LOGGER.debug( "Returning joinGame method calls." );
+
+        return requestedGame;
+    }
+
+    /**
+     * This method is in spirit the same as {@link #joinGame(String, String)}, but without the joining part. It also
+     * hosts the game on a server, and will only return is the server actually hosts the game.
+     * <p>
+     * If the game has ended, the user is also unable to spectate. This is because watching a deck in the middle of
+     * the table without anything happening isn't that interesting.
+     *
+     * @param token    Token received by the {@link UserHandler}.
+     * @param gameUuid The uuid of the game to join.
+     * @return A {@link Game} object.
+     * @throws InvalidTokenException When the token is invalid (expired or not found).
+     * @throws UnableToJoinGameException When the user cannot join the game for various reasons.
+     * @throws GameEndedException    An error when the game has ended.
+     * @throws WrongServerException  When the {@link Game} is not hosted on this server.
+     */
+    @Override
+    public synchronized Game spectateGame( String token, String gameUuid ) throws RemoteException, UnableToJoinGameException, InvalidTokenException, GameEndedException, WrongServerException
+    {
+        //initial check for token and find username
+        String username = userManager.findUserByToken( token );
+
+        LOGGER.debug( "{} tries to join game with id {}.", username, gameUuid );
+
+        //throws an error if the game is not in the list
+        Game requestedGame;
+        try
+        {
+            requestedGame = games.getGameByUuid( gameUuid );
+        }
+        catch ( GameNotFoundException e )
+        {
+            LOGGER.warn( "User {} tried to join a non-existing game with id = {}.", username, gameUuid );
+            throw new UnableToJoinGameException( "Game not found" );
+        }
+
+        //blocking until all players joined
+        while ( requestedGame.getNumberOfJoinedPlayers() < requestedGame.getMaximumNumberOfPlayers() )
+        {
+            try
+            {
+                wait();
+            }
+            catch ( InterruptedException e )
+            {
+                LOGGER.error( "Thread interrupted. SAD. {}", e.getMessage() );
+                Thread.currentThread().interrupt();
+            }
+        }
 
         return requestedGame;
     }

@@ -1,9 +1,12 @@
 package be.kuleuven.cs.jli40d.client;
 
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
+import be.kuleuven.cs.jli40d.core.deployer.Server;
+import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import be.kuleuven.cs.jli40d.core.model.exception.UnableToCreateGameException;
+import be.kuleuven.cs.jli40d.core.model.exception.WrongServerException;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -26,6 +29,7 @@ public class LobbySceneHandler
 
     private GameClient   client;
     private LobbyHandler lobbyHandler;
+    private ServerRegistrationHandler registrationHandler;
 
     @FXML
     private ListView<GameSummary> gamesList;
@@ -34,10 +38,11 @@ public class LobbySceneHandler
     {
     }
 
-    public void init( GameClient client, LobbyHandler lobbyHandler )
+    public void init( GameClient client, LobbyHandler lobbyHandler, ServerRegistrationHandler registrationHandler )
     {
         this.client = client;
         this.lobbyHandler = lobbyHandler;
+        this.registrationHandler = registrationHandler;
     }
 
     public void createNewGame()
@@ -76,8 +81,8 @@ public class LobbySceneHandler
         LOGGER.debug( "Creating game with name {} and {} players ", gameName, nrOfPlayers );
         try
         {
-            int id = lobbyHandler.makeGame( client.getToken(), gameName, nrOfPlayers );
-            LOGGER.debug( "Succesfully created a game with ID {}", id );
+            String uuid = lobbyHandler.makeGame( client.getToken(), gameName, nrOfPlayers );
+            LOGGER.debug( "Succesfully created a game with ID {}", uuid );
             refresh();
         }
         catch ( RemoteException e )
@@ -95,6 +100,10 @@ public class LobbySceneHandler
         {
             Utils.createPopup( "An error occurred when trying to create your game, please try again." );
             LOGGER.debug( "Error while creating game: {}", e.getMessage() );
+        }
+        catch ( WrongServerException e )
+        {
+            LOGGER.debug( "Changing server" );
         }
     }
 
@@ -132,5 +141,14 @@ public class LobbySceneHandler
             client.setStartScene();
             LOGGER.debug( "User has an invalid token: {}", e.getMessage() );
         }
+        catch ( WrongServerException e )
+        {
+            LOGGER.debug( "Changing server" );
+        }
+    }
+
+    public void setLobbyHandler( LobbyHandler lobbyHandler )
+    {
+        this.lobbyHandler = lobbyHandler;
     }
 }

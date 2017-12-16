@@ -16,6 +16,8 @@ public class Player implements Serializable
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    private String uuid;
+
     private int nrOfCards;
 
     private String username;
@@ -38,6 +40,16 @@ public class Player implements Serializable
     public void setId( int id )
     {
         this.id = id;
+    }
+
+    public String getUuid()
+    {
+        return uuid;
+    }
+
+    public void setUuid( String uuid )
+    {
+        this.uuid = uuid;
     }
 
     public int getNrOfCards()

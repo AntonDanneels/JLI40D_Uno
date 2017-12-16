@@ -125,6 +125,7 @@ public class RemoteUserManager extends UnicastRemoteObject implements UserHandle
         databaseUserHandler.registerUser(
                 new User( username, 0, BCrypt.hashpw( password, BCrypt.gensalt() ) ) );
 
+
         LOGGER.info( "Created account for {} with username {}", email, username );
 
         try
@@ -162,6 +163,19 @@ public class RemoteUserManager extends UnicastRemoteObject implements UserHandle
             result.add( new Pair<>( u.getUsername(), u.getScore() ) );
 
         return result;
+    }
+
+    @Override
+    public void updateScore( String username, int score )
+    {
+        try
+        {
+            databaseUserHandler.updateScore( username, score );
+        }
+        catch ( RemoteException e )
+        {
+            LOGGER.debug( "Failed to update score: {}", e );
+        }
     }
 
     /**

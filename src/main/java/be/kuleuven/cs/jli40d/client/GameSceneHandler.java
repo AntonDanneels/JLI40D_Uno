@@ -2,6 +2,9 @@ package be.kuleuven.cs.jli40d.client;
 
 import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
+import be.kuleuven.cs.jli40d.core.ResourceHandler;
+import be.kuleuven.cs.jli40d.core.deployer.Server;
+import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.logic.GameLogic;
 import be.kuleuven.cs.jli40d.core.model.*;
 import be.kuleuven.cs.jli40d.core.model.exception.*;
@@ -25,6 +28,7 @@ import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -52,6 +56,8 @@ public class GameSceneHandler extends AnimationTimer
     private GameSummary     gameSummary;
     private ListenerService listenerService;
     private Queue<GameMove> gameMoves;
+
+    private ServerRegistrationHandler registrationHandler;
 
     private boolean mouseDown = false;
     private double  mousePosX = 0.0;
@@ -87,11 +93,12 @@ public class GameSceneHandler extends AnimationTimer
         positions.addAll( Arrays.asList( new Pair<>( 83, 83 ), new Pair<>( 709, 83 ), new Pair<>( 396, 9 ) ) );
     }
 
-    public void init( GameClient client, LobbyHandler lobbyHandler, GameHandler gameHandler )
+    public void init( GameClient client, LobbyHandler lobbyHandler, GameHandler gameHandler, ServerRegistrationHandler registrationHandler, ResourceHandler resourceHandler )
     {
         this.client = client;
         this.gameHandler = gameHandler;
         this.lobbyHandler = lobbyHandler;
+        this.registrationHandler = registrationHandler;
 
         gameCanvas.setOnMousePressed( e ->
         {
@@ -116,8 +123,6 @@ public class GameSceneHandler extends AnimationTimer
 
         topCardX = ( int )gameCanvas.getWidth() / 2 - 74 / 2;
         topCardY = ( int )gameCanvas.getHeight() / 2 - 20;
-
-        ImageLoader.loadImages();
 
         backToLobbyButton = new Button( "Go to lobby" );
         backToLobbyButton.setOnAction( event ->
@@ -157,7 +162,7 @@ public class GameSceneHandler extends AnimationTimer
             {
                 try
                 {
-                    game = lobbyHandler.joinGame( client.getToken(), gameSummary.getGameID() );
+                    game = lobbyHandler.joinGame( client.getToken(), gameSummary.getUuid() );
                     enterGameLoop();
                 }
                 catch ( RemoteException e )
@@ -183,13 +188,32 @@ public class GameSceneHandler extends AnimationTimer
                     LOGGER.debug( "Tried to join ended game with id {}: {}", game.getGameID(), e.getMessage() );
                     client.setLobbyScene();
                 }
+                catch ( WrongServerException e )
+                {
+                    LOGGER.debug( "Changing server" );
+
+                    try
+                    {
+                        Server newServer = registrationHandler.getServer( gameSummary.getUuid() );
+                        client.resetConnection( newServer );
+                        this.run();
+                    }
+                    catch ( RemoteException e1 )
+                    {
+                        e1.printStackTrace();
+                    }
+                    catch ( GameNotFoundException e1 )
+                    {
+                        e1.printStackTrace();
+                    }
+                }
             }
         } ).start();
     }
 
     private synchronized void enterGameLoop()
     {
-        listenerService = new ListenerService( gameHandler, client.getToken(), game, gameMoves );
+        listenerService = new ListenerService( client, registrationHandler, gameHandler, client.getToken(), game, gameMoves );
 
         for ( Player p : game.getPlayers() )
         {
@@ -277,7 +301,7 @@ public class GameSceneHandler extends AnimationTimer
                             if ( GameLogic.testMove( game, move ) )
                             {
                                 LOGGER.debug( "Sending gamemove to draw card" );
-                                gameHandler.sendMove( client.getToken(), game.getGameID(), move );
+                                gameHandler.sendMove( client.getToken(), game.getUuid(), move );
                             }
                         }
                         for ( CardButton b : cardButtons )
@@ -309,7 +333,7 @@ public class GameSceneHandler extends AnimationTimer
                                 if ( move.getPlayedCard().getType() == CardType.OTHER_COLOUR || move.getPlayedCard().getType() == CardType.PLUS4 )
                                     createChooseColourPopup( move );
                                 else
-                                    gameHandler.sendMove( client.getToken(), game.getGameID(), move );
+                                    gameHandler.sendMove( client.getToken(), game.getUuid(), move );
                             }
                         }
                         selectedCardButton = null;
@@ -363,6 +387,25 @@ public class GameSceneHandler extends AnimationTimer
         catch ( InvalidGameMoveException e )
         {
             LOGGER.debug( "Invalid game move! {}", e );
+        }
+        catch ( WrongServerException e )
+        {
+            LOGGER.debug( "Changing server" );
+
+            try
+            {
+                Server newServer = registrationHandler.getServer( gameSummary.getUuid() );
+                client.resetConnection( newServer );
+                this.run();
+            }
+            catch ( RemoteException e1 )
+            {
+                e1.printStackTrace();
+            }
+            catch ( GameNotFoundException e1 )
+            {
+                e1.printStackTrace();
+            }
         }
     }
 
@@ -485,7 +528,7 @@ public class GameSceneHandler extends AnimationTimer
     {
         try
         {
-            gameHandler.sendMove( client.getToken(), game.getGameID(), move );
+            gameHandler.sendMove( client.getToken(), game.getUuid(), move );
         }
         catch ( InvalidTokenException e )
         {
@@ -503,10 +546,31 @@ public class GameSceneHandler extends AnimationTimer
         {
             e.printStackTrace();
         }
+        catch ( WrongServerException e )
+        {
+            LOGGER.debug( "Changing server" );
+
+            try
+            {
+                Server newServer = registrationHandler.getServer( gameSummary.getUuid() );
+                client.resetConnection( newServer );
+                this.run();
+            }
+            catch ( RemoteException e1 )
+            {
+                e1.printStackTrace();
+            }
+            catch ( GameNotFoundException e1 )
+            {
+                e1.printStackTrace();
+            }
+        }
     }
 
     public void layoutCards()
     {
+        if( getTotalCardWidth() < gameCanvas.getWidth() )
+            cardOffsetX = 0;
         cardButtons.clear();
         List<Card> cards = game.getCardsPerPlayer().get( client.getUsername() );
         int        x     = ( int )gameCanvas.getWidth() / 2 - cards.size() * ( CARD_WIDTH + 5 ) / 2 - cardOffsetX;
@@ -564,5 +628,15 @@ public class GameSceneHandler extends AnimationTimer
                 positionsPerPlayer.put( player.getUsername(), positions.remove( 0 ) );
             }
         }
+    }
+
+    public void setLobbyHandler( LobbyHandler lobbyHandler )
+    {
+        this.lobbyHandler = lobbyHandler;
+    }
+
+    public void setGameHandler( GameHandler gameHandler )
+    {
+        this.gameHandler = gameHandler;
     }
 }

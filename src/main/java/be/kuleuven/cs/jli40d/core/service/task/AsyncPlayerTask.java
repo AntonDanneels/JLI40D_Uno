@@ -1,4 +1,4 @@
-package be.kuleuven.cs.jli40d.server.application.service.task;
+package be.kuleuven.cs.jli40d.core.service.task;
 
 import be.kuleuven.cs.jli40d.core.database.DatabaseGameHandler;
 import be.kuleuven.cs.jli40d.core.model.Player;
@@ -18,9 +18,9 @@ public class AsyncPlayerTask extends AsyncTask
     private Player player;
 
 
-    public AsyncPlayerTask( int serverID, int gameID, Player player )
+    public AsyncPlayerTask( int serverID, String gameUuid, Player player )
     {
-        super( serverID, gameID );
+        super( serverID, gameUuid );
         this.player = player;
     }
 
@@ -39,11 +39,11 @@ public class AsyncPlayerTask extends AsyncTask
 
         try
         {
-            databaseGameHandler.addPlayer( getServerID(), getGameID(), player );
+            databaseGameHandler.addPlayer( getServerID(), getGameUuid(), player );
         }
         catch ( RemoteException e )
         {
-            LOGGER.error( "Error while saving the player for game {} to remote db cluster. {}", getGameID(), e.getMessage() );
+            LOGGER.error( "Error while saving the player for game {} to remote db cluster. {}", getGameUuid(), e.getMessage() );
         }
     }
 }

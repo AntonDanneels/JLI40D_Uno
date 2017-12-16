@@ -2,6 +2,7 @@ package be.kuleuven.cs.jli40d.client;
 
 import be.kuleuven.cs.jli40d.core.UserHandler;
 import be.kuleuven.cs.jli40d.core.model.Game;
+import be.kuleuven.cs.jli40d.core.model.exception.WrongServerException;
 import be.kuleuven.cs.jli40d.server.application.Lobby;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListCell;
@@ -65,10 +66,19 @@ public class LeaderboardSceneHandler
             LOGGER.debug( "Failed to get latest user scores: {}", e.getMessage() );
             Utils.createPopup( "Failed to get the latest scores." );
         }
+        catch ( WrongServerException e )
+        {
+            LOGGER.debug( "Changing server" );
+        }
     }
 
     public void backToLobby()
     {
         client.setLobbyScene();
+    }
+
+    public void setUserHandler( UserHandler userHandler )
+    {
+        this.userHandler = userHandler;
     }
 }

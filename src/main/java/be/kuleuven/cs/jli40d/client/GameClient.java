@@ -6,10 +6,17 @@ package be.kuleuven.cs.jli40d.client;/**
 
 import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
+import be.kuleuven.cs.jli40d.core.ResourceHandler;
 import be.kuleuven.cs.jli40d.core.UserHandler;
+import be.kuleuven.cs.jli40d.core.deployer.Server;
+import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
+import be.kuleuven.cs.jli40d.core.model.exception.WrongServerException;
+import be.kuleuven.cs.jli40d.server.application.ResourceManager;
+import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherMain;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -19,23 +26,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.UUID;
 
 public class GameClient extends Application
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(GameClient.class);
 
     private Stage primaryStage;
-    private Scene loginScene, lobbyScene, gameScene, leaderboardScene;
+    private Scene loginScene, lobbyScene, spectateScene, gameScene, leaderboardScene;
     private LobbySceneHandler lobbySceneHandler;
     private GameSceneHandler gameSceneHandler;
+    private SpectateSceneHandler spectateSceneHandler;
     private LeaderboardSceneHandler leaderboardSceneHandler;
 
     // TODO: find a better way to store these..
     private String token;
     private String username;
+    private String uuid;
 
     public static void main( String[] args )
     {
@@ -61,13 +73,18 @@ public class GameClient extends Application
             primaryStage.setScene( loginScene );
             primaryStage.show();
 
-            String host = "localhost";
-            int    port = 1099;
+            Registry                  dispatcherRegistry  = LocateRegistry.getRegistry( DispatcherMain.DISPATCHER.getHost(), DispatcherMain.DISPATCHER.getPort() );
+            ServerRegistrationHandler registrationHandler = (ServerRegistrationHandler)dispatcherRegistry.lookup( ServerRegistrationHandler.class.getName() );
 
-            Registry myRegistry = LocateRegistry.getRegistry( host, port );
+            uuid = UUID.randomUUID().toString();
+
+            Server appServer = registrationHandler.registerGameClient( uuid );
+
+            Registry myRegistry = LocateRegistry.getRegistry( appServer.getHost(), appServer.getPort() );
             LobbyHandler lobbyHandler = ( LobbyHandler )myRegistry.lookup( LobbyHandler.class.getName() );
             UserHandler  userManager  = ( UserHandler )myRegistry.lookup( UserHandler.class.getName() );
             GameHandler  gameHandler  = ( GameHandler )myRegistry.lookup( GameHandler.class.getName() );
+            ResourceHandler resourceHandler = (ResourceHandler) myRegistry.lookup( ResourceHandler.class.getName() );
 
             StartSceneController startSceneController = loader.getController();
             startSceneController.init( this, userManager );
@@ -77,7 +94,7 @@ public class GameClient extends Application
             Pane lobbyPane = loader.load();
 
             LobbySceneHandler lobbySceneHandler = loader.getController();
-            lobbySceneHandler.init( this, lobbyHandler );
+            lobbySceneHandler.init( this, lobbyHandler, registrationHandler );
             this.lobbySceneHandler = lobbySceneHandler;
 
             lobbyScene = new Scene( lobbyPane );
@@ -87,8 +104,18 @@ public class GameClient extends Application
             Pane gamePane = loader.load();
 
             GameSceneHandler gameSceneHandler = loader.getController();
-            gameSceneHandler.init( this, lobbyHandler, gameHandler );
+            gameSceneHandler.init( this, lobbyHandler, gameHandler, registrationHandler, resourceHandler );
             this.gameSceneHandler = gameSceneHandler;
+
+            loader = new FXMLLoader();
+            loader.setLocation( getClass().getResource( "/spectate.fxml" ) );
+            Pane spectatePane = loader.load();
+
+            SpectateSceneHandler spectateSceneHandler = loader.getController();
+            spectateSceneHandler.init( this, lobbyHandler, gameHandler, registrationHandler );
+            this.spectateSceneHandler = spectateSceneHandler;
+
+            spectateScene = new Scene( spectatePane );
 
             loader = new FXMLLoader();
             loader.setLocation( getClass().getResource( "/leaderboard.fxml" ) );
@@ -102,6 +129,7 @@ public class GameClient extends Application
 
             gameScene = new Scene( gamePane );
 
+            loadImages( resourceHandler );
         }
         catch ( IOException e )
         {
@@ -121,6 +149,46 @@ public class GameClient extends Application
         } );
     }
 
+    private void loadImages( ResourceHandler resourceHandler )
+    {
+        try
+        {
+            ImageLoader.loadImages( resourceHandler );
+        }
+        catch ( MalformedURLException e )
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void resetConnection( Server server )
+    {
+        try
+        {
+            Registry registry = LocateRegistry.getRegistry( server.getHost(), server.getPort() );
+
+            LobbyHandler lobbyHandler = ( LobbyHandler )registry.lookup( LobbyHandler.class.getName() );
+            UserHandler  userManager  = ( UserHandler )registry.lookup( UserHandler.class.getName() );
+            GameHandler  gameHandler  = ( GameHandler )registry.lookup( GameHandler.class.getName() );
+
+            lobbySceneHandler.setLobbyHandler( lobbyHandler );
+
+            gameSceneHandler.setGameHandler( gameHandler );
+            gameSceneHandler.setLobbyHandler( lobbyHandler );
+
+            leaderboardSceneHandler.setUserHandler( userManager );
+        }
+        catch ( RemoteException e )
+        {
+            e.printStackTrace();
+        }
+        catch ( NotBoundException e )
+        {
+            e.printStackTrace();
+        }
+
+    }
+
     public void setStartScene()
     {
         this.primaryStage.setScene( loginScene );
@@ -137,6 +205,13 @@ public class GameClient extends Application
         gameSceneHandler.setGameSummary( game );
         this.primaryStage.setScene( gameScene );
         gameSceneHandler.run();
+    }
+
+    public void setSpectatingScene( GameSummary game )
+    {
+        spectateSceneHandler.setGameSummary( game );
+        this.primaryStage.setScene( spectateScene );
+        spectateSceneHandler.run();
     }
 
     public void setLeaderboardScene()
@@ -163,5 +238,10 @@ public class GameClient extends Application
     public void setUsername( String username )
     {
         this.username = username;
+    }
+
+    public String getUuid()
+    {
+        return uuid;
     }
 }

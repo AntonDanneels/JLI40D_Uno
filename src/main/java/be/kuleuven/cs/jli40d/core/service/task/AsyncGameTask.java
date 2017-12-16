@@ -1,4 +1,4 @@
-package be.kuleuven.cs.jli40d.server.application.service.task;
+package be.kuleuven.cs.jli40d.core.service.task;
 
 import be.kuleuven.cs.jli40d.core.database.DatabaseGameHandler;
 import be.kuleuven.cs.jli40d.core.model.Game;
@@ -19,7 +19,7 @@ public class AsyncGameTask extends AsyncTask
 
     public AsyncGameTask( int serverID, Game game )
     {
-        super( serverID, game.getGameID() );
+        super( serverID, game.getUuid() );
         this.game = game;
     }
 

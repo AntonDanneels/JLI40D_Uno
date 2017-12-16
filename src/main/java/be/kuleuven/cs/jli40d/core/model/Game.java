@@ -24,9 +24,14 @@ import java.util.Map;
 @Entity
 public class Game implements Serializable
 {
+    @Transient
+    private static int currentGameID = 0;
+
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY )
     protected int gameID;
+
+    private String uuid;
 
     @OneToMany
     @Cascade( org.hibernate.annotations.CascadeType.SAVE_UPDATE )
@@ -63,6 +68,7 @@ public class Game implements Serializable
 
     public Game( int maximumNumberOfPlayers )
     {
+        this.gameID = currentGameID++;
         this.maximumNumberOfPlayers = maximumNumberOfPlayers;
 
         this.players = new ArrayList<>();
@@ -77,6 +83,26 @@ public class Game implements Serializable
         this.currentPlayer = 0;
         this.currentGameMoveID = -1;
         this.clockwise = true;
+    }
+
+    public Game( int gameID, List<Player> players, List<GameMove> moves, List<Card> deck,
+                 Map<String, PlayerHand> playerHands, String name, int maximumNumberOfPlayers,
+                 Card topCard, boolean started, boolean ended, int currentPlayer,
+                 int currentGameMoveID, boolean clockwise )
+    {
+        this.gameID = gameID;
+        this.players = players;
+        this.moves = moves;
+        this.deck = deck;
+        this.playerHands = playerHands;
+        this.name = name;
+        this.maximumNumberOfPlayers = maximumNumberOfPlayers;
+        this.topCard = topCard;
+        this.started = started;
+        this.ended = ended;
+        this.currentPlayer = currentPlayer;
+        this.currentGameMoveID = currentGameMoveID;
+        this.clockwise = clockwise;
     }
 
     public Game( String name, int maximumNumberOfPlayers )
@@ -275,5 +301,15 @@ public class Game implements Serializable
     public void setName( String name )
     {
         this.name = name;
+    }
+
+    public String getUuid()
+    {
+        return uuid;
+    }
+
+    public void setUuid( String uuid )
+    {
+        this.uuid = uuid;
     }
 }

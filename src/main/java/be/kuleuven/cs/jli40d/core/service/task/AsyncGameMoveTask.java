@@ -1,4 +1,4 @@
-package be.kuleuven.cs.jli40d.server.application.service.task;
+package be.kuleuven.cs.jli40d.core.service.task;
 
 import be.kuleuven.cs.jli40d.core.database.DatabaseGameHandler;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
@@ -6,45 +6,43 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
-import java.util.List;
 
 /**
  * @author Pieter
  * @version 1.0
  */
-public class AsyncGameMovesTask extends AsyncTask
+public class AsyncGameMoveTask extends AsyncTask
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( AsyncGameMoveTask.class );
 
-    private List<GameMove> gameMoves;
+    private GameMove gameMove;
 
-    public AsyncGameMovesTask( int serverID, int gameID, List<GameMove> gameMoves )
+    public AsyncGameMoveTask( int serverID, String gameUuid, GameMove gameMove )
     {
-        super( serverID, gameID );
-        this.gameMoves = gameMoves;
+        super( serverID, gameUuid );
+        this.gameMove = gameMove;
     }
 
     /**
      * The only method that defines the contract between the caller and callee, where the
      * function invoking this method can expect a <b>blocking</b> task to be executed.
-     * <p>
-     * This function publishes a list of {@link GameMove} objects.
+     *
+     * This function publishes a {@link GameMove}.
      *
      * @param databaseGameHandler
      */
     @Override
     public void publish( DatabaseGameHandler databaseGameHandler )
     {
-        LOGGER.debug( "Persisting {} game moves", gameMoves.size() );
+        LOGGER.debug( "Persisting game move {}", gameMove.getId() );
 
         try
         {
-            databaseGameHandler.addMoves( getServerID(), getGameID(), gameMoves );
+            databaseGameHandler.addMove( getServerID(), getGameUuid(), gameMove );
         }
         catch ( RemoteException e )
         {
-            LOGGER.error( "Error while saving the game moves to remote db cluster. {}", e.getMessage() );
+            LOGGER.error( "Error while saving the game move to remote db cluster. {}", e.getMessage() );
         }
     }
-
 }

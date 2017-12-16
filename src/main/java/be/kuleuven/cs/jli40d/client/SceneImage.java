@@ -7,8 +7,9 @@ package be.kuleuven.cs.jli40d.client;
 public enum SceneImage
 {
     GAME_BACKGROUND,
+    SPECTATOR_BACKGROUND,
     CURRENT_USER,
     OTHER_USER,
     DEFAULT_AVATAR,
-    CARD_BACK;
+    CARD_BACK
 }

@@ -1,11 +1,12 @@
-package be.kuleuven.cs.jli40d.server.application.service;
+package be.kuleuven.cs.jli40d.core.service;
 
 import be.kuleuven.cs.jli40d.core.database.DatabaseGameHandler;
-import be.kuleuven.cs.jli40d.server.application.service.task.AsyncTask;
+import be.kuleuven.cs.jli40d.core.service.task.AsyncTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Queue;
+import java.util.Deque;
+import java.util.concurrent.BlockingDeque;
 
 /**
  * @author Pieter
@@ -17,10 +18,10 @@ public class TaskQueueService implements Runnable
 
     private boolean active = true;
 
-    private Queue<AsyncTask>    tasks;
-    private DatabaseGameHandler databaseGameHandler;
+    private BlockingDeque<AsyncTask> tasks;
+    private DatabaseGameHandler      databaseGameHandler;
 
-    public TaskQueueService( Queue<AsyncTask> tasks, DatabaseGameHandler databaseGameHandler )
+    public TaskQueueService( BlockingDeque<AsyncTask> tasks, DatabaseGameHandler databaseGameHandler )
     {
         this.tasks = tasks;
         this.databaseGameHandler = databaseGameHandler;
@@ -31,15 +32,30 @@ public class TaskQueueService implements Runnable
     {
         while ( active )
         {
-            while ( tasks.peek() != null )
+            try
             {
-                AsyncTask task = tasks.poll();
+                AsyncTask task = tasks.takeFirst();
                 LOGGER.debug( "Publishing task {} for game {} from server {}",
                         task.getClass().getSimpleName(),
-                        task.getGameID(),
+                        task.getGameUuid(),
                         task.getServerID() );
                 task.publish( databaseGameHandler );
             }
+            catch ( InterruptedException e )
+            {
+                e.printStackTrace();
+            }
+
         }
+    }
+
+    public void setActive( boolean active )
+    {
+        this.active = active;
+    }
+
+    public Deque <AsyncTask> getTasks()
+    {
+        return tasks;
     }
 }

@@ -1,4 +1,4 @@
-package be.kuleuven.cs.jli40d.server.application.service.task;
+package be.kuleuven.cs.jli40d.core.service.task;
 
 import be.kuleuven.cs.jli40d.core.database.DatabaseGameHandler;
 
@@ -12,12 +12,12 @@ import be.kuleuven.cs.jli40d.core.database.DatabaseGameHandler;
 public abstract class AsyncTask
 {
     private int serverID;
-    private int gameID;
+    private String gameUuid;
 
-    public AsyncTask( int serverID, int gameID )
+    public AsyncTask( int serverID, String gameUuid )
     {
         this.serverID = serverID;
-        this.gameID = gameID;
+        this.gameUuid = gameUuid;
     }
 
     /**
@@ -38,13 +38,13 @@ public abstract class AsyncTask
         this.serverID = serverID;
     }
 
-    public int getGameID()
+    public String getGameUuid()
     {
-        return gameID;
+        return gameUuid;
     }
 
-    public void setGameID( int gameID )
+    public void setGameUuid( String gameUuid )
     {
-        this.gameID = gameID;
+        this.gameUuid = gameUuid;
     }
 }

@@ -28,4 +28,5 @@ public interface DatabaseUserHandler extends Remote, Serializable
 
     List<User> getUsersSortedByScore() throws RemoteException;
 
+    void updateScore( String username, int score ) throws RemoteException;
 }
