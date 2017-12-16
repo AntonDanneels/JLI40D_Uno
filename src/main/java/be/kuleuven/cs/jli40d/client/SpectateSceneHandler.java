@@ -115,8 +115,6 @@ public class SpectateSceneHandler extends AnimationTimer
         topCardX = ( int ) gameCanvas.getWidth() / 2 - 74 / 2;
         topCardY = ( int ) gameCanvas.getHeight() / 2 - 20;
 
-        ImageLoader.loadImages();
-
         backToLobbyButton = new Button( "Go to lobby" );
         backToLobbyButton.setOnAction( event ->
         {
