@@ -64,6 +64,7 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
         if ( portsOnHosts.containsKey( host ) )
         {
             port = portsOnHosts.get( host ) + 1;
+            portsOnHosts.put( host, port );
         }
         else
         {
