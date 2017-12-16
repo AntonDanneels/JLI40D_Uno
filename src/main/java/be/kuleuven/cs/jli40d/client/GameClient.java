@@ -89,7 +89,7 @@ public class GameClient extends Application
             Pane lobbyPane = loader.load();
 
             LobbySceneHandler lobbySceneHandler = loader.getController();
-            lobbySceneHandler.init( this, lobbyHandler );
+            lobbySceneHandler.init( this, lobbyHandler, registrationHandler );
             this.lobbySceneHandler = lobbySceneHandler;
 
             lobbyScene = new Scene( lobbyPane );
@@ -99,7 +99,7 @@ public class GameClient extends Application
             Pane gamePane = loader.load();
 
             GameSceneHandler gameSceneHandler = loader.getController();
-            gameSceneHandler.init( this, lobbyHandler, gameHandler );
+            gameSceneHandler.init( this, lobbyHandler, gameHandler, registrationHandler );
             this.gameSceneHandler = gameSceneHandler;
 
             loader = new FXMLLoader();
@@ -133,11 +133,11 @@ public class GameClient extends Application
         } );
     }
 
-    public void resetConnection( WrongServerException serverException )
+    public void resetConnection( Server server )
     {
         try
         {
-            Registry registry = LocateRegistry.getRegistry( serverException.getServer(), serverException.getPort() );
+            Registry registry = LocateRegistry.getRegistry( server.getHost(), server.getPort() );
 
             LobbyHandler lobbyHandler = ( LobbyHandler )registry.lookup( LobbyHandler.class.getName() );
             UserHandler  userManager  = ( UserHandler )registry.lookup( UserHandler.class.getName() );

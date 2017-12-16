@@ -64,7 +64,6 @@ public class StartSceneController
         catch ( WrongServerException e )
         {
             LOGGER.debug( "Changing server" );
-            client.resetConnection( e );
         }
     }
 
@@ -95,7 +94,6 @@ public class StartSceneController
         catch ( WrongServerException e )
         {
             LOGGER.debug( "Changing server" );
-            client.resetConnection( e );
         }
     }
 

@@ -2,6 +2,8 @@ package be.kuleuven.cs.jli40d.client;
 
 import be.kuleuven.cs.jli40d.core.GameHandler;
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
+import be.kuleuven.cs.jli40d.core.deployer.Server;
+import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.logic.GameLogic;
 import be.kuleuven.cs.jli40d.core.model.*;
 import be.kuleuven.cs.jli40d.core.model.exception.*;
@@ -53,6 +55,8 @@ public class GameSceneHandler extends AnimationTimer
     private ListenerService listenerService;
     private Queue<GameMove> gameMoves;
 
+    private ServerRegistrationHandler registrationHandler;
+
     private boolean mouseDown = false;
     private double  mousePosX = 0.0;
     private double  mousePosY = 0.0;
@@ -87,11 +91,12 @@ public class GameSceneHandler extends AnimationTimer
         positions.addAll( Arrays.asList( new Pair<>( 83, 83 ), new Pair<>( 709, 83 ), new Pair<>( 396, 9 ) ) );
     }
 
-    public void init( GameClient client, LobbyHandler lobbyHandler, GameHandler gameHandler )
+    public void init( GameClient client, LobbyHandler lobbyHandler, GameHandler gameHandler, ServerRegistrationHandler registrationHandler )
     {
         this.client = client;
         this.gameHandler = gameHandler;
         this.lobbyHandler = lobbyHandler;
+        this.registrationHandler = registrationHandler;
 
         gameCanvas.setOnMousePressed( e ->
         {
@@ -186,7 +191,21 @@ public class GameSceneHandler extends AnimationTimer
                 catch ( WrongServerException e )
                 {
                     LOGGER.debug( "Changing server" );
-                    client.resetConnection( e );
+
+                    try
+                    {
+                        Server newServer = registrationHandler.getServer( gameSummary.getUuid() );
+                        client.resetConnection( newServer );
+                        this.run();
+                    }
+                    catch ( RemoteException e1 )
+                    {
+                        e1.printStackTrace();
+                    }
+                    catch ( GameNotFoundException e1 )
+                    {
+                        e1.printStackTrace();
+                    }
                 }
             }
         } ).start();
@@ -194,7 +213,7 @@ public class GameSceneHandler extends AnimationTimer
 
     private synchronized void enterGameLoop()
     {
-        listenerService = new ListenerService( client, gameHandler, client.getToken(), game, gameMoves );
+        listenerService = new ListenerService( client, registrationHandler, gameHandler, client.getToken(), game, gameMoves );
 
         for ( Player p : game.getPlayers() )
         {
@@ -372,7 +391,21 @@ public class GameSceneHandler extends AnimationTimer
         catch ( WrongServerException e )
         {
             LOGGER.debug( "Changing server" );
-            client.resetConnection( e );
+
+            try
+            {
+                Server newServer = registrationHandler.getServer( gameSummary.getUuid() );
+                client.resetConnection( newServer );
+                this.run();
+            }
+            catch ( RemoteException e1 )
+            {
+                e1.printStackTrace();
+            }
+            catch ( GameNotFoundException e1 )
+            {
+                e1.printStackTrace();
+            }
         }
     }
 
@@ -516,7 +549,21 @@ public class GameSceneHandler extends AnimationTimer
         catch ( WrongServerException e )
         {
             LOGGER.debug( "Changing server" );
-            client.resetConnection( e );
+
+            try
+            {
+                Server newServer = registrationHandler.getServer( gameSummary.getUuid() );
+                client.resetConnection( newServer );
+                this.run();
+            }
+            catch ( RemoteException e1 )
+            {
+                e1.printStackTrace();
+            }
+            catch ( GameNotFoundException e1 )
+            {
+                e1.printStackTrace();
+            }
         }
     }
 
@@ -586,7 +633,6 @@ public class GameSceneHandler extends AnimationTimer
     public void setLobbyHandler( LobbyHandler lobbyHandler )
     {
         this.lobbyHandler = lobbyHandler;
-        listenerService = new ListenerService( client, gameHandler, client.getToken(), game, gameMoves );
     }
 
     public void setGameHandler( GameHandler gameHandler )

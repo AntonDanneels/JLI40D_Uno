@@ -3,6 +3,8 @@ package be.kuleuven.cs.jli40d.server.dispatcher;
 import be.kuleuven.cs.jli40d.core.deployer.Server;
 import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.deployer.ServerType;
+import be.kuleuven.cs.jli40d.core.model.Game;
+import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,18 +23,16 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
 
     private static final int MIN_PORT = 1101;
     private static final int MAX_PORT = 1200;
-    private static final int DATABASE_SERVER = 2;
+    private static final int DATABASE_SERVER = 1;
 
     private Map<String, Integer> portsOnHosts;
 
     private Set<Server> applicationServers;
     private Set<Server> databaseServers;
 
-    // Contains the mapping between application and database servers
     private Map<Server, List<Server>> serverMapping;
-
-    // Contains the mapping between clients and application servers
     private Map<Server, List<String>> clientMapping;
+    private Map<String, String> gamesMapping;
 
     public ServerRegister() throws RemoteException
     {
@@ -41,6 +41,7 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
         this.databaseServers = new HashSet <>();
         this.serverMapping = new HashMap <>();
         this.clientMapping = new HashMap <>();
+        this.gamesMapping = new HashMap <>();
     }
 
     /**
@@ -188,6 +189,7 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
     {
         T lowestLoad = null;
         int lowestAmount = Integer.MAX_VALUE;
+
         for( Map.Entry<T, List<Y>> entry : mapping.entrySet() )
         {
             if( entry.getValue().size() < lowestAmount )
@@ -198,5 +200,32 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
         }
 
         return lowestLoad;
+    }
+
+    /**
+     *  Used by application servers to register a game on the dispatcher. Clients can contact
+     *  the dispatcher to request a host.
+     */
+    public void registerGame( String gameUUID, String serverUUID ) throws RemoteException
+    {
+        gamesMapping.put( gameUUID, serverUUID );
+    }
+
+    /**
+     *  Returns the server where a game is hosted.
+     */
+    public Server getServer( String gameUUID ) throws RemoteException, GameNotFoundException
+    {
+        String serverUUID = gamesMapping.get( gameUUID );
+
+        if( serverUUID == null )
+            throw new GameNotFoundException();
+
+        Server result = applicationServers.stream()
+                          .filter( server -> server.getUuid().equals( serverUUID ) )
+                          .findFirst()
+                          .orElseThrow( () -> new GameNotFoundException(  ) );
+
+        return result;
     }
 }

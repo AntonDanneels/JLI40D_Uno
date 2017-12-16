@@ -1,5 +1,7 @@
 package be.kuleuven.cs.jli40d.core.deployer;
 
+import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
+
 import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -66,4 +68,15 @@ public interface ServerRegistrationHandler extends Remote, Serializable
      *  @throws RemoteException
      * */
     Server registerGameClient( String uuid ) throws RemoteException;
+
+    /**
+     *  Used by application servers to register a game on the dispatcher. Clients can contact
+     *  the dispatcher to request a host.
+     */
+    void registerGame( String gameUUID, String serverUUID ) throws RemoteException;
+
+    /**
+     *  Returns the server where a game is hosted.
+     */
+    Server getServer( String gameUUID ) throws RemoteException, GameNotFoundException;
 }

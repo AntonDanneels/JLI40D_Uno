@@ -5,10 +5,7 @@ import be.kuleuven.cs.jli40d.core.logic.GameLogic;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.Player;
-import be.kuleuven.cs.jli40d.core.model.exception.GameEndedException;
-import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
-import be.kuleuven.cs.jli40d.core.model.exception.InvalidGameMoveException;
-import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
+import be.kuleuven.cs.jli40d.core.model.exception.*;
 import be.kuleuven.cs.jli40d.server.application.service.RemoteGameService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +44,8 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
     public boolean isStarted( String token, String gameUuid ) throws
             InvalidTokenException,
             RemoteException,
-            GameNotFoundException
+            GameNotFoundException,
+            WrongServerException
     {
         Game game = gameService.getGameByUuid( gameUuid );
         userManager.findUserByToken( token );
@@ -61,7 +59,8 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
     public synchronized boolean myTurn( String token, String gameUuid ) throws
             InvalidTokenException,
             RemoteException,
-            GameNotFoundException
+            GameNotFoundException,
+            WrongServerException
     {
         Game game = gameService.getGameByUuid( gameUuid );
 
@@ -90,7 +89,8 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
             InvalidTokenException,
             RemoteException,
             GameNotFoundException,
-            GameEndedException
+            GameEndedException,
+            WrongServerException
     {
         Game   game     = gameService.getGameByUuid( gameUuid );
         String username = userManager.findUserByToken( token ); //TODO check if authenticated for game
@@ -135,7 +135,8 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
             InvalidTokenException,
             RemoteException,
             GameNotFoundException,
-            InvalidGameMoveException
+            InvalidGameMoveException,
+            WrongServerException
     {
         Game   game     = gameService.getGameByUuid( gameUuid );
         String username = userManager.findUserByToken( token );

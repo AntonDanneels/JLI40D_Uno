@@ -7,6 +7,7 @@ import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
 import be.kuleuven.cs.jli40d.core.model.Player;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
+import be.kuleuven.cs.jli40d.core.model.exception.WrongServerException;
 import be.kuleuven.cs.jli40d.core.service.TaskQueueService;
 import be.kuleuven.cs.jli40d.core.service.task.*;
 import be.kuleuven.cs.jli40d.server.application.GameListHandler;
@@ -89,7 +90,7 @@ public class RemoteGameService implements GameListHandler
     }
 
     @Override
-    public Game getGameByUuid( String uuid ) throws GameNotFoundException
+    public Game getGameByUuid( String uuid ) throws GameNotFoundException, WrongServerException
     {
         Game g = null;
 
@@ -99,15 +100,8 @@ public class RemoteGameService implements GameListHandler
         }
         else
         {
-            LOGGER.warn( "fetching game with id = {} from remote db cluster. This action is not cached.", uuid );
-            try
-            {
-                g = gameHandler.getGame( serverID, uuid );
-            }
-            catch ( RemoteException e )
-            {
-                LOGGER.error( "Error while fetching the game from remote. {}", e.getMessage() );
-            }
+            LOGGER.warn( "Game {} is hosted on another server, throwing exception.", uuid );
+            throw new WrongServerException();
         }
 
         //if the game is not in the list, throw an error

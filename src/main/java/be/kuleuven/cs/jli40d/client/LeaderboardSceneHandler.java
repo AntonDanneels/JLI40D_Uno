@@ -69,7 +69,6 @@ public class LeaderboardSceneHandler
         catch ( WrongServerException e )
         {
             LOGGER.debug( "Changing server" );
-            client.resetConnection( e );
         }
     }
 

@@ -2,20 +2,28 @@ package be.kuleuven.cs.jli40d.server.application;
 
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
 import be.kuleuven.cs.jli40d.core.UserHandler;
+import be.kuleuven.cs.jli40d.core.deployer.Server;
+import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.logic.GameLogic;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
 import be.kuleuven.cs.jli40d.core.model.Player;
 import be.kuleuven.cs.jli40d.core.model.exception.*;
 import be.kuleuven.cs.jli40d.server.application.service.RemoteGameService;
+import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherMain;
+import be.kuleuven.cs.jli40d.server.dispatcher.ServerRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.RMISocketFactory;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -37,6 +45,10 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
 
     private RemoteGameService games;
 
+    private ServerRegistrationHandler dispatcherRegister;
+
+    private Server me;
+
     /**
      * Creates and exports a new UnicastRemoteObject object using an
      * anonymous port.
@@ -49,12 +61,13 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
      * @throws RemoteException if failed to export object
      * @since JDK1.1
      */
-    Lobby( UserTokenHandler userManager, RemoteGameService games ) throws RemoteException
+    Lobby( UserTokenHandler userManager, RemoteGameService games, ServerRegistrationHandler dispatcherRegister, Server server ) throws RemoteException
     {
         super();
         this.userManager = userManager;
         this.games = games;
-
+        this.dispatcherRegister = dispatcherRegister;
+        this.me = server;
     }
 
     /**
@@ -87,7 +100,8 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
      */
     public String makeGame( String token, String gameName, int numberOfPlayers ) throws
             InvalidTokenException,
-            UnableToCreateGameException
+            UnableToCreateGameException,
+            RemoteException
     {
         //initial check for token
         userManager.findUserByToken( token );
@@ -100,6 +114,8 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
         GameLogic.putInitialCardInTheMiddle( game );
 
         games.add( game );
+
+        dispatcherRegister.registerGame( game.getUuid(), me.getUuid() );
 
         return game.getUuid();
     }

@@ -54,13 +54,12 @@ public class ApplicationMain
             DatabaseUserHandler databaseUserHandler = ( DatabaseUserHandler )myRegistry.lookup( DatabaseUserHandler.class.getName() );
             DatabaseGameHandler databaseGameHandler = ( DatabaseGameHandler )myRegistry.lookup( DatabaseGameHandler.class.getName() );
 
-
             //services
             CachedUserManager userManager = new CachedUserManager( databaseUserHandler );
             RemoteGameService gameService = new RemoteGameService( databaseGameHandler, me );
 
             GameManager  gameManager = new GameManager( userManager, gameService );
-            LobbyHandler lobby       = new Lobby( userManager, gameService );
+            LobbyHandler lobby       = new Lobby( userManager, gameService, registrationHandler, me );
 
             // create on port 1099
             Registry server = LocateRegistry.createRegistry( me.getPort() );

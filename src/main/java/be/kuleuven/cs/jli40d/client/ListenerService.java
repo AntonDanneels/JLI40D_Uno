@@ -1,6 +1,8 @@
 package be.kuleuven.cs.jli40d.client;
 
 import be.kuleuven.cs.jli40d.core.GameHandler;
+import be.kuleuven.cs.jli40d.core.deployer.Server;
+import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.exception.GameEndedException;
@@ -32,15 +34,18 @@ public class ListenerService implements Runnable
     private volatile boolean active;
     private int     currentGameMoveID;
 
+    private ServerRegistrationHandler registrationHandler;
+
     private Queue<GameMove> unhandledGameMoves;
 
-    public ListenerService( GameClient client, GameHandler gameHandler, String token, Game game, Queue<GameMove> unhandledGameMoves )
+    public ListenerService( GameClient client, ServerRegistrationHandler registrationHandler, GameHandler gameHandler, String token, Game game, Queue<GameMove> unhandledGameMoves )
     {
         this.client = client;
         this.game = game;
         this.gameHandler = gameHandler;
         this.token = token;
         this.unhandledGameMoves = unhandledGameMoves;
+        this.registrationHandler = registrationHandler;
 
         this.active = true;
 
@@ -70,7 +75,21 @@ public class ListenerService implements Runnable
             catch ( WrongServerException e )
             {
                 LOGGER.debug( "Changing server" );
-                client.resetConnection( e );
+
+                try
+                {
+                    Server newServer = registrationHandler.getServer( game.getUuid() );
+                    client.resetConnection( newServer );
+                    this.run();
+                }
+                catch ( RemoteException e1 )
+                {
+                    e1.printStackTrace();
+                }
+                catch ( GameNotFoundException e1 )
+                {
+                    e1.printStackTrace();
+                }
             }
         }
     }

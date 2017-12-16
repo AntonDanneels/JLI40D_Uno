@@ -1,6 +1,8 @@
 package be.kuleuven.cs.jli40d.client;
 
 import be.kuleuven.cs.jli40d.core.LobbyHandler;
+import be.kuleuven.cs.jli40d.core.deployer.Server;
+import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import be.kuleuven.cs.jli40d.core.model.exception.UnableToCreateGameException;
@@ -27,6 +29,7 @@ public class LobbySceneHandler
 
     private GameClient   client;
     private LobbyHandler lobbyHandler;
+    private ServerRegistrationHandler registrationHandler;
 
     @FXML
     private ListView<GameSummary> gamesList;
@@ -35,10 +38,11 @@ public class LobbySceneHandler
     {
     }
 
-    public void init( GameClient client, LobbyHandler lobbyHandler )
+    public void init( GameClient client, LobbyHandler lobbyHandler, ServerRegistrationHandler registrationHandler )
     {
         this.client = client;
         this.lobbyHandler = lobbyHandler;
+        this.registrationHandler = registrationHandler;
     }
 
     public void createNewGame()
@@ -100,7 +104,6 @@ public class LobbySceneHandler
         catch ( WrongServerException e )
         {
             LOGGER.debug( "Changing server" );
-            client.resetConnection( e );
         }
     }
 
@@ -141,7 +144,6 @@ public class LobbySceneHandler
         catch ( WrongServerException e )
         {
             LOGGER.debug( "Changing server" );
-            client.resetConnection( e );
         }
     }
 
