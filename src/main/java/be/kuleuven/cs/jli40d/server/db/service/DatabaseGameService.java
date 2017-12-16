@@ -45,6 +45,7 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
         this.playerRepository = playerRepository;
         this.gameMoveRepository = gameMoveRepository;
         this.clusterService = clusterService;
+
     }
 
 
@@ -136,6 +137,10 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
         g.getMoves().add( gameMove );
 
         gameRepository.save( g );
+
+        if (!clusterService.isDatbaseServer( serverID ))
+            clusterService.addMove( gameUuid, gameMove );
+
     }
 
     /**
@@ -171,6 +176,9 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
 
         g.getPlayers().add( player );
         gameRepository.save( g );
+
+        if (!clusterService.isDatbaseServer( serverID ))
+            clusterService.addPlayer( gameUuid, player );
 
     }
 }

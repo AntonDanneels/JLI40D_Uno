@@ -1,6 +1,7 @@
 package be.kuleuven.cs.jli40d.server.application.service;
 
 import be.kuleuven.cs.jli40d.core.database.DatabaseGameHandler;
+import be.kuleuven.cs.jli40d.core.deployer.Server;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
@@ -51,14 +52,15 @@ public class RemoteGameService implements GameListHandler
      * On creation, this will register itself with the server as a server and receive an id.
      *
      * @param gameHandler The remote RMI object.
+     * @param me
      */
-    public RemoteGameService( DatabaseGameHandler gameHandler )
+    public RemoteGameService( DatabaseGameHandler gameHandler, Server me )
     {
         this.gameHandler = gameHandler;
         this.localGameCache = new HashMap<>( 32 );
 
-        serverID = UUID.randomUUID().hashCode();
-        LOGGER.debug( "Server received id = {} (self-generated).", serverID );
+        serverID = me.getID();
+        LOGGER.debug( "Server received id = {} from deployer.", serverID );
 
         tasks = new ConcurrentLinkedDeque<>();
         taskQueueService = new TaskQueueService( tasks, gameHandler );

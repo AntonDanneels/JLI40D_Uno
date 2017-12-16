@@ -57,7 +57,7 @@ public class ApplicationMain
 
             //services
             CachedUserManager userManager = new CachedUserManager( databaseUserHandler );
-            RemoteGameService gameService = new RemoteGameService( databaseGameHandler );
+            RemoteGameService gameService = new RemoteGameService( databaseGameHandler, me );
 
             GameManager  gameManager = new GameManager( userManager, gameService );
             LobbyHandler lobby       = new Lobby( userManager, gameService );

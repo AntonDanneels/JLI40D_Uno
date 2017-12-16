@@ -32,15 +32,18 @@ public class ClusterService
     //cluster async publishers
     private Map <Server, TaskQueueService> clusterServices;
 
+    private Set<Integer> databases;
+
     private Set <Deque <AsyncTask>> clusterQueues;
 
-    private int serverID = UUID.randomUUID().hashCode();
+    private int serverID;
 
     @Autowired
     public ClusterService()
     {
-        clusterQueues = new HashSet <>();
-        clusterServices = new HashMap <>();
+        this.clusterQueues = new HashSet <>();
+        this.databases = new HashSet <>();
+        this.clusterServices = new HashMap <>();
     }
 
     /**
@@ -73,6 +76,7 @@ public class ClusterService
             //finaly add the queue and service to the managing set and map
             clusterServices.put( server, taskQueueService );
             clusterQueues.add( tasks );
+            databases.add( server.getID() );
 
         }
         catch ( RemoteException | NotBoundException e )
@@ -135,5 +139,15 @@ public class ClusterService
             tasks.add( new AsyncPlayerTask( serverID, gameUuid, player ) );
 
         notifyAll();
+    }
+
+    public void setServerID( int serverID )
+    {
+        this.serverID = serverID;
+    }
+
+    public boolean isDatbaseServer(int serverID)
+    {
+        return databases.contains( serverID );
     }
 }
