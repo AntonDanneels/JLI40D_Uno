@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Arrays;
+import java.util.UUID;
 
 /**
  * @author Pieter
@@ -18,7 +19,7 @@ public class DispatcherMain
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(DispatcherMain.class);
 
-    public static final Server DISPATCHER = new Server( "localhost", 1100, ServerType.DISPATCHER );
+    public static final Server DISPATCHER = new Server( "localhost", 1100, ServerType.DISPATCHER, UUID.randomUUID().toString() );
 
     public static void main( String[] args )
     {

@@ -13,6 +13,7 @@ import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherMain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Arrays;
@@ -31,8 +32,18 @@ public class ApplicationMain
     {
         try
         {
-            Registry                  dispatcherRegistry  = LocateRegistry.getRegistry( DispatcherMain.DISPATCHER.getHost(), DispatcherMain.DISPATCHER.getPort() );
-            ServerRegistrationHandler registrationHandler = (ServerRegistrationHandler)dispatcherRegistry.lookup( ServerRegistrationHandler.class.getName() );
+            ServerRegistrationHandler registrationHandler = null;
+
+            try
+            {
+                Registry dispatcherRegistry = LocateRegistry.getRegistry( DispatcherMain.DISPATCHER.getHost(), DispatcherMain.DISPATCHER.getPort() );
+                registrationHandler = ( ServerRegistrationHandler )dispatcherRegistry.lookup( ServerRegistrationHandler.class.getName() );
+            }
+            catch ( RemoteException e )
+            {
+                LOGGER.error( "Failed to connect to dispatcher {}. Check these settings.", DispatcherMain.DISPATCHER );
+            }
+
 
             Server me = registrationHandler.obtainPort( "localhost", ServerType.APPLICATION );
 
@@ -46,10 +57,10 @@ public class ApplicationMain
 
             //services
             CachedUserManager userManager = new CachedUserManager( databaseUserHandler );
-            RemoteGameService gameService = new RemoteGameService( databaseGameHandler );
+            RemoteGameService gameService = new RemoteGameService( databaseGameHandler, me );
 
-            GameManager       gameManager = new GameManager( userManager, gameService );
-            LobbyHandler      lobby       = new Lobby( userManager, gameService );
+            GameManager  gameManager = new GameManager( userManager, gameService );
+            LobbyHandler lobby       = new Lobby( userManager, gameService );
 
             // create on port 1099
             Registry server = LocateRegistry.createRegistry( me.getPort() );

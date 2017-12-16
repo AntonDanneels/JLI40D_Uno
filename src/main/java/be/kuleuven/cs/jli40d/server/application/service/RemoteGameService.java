@@ -1,20 +1,26 @@
 package be.kuleuven.cs.jli40d.server.application.service;
 
 import be.kuleuven.cs.jli40d.core.database.DatabaseGameHandler;
+import be.kuleuven.cs.jli40d.core.deployer.Server;
 import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
 import be.kuleuven.cs.jli40d.core.model.Player;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
+import be.kuleuven.cs.jli40d.core.service.TaskQueueService;
+import be.kuleuven.cs.jli40d.core.service.task.*;
 import be.kuleuven.cs.jli40d.server.application.GameListHandler;
 import be.kuleuven.cs.jli40d.server.application.GameManager;
-import be.kuleuven.cs.jli40d.server.application.service.task.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
-import java.util.*;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
 
 /**
@@ -35,11 +41,11 @@ public class RemoteGameService implements GameListHandler
     private DatabaseGameHandler gameHandler;
 
     //Cache
-    private Map<String, Game> localGameCache;
+    private Map <String, Game> localGameCache;
 
     //remote async publisher
-    private TaskQueueService taskQueueService;
-    private Queue<AsyncTask> tasks;
+    private TaskQueueService          taskQueueService;
+    private BlockingDeque <AsyncTask> tasks;
 
     private int serverID;
 
@@ -50,16 +56,17 @@ public class RemoteGameService implements GameListHandler
      * On creation, this will register itself with the server as a server and receive an id.
      *
      * @param gameHandler The remote RMI object.
+     * @param me
      */
-    public RemoteGameService( DatabaseGameHandler gameHandler )
+    public RemoteGameService( DatabaseGameHandler gameHandler, Server me )
     {
         this.gameHandler = gameHandler;
-        this.localGameCache = new HashMap<>( 32 );
+        this.localGameCache = new HashMap <>( 32 );
 
-        serverID = UUID.randomUUID().hashCode();
-        LOGGER.debug( "Server received id = {} (self-generated).", serverID );
+        serverID = me.getID();
+        LOGGER.debug( "Server received id = {} from deployer.", serverID );
 
-        tasks = new ConcurrentLinkedDeque<>();
+        tasks = new LinkedBlockingDeque <>();
         taskQueueService = new TaskQueueService( tasks, gameHandler );
         new Thread( taskQueueService ).start();
         LOGGER.info( "Started a remote publishing service [ {} ].", taskQueueService.getClass().getSimpleName() );
@@ -115,7 +122,7 @@ public class RemoteGameService implements GameListHandler
     }
 
     @Override
-    public List<GameSummary> getAllGames()
+    public List <GameSummary> getAllGames()
     {
         try
         {
@@ -126,7 +133,7 @@ public class RemoteGameService implements GameListHandler
             //List<GameSummary> gameSummaries = gameHandler.getGames( serverID );
 
             //adding games hosted on this host
-            List<GameSummary> localGames = localGameCache.values().stream()
+            List <GameSummary> localGames = localGameCache.values().stream()
                     .map( g -> new GameSummary(
                             g.getUuid(),
                             g.getName(),
@@ -156,7 +163,7 @@ public class RemoteGameService implements GameListHandler
         notifyAll();
     }
 
-    public synchronized void addMoves( String gameUuid, List<GameMove> moves )
+    public synchronized void addMoves( String gameUuid, List <GameMove> moves )
     {
         LOGGER.debug( "Added moves to persist async." );
 

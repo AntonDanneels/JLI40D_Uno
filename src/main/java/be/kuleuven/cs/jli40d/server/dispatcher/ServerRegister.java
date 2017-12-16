@@ -21,7 +21,7 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
 
     private static final int MIN_PORT = 1101;
     private static final int MAX_PORT = 1200;
-    private static final int DATABASE_SERVER = 1;
+    private static final int DATABASE_SERVER = 2;
 
     private Map<String, Integer> portsOnHosts;
 
@@ -64,13 +64,14 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
         if ( portsOnHosts.containsKey( host ) )
         {
             port = portsOnHosts.get( host ) + 1;
+            portsOnHosts.put( host, port );
         }
         else
         {
             portsOnHosts.put( host, new Integer( port ) );
         }
 
-        Server server = new Server( host, port, serverType );
+        Server server = new Server( host, port, serverType, UUID.randomUUID().toString() );
 
         LOGGER.info( "Server {} registered.", server );
 
@@ -126,7 +127,7 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
      */
     public synchronized Server registerAppServer( Server self ) throws RemoteException
     {
-        LOGGER.info( "Registring application server: " + self.getHost() + ":" + self.getPort() );
+        LOGGER.info( "Registering application server: " + self.getHost() + ":" + self.getPort() );
 
         applicationServers.add( self );
 

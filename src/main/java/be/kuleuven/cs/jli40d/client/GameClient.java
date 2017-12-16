@@ -64,7 +64,7 @@ public class GameClient extends Application
             primaryStage.show();
 
             String host = "localhost";
-            int    port = 1099;
+            int    port = 1103;
 
             Registry myRegistry = LocateRegistry.getRegistry( host, port );
             LobbyHandler lobbyHandler = ( LobbyHandler )myRegistry.lookup( LobbyHandler.class.getName() );
