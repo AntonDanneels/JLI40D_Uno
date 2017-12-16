@@ -125,7 +125,8 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
     public synchronized Game joinGame( String token, String gameUuid ) throws
             UnableToJoinGameException,
             InvalidTokenException,
-            GameEndedException
+            GameEndedException,
+            WrongServerException
     {
         //initial check for token and find username
         String username = userManager.findUserByToken( token );

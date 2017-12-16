@@ -31,12 +31,16 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
     // Contains the mapping between application and database servers
     private Map<Server, List<Server>> serverMapping;
 
+    // Contains the mapping between clients and application servers
+    private Map<Server, List<String>> clientMapping;
+
     public ServerRegister() throws RemoteException
     {
         this.portsOnHosts = new HashMap<>();
         this.applicationServers = new HashSet <>();
         this.databaseServers = new HashSet <>();
         this.serverMapping = new HashMap <>();
+        this.clientMapping = new HashMap <>();
     }
 
     /**
@@ -130,6 +134,7 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
         LOGGER.info( "Registring application server: " + self.getHost() + ":" + self.getPort() );
 
         applicationServers.add( self );
+        clientMapping.put( self, new ArrayList <>() );
 
         while (databaseServers.size() < DATABASE_SERVER)
         {
@@ -143,18 +148,54 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
             }
         }
 
-        Server lowestLoad = null;
-        int lowestAmount = Integer.MAX_VALUE;
-        for( Server key : serverMapping.keySet() )
+        Server lowestLoad = getLowest( serverMapping );
+
+        serverMapping.get( lowestLoad ).add( self );
+
+        return lowestLoad;
+    }
+
+    /**
+     *  Registers a game client and returns an application server with the least amount of load.
+     *  The game server will update the dispatcher if the client loses connection.
+     *  @param uuid An {@link java.util.UUID } string to uniqly represent a client, note that this
+     *              is separate from tokens: a client cannot pretend to be someone else.
+     *  @return An Application Server.
+     *  @throws RemoteException
+     * */
+    public Server registerGameClient( String uuid ) throws RemoteException
+    {
+        while (databaseServers.size() < DATABASE_SERVER && applicationServers.size() < 1)
         {
-            if( serverMapping.get( key ).size() < lowestAmount )
+            try
             {
-                lowestLoad = key;
-                lowestAmount = serverMapping.get( lowestLoad ).size();
+                wait();
+            }
+            catch ( InterruptedException e )
+            {
+                e.printStackTrace();
             }
         }
 
-        serverMapping.get( lowestLoad ).add( self );
+        Server result = getLowest( clientMapping );
+
+        clientMapping.get( result ).add( uuid );
+
+        return result;
+    }
+
+    private <T,Y> T getLowest( Map<T, List<Y>> mapping )
+    {
+        T lowestLoad = null;
+        int lowestAmount = Integer.MAX_VALUE;
+        for( Map.Entry<T, List<Y>> entry : mapping.entrySet() )
+        {
+            if( entry.getValue().size() < lowestAmount )
+            {
+                lowestLoad = entry.getKey();
+                lowestAmount = mapping.get( lowestLoad ).size();
+            }
+        }
 
         return lowestLoad;
     }

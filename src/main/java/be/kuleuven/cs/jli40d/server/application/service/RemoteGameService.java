@@ -123,7 +123,7 @@ public class RemoteGameService implements GameListHandler
             // Currently, this locks the db
 
             //fetching remote games
-            //List<GameSummary> gameSummaries = gameHandler.getGames( serverID );
+            List<GameSummary> gameSummaries = gameHandler.getGames();
 
             //adding games hosted on this host
             List<GameSummary> localGames = localGameCache.values().stream()
@@ -135,7 +135,7 @@ public class RemoteGameService implements GameListHandler
                             g.isStarted() ) )
                     .collect( Collectors.toList() );
 
-            //localGames.addAll( gameSummaries );
+            localGames.addAll( gameSummaries );
 
             return localGames;
         }
