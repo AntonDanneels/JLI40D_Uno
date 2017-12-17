@@ -3,8 +3,12 @@ package be.kuleuven.cs.jli40d.server.application;
 import be.kuleuven.cs.jli40d.core.ServerManagementHandler;
 import be.kuleuven.cs.jli40d.core.database.DatabaseGameHandler;
 import be.kuleuven.cs.jli40d.core.deployer.Server;
+import be.kuleuven.cs.jli40d.core.logic.GameLogic;
 import be.kuleuven.cs.jli40d.core.model.Game;
+import be.kuleuven.cs.jli40d.core.model.GameMove;
+import be.kuleuven.cs.jli40d.core.model.PlayerHand;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
+import be.kuleuven.cs.jli40d.core.model.exception.InvalidGameMoveException;
 import be.kuleuven.cs.jli40d.server.application.service.RemoteGameService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +18,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.List;
+import java.util.*;
 
 public class ServerManager extends UnicastRemoteObject implements ServerManagementHandler, Serializable
 {
@@ -41,6 +45,33 @@ public class ServerManager extends UnicastRemoteObject implements ServerManageme
             try
             {
                 Game game = gameHandler.getGame( server.getID(), s );
+
+                game.setPlayerHands( new HashMap <>() );
+                Map<String, PlayerHand> cardsPerPlayer = game.getPlayerHands();
+
+                for ( int j = 0; j < game.getPlayers().size(); j++ )
+                    cardsPerPlayer.put( game.getPlayers().get( j ).getUsername(), new PlayerHand() );
+
+                List<GameMove> oldMoves = new ArrayList <>();
+                oldMoves.addAll( game.getMoves() );
+
+                game.getMoves().clear();
+
+                for( GameMove m : oldMoves )
+                {
+                    try
+                    {
+                        GameLogic.applyMove( game, m );
+                    }
+                    catch ( InvalidGameMoveException e )
+                    {
+                        e.printStackTrace();
+                    }
+                }
+
+                game.setStarted( true );
+                game.setCurrentGameMoveID( game.getMoves().size() );
+
                 remoteGameService.addGame( game.getUuid(), game );
             }
             catch ( GameNotFoundException e )
@@ -70,7 +101,6 @@ public class ServerManager extends UnicastRemoteObject implements ServerManageme
     {
         LOGGER.info( "Shutting down" );
 
-        ApplicationMain.IS_SHUTTING_DOWN = true;
-        notifyAll();
+        System.exit( 0 );
     }
 }

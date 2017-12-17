@@ -9,10 +9,15 @@ import be.kuleuven.cs.jli40d.core.model.exception.GameEndedException;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidTokenException;
 import be.kuleuven.cs.jli40d.core.model.exception.WrongServerException;
+import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherMain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.util.Locale;
 import java.util.Queue;
 
 /**
@@ -67,19 +72,12 @@ public class ListenerService implements Runnable
                 currentGameMoveID++;
 
             }
-            catch ( InvalidTokenException | RemoteException | GameNotFoundException | GameEndedException e )
+            catch ( WrongServerException | InvalidTokenException | RemoteException | GameNotFoundException | GameEndedException e )
             {
                 LOGGER.error( "Error while fetching next move. {}", e.getMessage() );
                 active = false;
-            }
-            catch ( WrongServerException e )
-            {
-                LOGGER.debug( "Changing server" );
-
                 try
                 {
-                    Utils.createPopup( "Changing server" );
-
                     Server newServer = registrationHandler.getServer( game.getUuid() );
                     client.resetConnection( newServer );
                 }
@@ -94,6 +92,7 @@ public class ListenerService implements Runnable
     public void setGameHandler( GameHandler gameHandler )
     {
         this.gameHandler = gameHandler;
+        this.active = true;
     }
 
     public synchronized void setActive( boolean active )

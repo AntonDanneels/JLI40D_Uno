@@ -152,24 +152,6 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
             InvalidGameMoveException,
             WrongServerException
     {
-        if( !ApplicationMain.IS_RUNNING )
-        {
-            while ( !ApplicationMain.IS_SHUTTING_DOWN )
-            {
-                try
-                {
-                    wait();
-                }
-                catch ( InterruptedException e )
-                {
-                    e.printStackTrace();
-                }
-            }
-
-            throw new WrongServerException();
-        }
-
-
         Game   game     = gameService.getGameByUuid( gameUuid );
         String username = userManager.findUserByToken( token );
 

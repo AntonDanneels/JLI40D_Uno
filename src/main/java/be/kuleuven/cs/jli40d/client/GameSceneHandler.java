@@ -642,5 +642,10 @@ public class GameSceneHandler extends AnimationTimer
     public void setGameHandler( GameHandler gameHandler )
     {
         this.gameHandler = gameHandler;
+        if( game != null )
+        {
+            this.listenerService.setGameHandler( gameHandler );
+            new Thread( this.listenerService ).start();
+        }
     }
 }
