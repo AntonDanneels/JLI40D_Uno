@@ -57,12 +57,13 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
     public synchronized List <GameSummary> getGames() throws RemoteException
     {
         return StreamSupport.stream( gameRepository.findAll().spliterator(), true )
+                .filter( game -> !game.isEnded() )
                 .map( g -> new GameSummary(
                         g.getUuid(),
                         g.getName(),
                         g.getNumberOfJoinedPlayers(),
                         g.getMaximumNumberOfPlayers(),
-                        g.isStarted() ) )
+                        g.isStarted()) )
                 .collect( Collectors.toList() );
     }
 

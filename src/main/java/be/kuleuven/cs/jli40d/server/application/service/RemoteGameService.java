@@ -120,13 +120,11 @@ public class RemoteGameService implements GameListHandler
     {
         try
         {
-            // TODO: find a way to get these games in a synchronised way,
-            // Currently, this locks the db
-
             //fetching remote games
             List<GameSummary> gameSummaries = gameHandler.getGames();
 
             //adding games hosted on this host
+            /*
             List <GameSummary> localGames = localGameCache.values().stream()
                     .map( g -> new GameSummary(
                             g.getUuid(),
@@ -135,10 +133,9 @@ public class RemoteGameService implements GameListHandler
                             g.getMaximumNumberOfPlayers(),
                             g.isStarted() ) )
                     .collect( Collectors.toList() );
+            */
 
-            localGames.addAll( gameSummaries );
-
-            return localGames;
+            return gameSummaries;
         }
         catch ( Exception e )
         {
