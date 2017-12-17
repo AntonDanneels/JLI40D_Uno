@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('dashboard')"></head>
+<body>
+<nav th:replace="layout :: navbar('dashboard')"></nav>
+
+<div class="container">
+
+    <!-- UPPER ROW -->
+    <div class="row">
+        <div class="col-md-6">
+            <!-- TOPLEFT PANEL -->
+            <div class="panel panel-default">
+                <div class="panel-heading"><b>LEFT</b></div>
+                <table class="table">
+
+                </table>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <!-- TOPRIGHT PANEL -->
+            <div class="panel panel-default">
+                <div class="panel-heading"><b>RIGHT</b></div>
+
+                <table class="table">
+
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- BOTTOM ROW -->
+    <div class="row">
+
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading"><b>MORE SHIT</b></div>
+
+                <table class="table">
+
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div th:replace="layout :: scripts"></div>
+</body>
+</html>

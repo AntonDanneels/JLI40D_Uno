@@ -5,6 +5,7 @@ import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.deployer.ServerType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -15,6 +16,7 @@ import java.util.UUID;
  * @author Pieter
  * @version 1.0
  */
+@Component
 public class DispatcherRunner
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(DispatcherRunner.class);
