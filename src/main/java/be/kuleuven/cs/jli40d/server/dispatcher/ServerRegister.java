@@ -1,15 +1,18 @@
 package be.kuleuven.cs.jli40d.server.dispatcher;
 
+import be.kuleuven.cs.jli40d.core.ServerManagementHandler;
 import be.kuleuven.cs.jli40d.core.deployer.Server;
 import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.deployer.ServerType;
-import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
@@ -32,7 +35,8 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
 
     private Map<Server, List<Server>> serverMapping;
     private Map<Server, List<String>> clientMapping;
-    private Map<String, String> gamesMapping;
+    private Map<String, String> gameServerMapping;
+    private Map<String, List<String>> serverGameMapping;
 
     public ServerRegister() throws RemoteException
     {
@@ -41,7 +45,8 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
         this.databaseServers = new HashSet <>();
         this.serverMapping = new HashMap <>();
         this.clientMapping = new HashMap <>();
-        this.gamesMapping = new HashMap <>();
+        this.gameServerMapping = new HashMap <>();
+        this.serverGameMapping = new HashMap <>();
     }
 
     /**
@@ -214,7 +219,11 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
      */
     public void registerGame( String gameUUID, String serverUUID ) throws RemoteException
     {
-        gamesMapping.put( gameUUID, serverUUID );
+        gameServerMapping.put( gameUUID, serverUUID );
+        if( !serverGameMapping.containsKey( serverUUID ) )
+            serverGameMapping.put( serverUUID, new ArrayList <>() );
+
+        serverGameMapping.get( serverUUID ).add( gameUUID );
     }
 
     /**
@@ -222,17 +231,15 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
      */
     public Server getServer( String gameUUID ) throws RemoteException, GameNotFoundException
     {
-        String serverUUID = gamesMapping.get( gameUUID );
+        String serverUUID = gameServerMapping.get( gameUUID );
 
         if( serverUUID == null )
             throw new GameNotFoundException();
 
-        Server result = applicationServers.stream()
+        return applicationServers.stream()
                           .filter( server -> server.getUuid().equals( serverUUID ) )
                           .findFirst()
                           .orElseThrow( () -> new GameNotFoundException(  ) );
-
-        return result;
     }
 
     /**
@@ -249,7 +256,27 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
     {
         applicationServers.remove( from );
 
+        try
+        {
+            Registry serverARegistry = LocateRegistry.getRegistry( from.getHost(), from.getPort() );
+            ServerManagementHandler serverA = (ServerManagementHandler) serverARegistry.lookup( ServerManagementHandler.class.getName() );
 
+            Registry serverBRegistry = LocateRegistry.getRegistry( to.getHost(), to.getPort() );
+            ServerManagementHandler serverB = (ServerManagementHandler) serverBRegistry.lookup( ServerManagementHandler.class.getName() );
+
+            serverA.prepareShutdown();
+            serverB.loadFromServer( from, serverGameMapping.get( from.getUuid() ) );
+            serverA.shutDown();
+
+        }
+        catch ( RemoteException e )
+        {
+            e.printStackTrace();
+        }
+        catch ( NotBoundException e )
+        {
+            e.printStackTrace();
+        }
     }
 
 }

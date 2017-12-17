@@ -396,7 +396,7 @@ public class GameSceneHandler extends AnimationTimer
             {
                 Server newServer = registrationHandler.getServer( gameSummary.getUuid() );
                 client.resetConnection( newServer );
-                this.run();
+                //this.run();
             }
             catch ( RemoteException e1 )
             {

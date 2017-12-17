@@ -172,4 +172,9 @@ public class RemoteGameService implements GameListHandler
 
         notifyAll();
     }
+
+    public void addGame( String uuid, Game game )
+    {
+        localGameCache.put( uuid, game );
+    }
 }

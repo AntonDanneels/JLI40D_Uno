@@ -1,9 +1,6 @@
 package be.kuleuven.cs.jli40d.server.application;
 
-import be.kuleuven.cs.jli40d.core.GameHandler;
-import be.kuleuven.cs.jli40d.core.LobbyHandler;
-import be.kuleuven.cs.jli40d.core.ResourceHandler;
-import be.kuleuven.cs.jli40d.core.UserHandler;
+import be.kuleuven.cs.jli40d.core.*;
 import be.kuleuven.cs.jli40d.core.database.DatabaseGameHandler;
 import be.kuleuven.cs.jli40d.core.database.DatabaseUserHandler;
 import be.kuleuven.cs.jli40d.core.deployer.Server;
@@ -28,6 +25,9 @@ import java.util.Arrays;
 public class ApplicationMain
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( ApplicationMain.class );
+
+    public static boolean IS_RUNNING = false;
+    public static boolean IS_SHUTTING_DOWN = false;
 
     public static void main( String[] args )
     {
@@ -64,6 +64,8 @@ public class ApplicationMain
 
             ResourceHandler resourceHandler = new ResourceManager();
 
+            ServerManagementHandler serverManager = new ServerManager( gameService, databaseGameHandler );
+
             // create on port 1099
             Registry server = LocateRegistry.createRegistry( me.getPort() );
             // create a new service named CounterService
@@ -71,6 +73,9 @@ public class ApplicationMain
             server.rebind( UserHandler.class.getName(), userManager );
             server.rebind( GameHandler.class.getName(), gameManager );
             server.rebind( ResourceHandler.class.getName(), resourceHandler );
+            server.rebind( ServerManagementHandler.class.getName(), serverManager );
+
+            IS_RUNNING = true;
 
             LOGGER.info( "Application server started with following bindings: {} ", Arrays.toString( server.list() ) );
 

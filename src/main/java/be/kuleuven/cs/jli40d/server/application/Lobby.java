@@ -98,6 +98,8 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
             RemoteException,
             WrongServerException
     {
+        if( !ApplicationMain.IS_RUNNING )
+            throw new WrongServerException();
         //initial check for token
         userManager.findUserByToken( token );
 
