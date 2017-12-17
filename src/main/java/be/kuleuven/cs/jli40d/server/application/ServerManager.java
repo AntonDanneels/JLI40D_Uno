@@ -11,8 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 
@@ -42,6 +40,8 @@ public class ServerManager extends UnicastRemoteObject implements ServerManageme
             {
                 Game game = gameHandler.getGame( server.getID(), s );
                 remoteGameService.addGame( game.getUuid(), game );
+
+                LOGGER.debug( "Transferred game {}", game.getUuid() );
             }
             catch ( GameNotFoundException e )
             {
@@ -63,7 +63,7 @@ public class ServerManager extends UnicastRemoteObject implements ServerManageme
     }
 
     /**
-     *  This will completly shut down a server. {@see prepareShutdown} must be called if
+     *  This will completely shut down a server. {@see prepareShutdown} must be called if
      *  to properly transfer games to another server.
      * */
     public synchronized void shutDown() throws RemoteException
