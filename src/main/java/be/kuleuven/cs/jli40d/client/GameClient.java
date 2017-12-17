@@ -11,12 +11,9 @@ import be.kuleuven.cs.jli40d.core.UserHandler;
 import be.kuleuven.cs.jli40d.core.deployer.Server;
 import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
-import be.kuleuven.cs.jli40d.core.model.exception.WrongServerException;
-import be.kuleuven.cs.jli40d.server.application.ResourceManager;
-import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherMain;
+import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherRunner;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -73,7 +70,7 @@ public class GameClient extends Application
             primaryStage.setScene( loginScene );
             primaryStage.show();
 
-            Registry                  dispatcherRegistry  = LocateRegistry.getRegistry( DispatcherMain.DISPATCHER.getHost(), DispatcherMain.DISPATCHER.getPort() );
+            Registry                  dispatcherRegistry  = LocateRegistry.getRegistry( DispatcherRunner.DISPATCHER.getHost(), DispatcherRunner.DISPATCHER.getPort() );
             ServerRegistrationHandler registrationHandler = (ServerRegistrationHandler)dispatcherRegistry.lookup( ServerRegistrationHandler.class.getName() );
 
             uuid = UUID.randomUUID().toString();

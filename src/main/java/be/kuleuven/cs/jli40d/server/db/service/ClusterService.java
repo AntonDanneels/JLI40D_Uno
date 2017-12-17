@@ -7,7 +7,7 @@ import be.kuleuven.cs.jli40d.core.model.GameMove;
 import be.kuleuven.cs.jli40d.core.model.Player;
 import be.kuleuven.cs.jli40d.core.service.TaskQueueService;
 import be.kuleuven.cs.jli40d.core.service.task.*;
-import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherMain;
+import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,7 +92,7 @@ public class ClusterService
         }
         catch ( RemoteException | NotBoundException e )
         {
-            LOGGER.error( "Failed to connect to dispatcher {}. Check these settings.", DispatcherMain.DISPATCHER );
+            LOGGER.error( "Failed to connect to dispatcher {}. Check these settings.", DispatcherRunner.DISPATCHER );
         }
     }
 

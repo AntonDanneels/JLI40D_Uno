@@ -1,42 +1,24 @@
 package be.kuleuven.cs.jli40d.server.dispatcher;
 
-import be.kuleuven.cs.jli40d.core.deployer.Server;
-import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
-import be.kuleuven.cs.jli40d.core.deployer.ServerType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.util.Arrays;
-import java.util.UUID;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 
 /**
  * @author Pieter
  * @version 1.0
  */
+@SpringBootApplication
+@EntityScan( basePackages = { "be.kuleuven.cs.jli40d.core.model" } )
+@EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class,HibernateJpaAutoConfiguration.class})
 public class DispatcherMain
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DispatcherMain.class);
-
-    public static final Server DISPATCHER = new Server( "localhost", 1100, ServerType.DISPATCHER, UUID.randomUUID().toString() );
 
     public static void main( String[] args )
     {
-
-        try
-        {
-            ServerRegister serverRegister = new ServerRegister();
-
-            Registry server = LocateRegistry.createRegistry( DISPATCHER.getPort() );
-            server.rebind( ServerRegistrationHandler.class.getName(), serverRegister );
-
-            LOGGER.info( "Dispatcher server started with following bindings: {} ", Arrays.toString( server.list() ) );
-
-        }
-        catch ( Exception e )
-        {
-            LOGGER.error( "Error while creating a registry. {}", e.getMessage() );
-        }
+        SpringApplication.run( DispatcherMain.class, args );
     }
 }
