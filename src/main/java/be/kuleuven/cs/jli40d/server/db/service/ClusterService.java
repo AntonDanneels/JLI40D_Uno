@@ -36,6 +36,7 @@ public class ClusterService
     private Set <Integer> databases;
 
     private Set <Deque <AsyncTask>> clusterQueues;
+    private Set <UserCommitHandler> userCommitHandlers;
 
     private int serverID;
 
@@ -45,6 +46,7 @@ public class ClusterService
         this.clusterQueues = new HashSet <>();
         this.databases = new HashSet <>();
         this.clusterServices = new HashMap <>();
+        this.userCommitHandlers = new HashSet <>();
     }
 
     /**
@@ -70,6 +72,7 @@ public class ClusterService
             Registry myRegistry = LocateRegistry.getRegistry( server.getHost(), server.getPort() );
 
             DatabaseGameHandler remoteGameHandler = ( DatabaseGameHandler ) myRegistry.lookup( DatabaseGameHandler.class.getName() );
+            UserCommitHandler userCommitHandler = ( UserCommitHandler ) myRegistry.lookup( UserCommitHandler.class.getName() );
 
             //start new thread and create a queue
             BlockingDeque<AsyncTask> tasks            = new LinkedBlockingDeque<>();
@@ -81,6 +84,7 @@ public class ClusterService
             clusterServices.put( server, taskQueueService );
             clusterQueues.add( tasks );
             databases.add( server.getID() );
+            userCommitHandlers.add( userCommitHandler );
 
             LOGGER.info( "registered server {} with id {}.", server, server.getID() );
 
@@ -156,5 +160,10 @@ public class ClusterService
     public boolean isDatabaseServer( int id )
     {
         return databases.contains( id );
+    }
+
+    public Set <UserCommitHandler> getUserCommitHandlers()
+    {
+        return userCommitHandlers;
     }
 }

@@ -3,7 +3,6 @@ package be.kuleuven.cs.jli40d.server.dispatcher;
 import be.kuleuven.cs.jli40d.core.deployer.Server;
 import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.deployer.ServerType;
-import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,7 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
 
     private static final int MIN_PORT = 1101;
     private static final int MAX_PORT = 1200;
-    private static final int DATABASE_SERVER = 1;
+    private static final int DATABASE_SERVER = 3;
 
     private Map<String, Integer> portsOnHosts;
 
