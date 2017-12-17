@@ -64,11 +64,9 @@ public class ApplicationMain
 
             ResourceHandler resourceHandler = new ResourceManager();
 
-            ServerManagementHandler serverManager = new ServerManager( gameService, databaseGameHandler );
+            ServerManager serverManager = new ServerManager( gameService, databaseGameHandler );
 
-            // create on port 1099
             Registry server = LocateRegistry.createRegistry( me.getPort() );
-            // create a new service named CounterService
             server.rebind( LobbyHandler.class.getName(), lobby );
             server.rebind( UserHandler.class.getName(), userManager );
             server.rebind( GameHandler.class.getName(), gameManager );

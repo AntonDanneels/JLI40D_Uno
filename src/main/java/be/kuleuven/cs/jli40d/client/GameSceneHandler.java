@@ -394,9 +394,13 @@ public class GameSceneHandler extends AnimationTimer
 
             try
             {
+                Utils.createPopup( "Changing server..." );
+
+                this.stop();
+
                 Server newServer = registrationHandler.getServer( gameSummary.getUuid() );
                 client.resetConnection( newServer );
-                //this.run();
+                this.run();
             }
             catch ( RemoteException e1 )
             {

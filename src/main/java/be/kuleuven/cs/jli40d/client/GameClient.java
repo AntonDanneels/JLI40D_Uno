@@ -168,6 +168,7 @@ public class GameClient extends Application
     {
         try
         {
+            LOGGER.info( "Changing to server: " + server );
             Registry registry = LocateRegistry.getRegistry( server.getHost(), server.getPort() );
 
             LobbyHandler lobbyHandler = ( LobbyHandler )registry.lookup( LobbyHandler.class.getName() );
@@ -185,6 +186,8 @@ public class GameClient extends Application
             leaderboardSceneHandler.setUserHandler( userManager );
 
             this.server = server;
+
+            LOGGER.info( "Server change complete" );
         }
         catch ( RemoteException e )
         {

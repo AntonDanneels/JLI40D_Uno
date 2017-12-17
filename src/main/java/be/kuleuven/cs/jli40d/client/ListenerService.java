@@ -78,15 +78,12 @@ public class ListenerService implements Runnable
 
                 try
                 {
+                    Utils.createPopup( "Changing server" );
+
                     Server newServer = registrationHandler.getServer( game.getUuid() );
                     client.resetConnection( newServer );
-                    this.run();
                 }
-                catch ( RemoteException e1 )
-                {
-                    e1.printStackTrace();
-                }
-                catch ( GameNotFoundException e1 )
+                catch ( RemoteException | GameNotFoundException e1 )
                 {
                     e1.printStackTrace();
                 }

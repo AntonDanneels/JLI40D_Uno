@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.rmi.NotBoundException;
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -84,8 +85,6 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
         Server server = new Server( host, port, serverType, UUID.randomUUID().toString() );
 
         LOGGER.info( "Server {} registered.", server );
-
-        applicationServers.add( server );
 
         return server;
     }
@@ -242,6 +241,21 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
                           .orElseThrow( () -> new GameNotFoundException(  ) );
     }
 
+    public synchronized void testTransfer()
+    {
+        Server serverA = null, serverB = null;
+
+        for( Server s: applicationServers )
+        {
+            if( serverGameMapping.get( s.getUuid() ) != null &&  serverA == null )
+                serverA = s;
+            else
+                serverB = s;
+        }
+
+        transferServers( serverA, serverB );
+    }
+
     /**
      * 1. Remove server A from available servers
      * 2. Send stop signal to server A:
@@ -252,9 +266,13 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
      *     a. Server throws WrongServerException, client connects to dispatcher and
                 connects to correct server.
      */
-    private void transferServers( Server from, Server to )
+    private synchronized void transferServers( Server from, Server to )
     {
+        LOGGER.info( "Initiating game transfer" );
         applicationServers.remove( from );
+
+        LOGGER.info( from.toString() );
+        LOGGER.info( to.toString() );
 
         try
         {
@@ -264,8 +282,22 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
             Registry serverBRegistry = LocateRegistry.getRegistry( to.getHost(), to.getPort() );
             ServerManagementHandler serverB = (ServerManagementHandler) serverBRegistry.lookup( ServerManagementHandler.class.getName() );
 
+            LOGGER.info( "Preparing server a for shutdown" );
             serverA.prepareShutdown();
+
+            LOGGER.info( "Transfering games to the second server" );
             serverB.loadFromServer( from, serverGameMapping.get( from.getUuid() ) );
+
+            for( String s : serverGameMapping.get( from.getUuid() ) )
+                gameServerMapping.put( s, to.getUuid() );
+
+            if( !serverGameMapping.containsKey( to.getUuid() ) )
+                serverGameMapping.put( to.getUuid(), new ArrayList <>() );
+
+            serverGameMapping.get( to.getUuid() ).addAll( serverGameMapping.get( from.getUuid() ) );
+            serverGameMapping.get( from.getUuid() ).clear();
+
+            LOGGER.info( "Shutting down server" );
             serverA.shutDown();
 
         }
