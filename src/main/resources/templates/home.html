@@ -13,7 +13,11 @@
             <div class="panel panel-default">
                 <div class="panel-heading"><b>LEFT</b></div>
                 <table class="table">
-
+                    <!--/*@thymesVar id="server" type="be.kuleuven.cs.jli40d.core.deployer.Server"*/-->
+                    <tr th:each="server : ${databases}">
+                        <td th:text="${server.uuid}">
+                        </td>
+                    </tr>
                 </table>
             </div>
         </div>

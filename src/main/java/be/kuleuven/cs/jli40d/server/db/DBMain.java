@@ -19,6 +19,7 @@ public class DBMain
     public static void main(String[] args) throws JAXBException
     {
         SpringApplication app = new SpringApplication(DBMain.class);
+        app.setWebEnvironment(false);
         ConfigurableApplicationContext ctx = app.run(args);
     }
 }

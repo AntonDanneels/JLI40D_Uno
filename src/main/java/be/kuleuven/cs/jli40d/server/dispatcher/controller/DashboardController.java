@@ -1,5 +1,7 @@
 package be.kuleuven.cs.jli40d.server.dispatcher.controller;
 
+import be.kuleuven.cs.jli40d.server.dispatcher.ServerRegister;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class DashboardController
 {
+    @Autowired
+    private ServerRegister serverRegister;
+
     /**
      * Returns homepage (index.html).
      *
@@ -20,7 +25,7 @@ public class DashboardController
     @RequestMapping("/")
     public String listItems(ModelMap modelMap)
     {
-        //modelMap.put("products", productService.getAllItems());
+        modelMap.put("databases", serverRegister.getDatabaseServers());
 
         return "home";
     }

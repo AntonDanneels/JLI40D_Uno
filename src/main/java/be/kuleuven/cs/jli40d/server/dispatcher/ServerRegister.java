@@ -6,6 +6,7 @@ import be.kuleuven.cs.jli40d.core.deployer.ServerType;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
@@ -16,6 +17,7 @@ import java.util.*;
  * @author Pieter
  * @version 1.0
  */
+@Component
 public class ServerRegister extends UnicastRemoteObject implements ServerRegistrationHandler, Serializable
 {
     private final Logger LOGGER = LoggerFactory.getLogger( ServerRegister.class.getName() );
@@ -226,5 +228,21 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
                           .orElseThrow( () -> new GameNotFoundException(  ) );
 
         return result;
+    }
+
+
+    public Map <String, Integer> getPortsOnHosts()
+    {
+        return portsOnHosts;
+    }
+
+    public Set <Server> getApplicationServers()
+    {
+        return applicationServers;
+    }
+
+    public Set <Server> getDatabaseServers()
+    {
+        return databaseServers;
     }
 }
