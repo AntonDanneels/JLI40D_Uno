@@ -1,4 +1,4 @@
-package be.kuleuven.cs.jli40d.server.db.service;
+package be.kuleuven.cs.jli40d.core.model.exception;
 
 /**
  * @author Pieter

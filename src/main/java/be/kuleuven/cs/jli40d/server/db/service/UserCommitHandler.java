@@ -1,6 +1,8 @@
 package be.kuleuven.cs.jli40d.server.db.service;
 
+import be.kuleuven.cs.jli40d.core.model.Token;
 import be.kuleuven.cs.jli40d.core.model.User;
+import be.kuleuven.cs.jli40d.core.model.exception.NotPreparedException;
 
 import java.io.Serializable;
 import java.rmi.Remote;
@@ -40,6 +42,14 @@ public interface UserCommitHandler extends Remote, Serializable
      *                              not called or returned {@link PrepareResponse#ABORT}.
      */
     void commit( User user ) throws RemoteException, NotPreparedException;
+
+    /**
+     * Single phase commit for tokens.
+     *
+     * @param token The {@link Token} object to persist.
+     * @throws RemoteException
+     */
+    void commit( Token token ) throws RemoteException;
 
     /**
      * This manually removes the lock.
