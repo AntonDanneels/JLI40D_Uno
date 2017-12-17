@@ -241,21 +241,6 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
                           .orElseThrow( () -> new GameNotFoundException(  ) );
     }
 
-    public synchronized void testTransfer()
-    {
-        Server serverA = null, serverB = null;
-
-        for( Server s: applicationServers )
-        {
-            if( serverGameMapping.get( s.getUuid() ) != null &&  serverA == null )
-                serverA = s;
-            else
-                serverB = s;
-        }
-
-        transferServers( serverA, serverB );
-    }
-
     /**
      * 1. Remove server A from available servers
      * 2. Send stop signal to server A:

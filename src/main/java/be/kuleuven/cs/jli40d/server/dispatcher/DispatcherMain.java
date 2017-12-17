@@ -32,17 +32,6 @@ public class DispatcherMain
             server.rebind( ServerRegistrationHandler.class.getName(), serverRegister );
 
             LOGGER.info( "Dispatcher server started with following bindings: {} ", Arrays.toString( server.list() ) );
-
-            try
-            {
-                Thread.sleep( 60000 );
-
-                serverRegister.testTransfer();
-
-            }catch ( Exception e )
-            {
-                e.printStackTrace();
-            }
         }
         catch ( Exception e )
         {
