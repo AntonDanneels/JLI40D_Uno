@@ -48,6 +48,7 @@ public class GameClient extends Application
     private String token;
     private String username;
     private String uuid;
+    private Server server;
 
     public static void main( String[] args )
     {
@@ -79,6 +80,8 @@ public class GameClient extends Application
             uuid = UUID.randomUUID().toString();
 
             Server appServer = registrationHandler.registerGameClient( uuid );
+
+            this.server = appServer;
 
             Registry myRegistry = LocateRegistry.getRegistry( appServer.getHost(), appServer.getPort() );
             LobbyHandler lobbyHandler = ( LobbyHandler )myRegistry.lookup( LobbyHandler.class.getName() );
@@ -180,6 +183,8 @@ public class GameClient extends Application
             spectateSceneHandler.setLobbyHandler( lobbyHandler );
 
             leaderboardSceneHandler.setUserHandler( userManager );
+
+            this.server = server;
         }
         catch ( RemoteException e )
         {
@@ -246,5 +251,10 @@ public class GameClient extends Application
     public String getUuid()
     {
         return uuid;
+    }
+
+    public Server getServer()
+    {
+        return server;
     }
 }

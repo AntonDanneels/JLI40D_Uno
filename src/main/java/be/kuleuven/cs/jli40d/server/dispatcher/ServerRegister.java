@@ -164,7 +164,7 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
      *  @return An Application Server.
      *  @throws RemoteException
      * */
-    public Server registerGameClient( String uuid ) throws RemoteException
+    public synchronized Server registerGameClient( String uuid ) throws RemoteException
     {
         while (databaseServers.size() < DATABASE_SERVER && applicationServers.size() < 1)
         {
@@ -183,6 +183,12 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
         clientMapping.get( result ).add( uuid );
 
         return result;
+    }
+
+    public synchronized void unregisterGameClient( Server server, String clientUUID ) throws RemoteException
+    {
+        if( clientMapping.containsKey( server ) )
+            clientMapping.get( server ).remove( clientUUID );
     }
 
     private <T,Y> T getLowest( Map<T, List<Y>> mapping )
@@ -228,4 +234,22 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
 
         return result;
     }
+
+    /**
+     * 1. Remove server A from available servers
+     * 2. Send stop signal to server A:
+     *     a. Server refuses to accept new gameMoves(set isMyMove to false)
+     * 3. Send load signal to server B:
+     *     a. Server transfers games and registers them in the dispatcher
+     * 4. Send shutdown signal to server A:
+     *     a. Server throws WrongServerException, client connects to dispatcher and
+                connects to correct server.
+     */
+    private void transferServers( Server from, Server to )
+    {
+        applicationServers.remove( from );
+
+
+    }
+
 }
