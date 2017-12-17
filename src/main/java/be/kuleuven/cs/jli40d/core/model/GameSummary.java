@@ -75,4 +75,21 @@ public class GameSummary implements Serializable
     {
         this.numberOfJoinedPlayers = numberOfJoinedPlayers;
     }
+
+    @Override
+    public boolean equals( Object o )
+    {
+        if ( this == o ) return true;
+        if ( o == null || getClass() != o.getClass() ) return false;
+
+        GameSummary that = ( GameSummary ) o;
+
+        return uuid.equals( that.uuid );
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return uuid.hashCode();
+    }
 }

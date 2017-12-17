@@ -16,10 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
@@ -120,11 +117,13 @@ public class RemoteGameService implements GameListHandler
     {
         try
         {
+            Set<GameSummary> result = new HashSet <>();
+
             //fetching remote games
             List<GameSummary> gameSummaries = gameHandler.getGames();
 
             //adding games hosted on this host
-            /*
+
             List <GameSummary> localGames = localGameCache.values().stream()
                     .map( g -> new GameSummary(
                             g.getUuid(),
@@ -133,9 +132,11 @@ public class RemoteGameService implements GameListHandler
                             g.getMaximumNumberOfPlayers(),
                             g.isStarted() ) )
                     .collect( Collectors.toList() );
-            */
 
-            return gameSummaries;
+            result.addAll( gameSummaries );
+            result.addAll( localGames );
+
+            return new ArrayList <>( result );
         }
         catch ( Exception e )
         {
