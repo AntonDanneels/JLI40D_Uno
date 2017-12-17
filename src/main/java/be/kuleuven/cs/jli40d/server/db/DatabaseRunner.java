@@ -6,6 +6,7 @@ import be.kuleuven.cs.jli40d.core.deployer.Server;
 import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.deployer.ServerType;
 import be.kuleuven.cs.jli40d.server.db.service.ClusterService;
+import be.kuleuven.cs.jli40d.server.db.service.UserCommitHandler;
 import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherMain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +63,7 @@ public class DatabaseRunner
 
             registry.rebind( DatabaseGameHandler.class.getName(), gameHandler );
             registry.rebind( DatabaseUserHandler.class.getName(), userHandler );
+            registry.rebind( UserCommitHandler.class.getName(), userHandler );
 
             LOGGER.info( "Created registry on {}, now registering database.", me );
 

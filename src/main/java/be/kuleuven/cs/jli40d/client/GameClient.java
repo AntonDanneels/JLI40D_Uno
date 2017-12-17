@@ -176,6 +176,9 @@ public class GameClient extends Application
             gameSceneHandler.setGameHandler( gameHandler );
             gameSceneHandler.setLobbyHandler( lobbyHandler );
 
+            spectateSceneHandler.setGameHandler( gameHandler );
+            spectateSceneHandler.setLobbyHandler( lobbyHandler );
+
             leaderboardSceneHandler.setUserHandler( userManager );
         }
         catch ( RemoteException e )
