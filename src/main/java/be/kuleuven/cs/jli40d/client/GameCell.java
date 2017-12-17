@@ -33,11 +33,19 @@ public class GameCell extends ListCell<GameSummary>
         hBox.getChildren().addAll( gameNameLabel, pane, nrOfPlayersLabel, pane1, joinButton, viewButton );
         HBox.setHgrow( pane, Priority.ALWAYS );
         HBox.setHgrow( pane1, Priority.ALWAYS );
+
         joinButton.setOnAction( e ->
         {
             LOGGER.debug( "Joining game: {}", game.getUuid() );
             LOGGER.debug( "Switching to the game scene." );
             client.setGameScene( game );
+        } );
+
+        viewButton.setOnAction( e ->
+        {
+            LOGGER.debug( "Spectating game: {}", game.getUuid() );
+            LOGGER.debug( "Switching to the spectating scene." );
+            client.setSpectatingScene( game );
         } );
     }
 

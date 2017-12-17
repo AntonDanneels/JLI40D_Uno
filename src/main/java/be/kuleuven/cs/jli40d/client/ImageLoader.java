@@ -137,6 +137,10 @@ public class ImageLoader
                 LOGGER.debug( "Loading image: {}", path );
                 sceneImages.put( SceneImage.CARD_BACK, new Image( path ) );
 
+                path = "/uno-spectate.png";
+                LOGGER.debug( "Loading image: {}", path );
+                sceneImages.put( SceneImage.SPECTATOR_BACKGROUND, new Image( path ) );
+
                 path = "/current-player.png";
                 LOGGER.debug( "Loading image: {}", path );
                 sceneImages.put( SceneImage.CURRENT_USER, new Image( path ) );
