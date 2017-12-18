@@ -69,6 +69,9 @@ public interface ServerRegistrationHandler extends Remote, Serializable
      * */
     Server registerGameClient( String uuid ) throws RemoteException;
 
+
+    void unregisterGameClient( Server server, String clientUUID ) throws RemoteException;
+
     /**
      *  Used by application servers to register a game on the dispatcher. Clients can contact
      *  the dispatcher to request a host.

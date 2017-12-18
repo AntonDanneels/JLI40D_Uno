@@ -37,8 +37,6 @@ public class ResourceManager extends UnicastRemoteObject implements ResourceHand
         String                dirName = System.getProperty( "user.home" ) + "/uno/server_texturepacks/" + resourcePackName;
         ByteArrayOutputStream baos    = new ByteArrayOutputStream(1000);
 
-        System.out.println( new File(dirName,imageName).getAbsolutePath() );
-
         BufferedImage         img     = ImageIO.read(new File(dirName,imageName));
 
         ImageIO.write(img, "png", baos);
