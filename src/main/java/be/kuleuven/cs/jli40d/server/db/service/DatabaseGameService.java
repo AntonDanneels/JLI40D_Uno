@@ -92,6 +92,7 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
         Game g = gameRepository.findOneByUuid( game.getUuid() );
         if ( g == null )
         {
+            game.setGameID( 0 );
             gameRepository.save( game );
 
             int dbID = game.getGameID();
@@ -102,6 +103,7 @@ public class DatabaseGameService extends UnicastRemoteObject implements Database
         } else {
 
             game.setGameID( g.getGameID() );
+            gameRepository.save( game );
         }
 
     }
