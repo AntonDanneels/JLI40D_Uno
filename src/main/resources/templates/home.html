@@ -15,9 +15,13 @@
                 <table class="table">
                     <!--/*@thymesVar id="server.key" type="be.kuleuven.cs.jli40d.core.deployer.Server"*/-->
                     <tr th:each="server : ${databases}">
-                        <td th:text="${server.key.uuid}"></td>
-                        <td th:text="${server.key.toString()}"></td>
-                        <td th:text="${server.value.size()}"></td>
+                        <td>
+                            <span class="label label-primary" th:text="${server.key.uuid.substring(0,7)}"></span>
+                            <span th:text="${server.key.toString()}"></span>
+                        </td>
+                        <td th:if="${server.value.size() == 1}" th:text="${server.value.size()} + ' app server'"></td>
+                        <td th:unless="${server.value.size() == 1}"
+                            th:text="${server.value.size()} + ' app servers'"></td>
                     </tr>
                 </table>
             </div>
@@ -30,8 +34,20 @@
 
                 <table class="table">
                     <tr th:each="server : ${appservers}">
-                        <td th:text="${server.uuid}"></td>
-                        <td th:text="${server.toString()}"></td>
+                        <td>
+                            <span class="label label-success" th:text="${server.key.uuid.substring(0,7)}"></span>
+                            <span th:text="${server.key.toString()}"></span>
+                        </td>
+                        <td th:if="${server.value == 1}" th:text="${server.value} + ' game'"></td>
+                        <td th:unless="${server.value == 1}" th:text="${server.value} + ' games'"></td>
+                        <td class="btn-td">
+                            <div class="btn-group pull-right" role="group">
+                                <a type="button" class="btn btn-danger" aria-label=""
+                                   th:href="'/shutdown/' + ${server.key.uuid}">
+                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                </a>
+                            </div>
+                        </td>
                     </tr>
                 </table>
             </div>

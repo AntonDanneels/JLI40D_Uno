@@ -380,5 +380,10 @@ public class SpectateSceneHandler extends AnimationTimer
     public void setGameHandler( GameHandler gameHandler )
     {
         this.gameHandler = gameHandler;
+        if( game != null )
+        {
+            this.listenerService.setGameHandler( gameHandler );
+            new Thread( this.listenerService ).start();
+        }
     }
 }
