@@ -390,6 +390,10 @@ public class GameSceneHandler extends AnimationTimer
 
             try
             {
+                Utils.createPopup( "Changing server..." );
+
+                this.stop();
+
                 Server newServer = registrationHandler.getServer( gameSummary.getUuid() );
                 client.resetConnection( newServer );
                 this.run();
@@ -634,5 +638,10 @@ public class GameSceneHandler extends AnimationTimer
     public void setGameHandler( GameHandler gameHandler )
     {
         this.gameHandler = gameHandler;
+        if( game != null )
+        {
+            this.listenerService.setGameHandler( gameHandler );
+            new Thread( this.listenerService ).start();
+        }
     }
 }

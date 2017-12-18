@@ -3,6 +3,9 @@ package be.kuleuven.cs.jli40d.server.db;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.ConfigurableApplicationContext;
+
+import javax.xml.bind.JAXBException;
 
 /**
  * @author Pieter
@@ -13,8 +16,10 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 public class DBMain
 {
 
-    public static void main( String[] args )
+    public static void main(String[] args) throws JAXBException
     {
-        SpringApplication.run( DBMain.class, args );
+        SpringApplication app = new SpringApplication(DBMain.class);
+        app.setWebEnvironment(false);
+        ConfigurableApplicationContext ctx = app.run(args);
     }
 }

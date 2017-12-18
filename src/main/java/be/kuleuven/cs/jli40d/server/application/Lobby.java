@@ -95,8 +95,11 @@ public class Lobby extends UnicastRemoteObject implements LobbyHandler, Serializ
     public String makeGame( String token, String gameName, int numberOfPlayers ) throws
             InvalidTokenException,
             UnableToCreateGameException,
-            RemoteException
+            RemoteException,
+            WrongServerException
     {
+        if( !ApplicationMain.IS_RUNNING )
+            throw new WrongServerException();
         //initial check for token
         userManager.findUserByToken( token );
 

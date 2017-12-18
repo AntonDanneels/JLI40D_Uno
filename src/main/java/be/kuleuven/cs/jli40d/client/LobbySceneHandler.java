@@ -115,6 +115,18 @@ public class LobbySceneHandler
         catch ( WrongServerException e )
         {
             LOGGER.debug( "Changing server" );
+
+            try
+            {
+                registrationHandler.unregisterGameClient( client.getServer(), client.getServer().getUuid() );
+                Server s = registrationHandler.registerGameClient( client.getUuid() );
+                client.resetConnection( s );
+                createNewGame( gameName, nrOfPlayers );
+            }
+            catch ( RemoteException e1 )
+            {
+                e1.printStackTrace();
+            }
         }
     }
 

@@ -160,7 +160,8 @@ public class ImageLoader
         Stage dialogStage = new Stage();
         dialogStage.initStyle( StageStyle.UTILITY);
         dialogStage.setResizable(false);
-        dialogStage.initModality(Modality.APPLICATION_MODAL);
+        dialogStage.initModality(Modality.WINDOW_MODAL);
+        dialogStage.setAlwaysOnTop( true );
 
         // PROGRESS BAR
         final Label label = new Label();

@@ -62,6 +62,14 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
             GameNotFoundException,
             WrongServerException
     {
+        // Initiate server switch
+        if( ApplicationMain.IS_SHUTTING_DOWN )
+            throw new WrongServerException();
+
+        // Lock the server from receiving new moves
+        if( !ApplicationMain.IS_RUNNING )
+            return false;
+
         Game game = gameService.getGameByUuid( gameUuid );
 
         String username = userManager.findUserByToken( token );
@@ -92,11 +100,17 @@ public class GameManager extends UnicastRemoteObject implements GameHandler
             GameEndedException,
             WrongServerException
     {
+        if( ApplicationMain.IS_SHUTTING_DOWN )
+            throw new WrongServerException();
+
         Game   game     = gameService.getGameByUuid( gameUuid );
         String username = userManager.findUserByToken( token ); //TODO check if authenticated for game
 
         while ( game.getMoves().size() <= nextGameMoveID )
         {
+            if( ApplicationMain.IS_SHUTTING_DOWN )
+                throw new WrongServerException();
+
             if ( game.isEnded() )
                 throw new GameEndedException();
             try
