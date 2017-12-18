@@ -11,12 +11,13 @@
         <div class="col-md-6">
             <!-- TOPLEFT PANEL -->
             <div class="panel panel-default">
-                <div class="panel-heading"><b>LEFT</b></div>
+                <div class="panel-heading"><b>Database cluster</b></div>
                 <table class="table">
-                    <!--/*@thymesVar id="server" type="be.kuleuven.cs.jli40d.core.deployer.Server"*/-->
+                    <!--/*@thymesVar id="server.key" type="be.kuleuven.cs.jli40d.core.deployer.Server"*/-->
                     <tr th:each="server : ${databases}">
-                        <td th:text="${server.uuid}">
-                        </td>
+                        <td th:text="${server.key.uuid}"></td>
+                        <td th:text="${server.key.toString()}"></td>
+                        <td th:text="${server.value.size()}"></td>
                     </tr>
                 </table>
             </div>
@@ -25,10 +26,13 @@
         <div class="col-md-6">
             <!-- TOPRIGHT PANEL -->
             <div class="panel panel-default">
-                <div class="panel-heading"><b>RIGHT</b></div>
+                <div class="panel-heading"><b>Application servers</b></div>
 
                 <table class="table">
-
+                    <tr th:each="server : ${appservers}">
+                        <td th:text="${server.uuid}"></td>
+                        <td th:text="${server.toString()}"></td>
+                    </tr>
                 </table>
             </div>
         </div>

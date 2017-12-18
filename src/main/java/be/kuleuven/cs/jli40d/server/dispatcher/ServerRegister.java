@@ -245,4 +245,19 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
     {
         return databaseServers;
     }
+
+    public Map <Server, List <Server>> getServerMapping()
+    {
+        return serverMapping;
+    }
+
+    public Map <Server, List <String>> getClientMapping()
+    {
+        return clientMapping;
+    }
+
+    public Map <String, String> getGamesMapping()
+    {
+        return gamesMapping;
+    }
 }

@@ -25,7 +25,8 @@ public class DashboardController
     @RequestMapping("/")
     public String listItems(ModelMap modelMap)
     {
-        modelMap.put("databases", serverRegister.getDatabaseServers());
+        modelMap.put("appservers", serverRegister.getApplicationServers());
+        modelMap.put("databases", serverRegister.getServerMapping());
 
         return "home";
     }
