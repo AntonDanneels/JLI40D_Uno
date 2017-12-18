@@ -189,3 +189,33 @@ html {
 address {
   display: inline-block;
   margin-bottom: 0; }
+
+.dot {
+  display: inline-block;
+  height: 6px;
+  width: 6px;
+  margin-bottom: 3px;
+  margin-top: 3px;
+  margin-right: 6px;
+  border-radius: 300px;
+}
+
+@keyframes breath {
+  0% {
+    background-color: #61BD4F;
+  }
+  50% {
+    background-color: white;
+  }
+  100% {
+    background-color: #61BD4F;
+  }
+}
+
+.green-dot {
+  animation: breath 4s infinite;
+}
+
+.red-dot {
+  background-color: #EB5A46;
+}

@@ -4,7 +4,7 @@
 <body>
 <nav th:replace="layout :: navbar('dashboard')"></nav>
 
-<div class="container">
+<div class="container" id="app">
 
     <!-- UPPER ROW -->
     <div class="row">
@@ -13,10 +13,13 @@
             <div class="panel panel-default">
                 <div class="panel-heading"><b>Database cluster</b></div>
                 <table class="table">
-                    <!--/*@thymesVar id="server.key" type="be.kuleuven.cs.jli40d.core.deployer.Server"*/-->
+                    <!--/*@thymesVar id="server" type="be.kuleuven.cs.jli40d.core.deployer.Server"*/-->
                     <tr th:each="server : ${databases}">
                         <td>
-                            <span class="label label-primary" th:text="${server.key.uuid.substring(0,7)}"></span>
+                            <span class="dot green-dot"></span>
+                            <span class="label" th:style="'background-color: #' + ${server.key.uuid.substring(0,3)} " th:text="'DB ' + ${server.key.uuid.substring(0,3)}"></span>
+                        </td>
+                        <td>
                             <span th:text="${server.key.toString()}"></span>
                         </td>
                         <td th:if="${server.value.size() == 1}" th:text="${server.value.size()} + ' app server'"></td>
@@ -33,17 +36,27 @@
                 <div class="panel-heading"><b>Application servers</b></div>
 
                 <table class="table">
-                    <tr th:each="server : ${appservers}">
-                        <td>
-                            <span class="label label-success" th:text="${server.key.uuid.substring(0,7)}"></span>
-                            <span th:text="${server.key.toString()}"></span>
+                    <!--/*@thymesVar id="wrapper" type="be.kuleuven.cs.jli40d.server.dispatcher.controller.AppServerWrapper"*/-->
+                    <tr th:each="wrapper : ${appservers}">
+                        <td style="padding-top: 14px !important;">
+                            <span class="dot green-dot"></span>
+                            <span class="label label-default" th:text="${wrapper.server.serverType}"></span>
+                            <b th:text="'#' + ${wrapper.server.uuid.substring(0,7)}"></b>
                         </td>
-                        <td th:if="${server.value == 1}" th:text="${server.value} + ' game'"></td>
-                        <td th:unless="${server.value == 1}" th:text="${server.value} + ' games'"></td>
+                        <td style="padding-top: 14px !important;">
+                            <span class="label" th:style="'background-color: #' + ${wrapper.database.uuid.substring(0,3)} " th:text="'DB ' + ${wrapper.database.uuid.substring(0,3)}"></span>
+                        </td>
+                        <td style="padding-top: 14px !important;">
+                            <span th:text="${wrapper.server.toString()}"></span>
+                        </td>
+                        <td style="padding-top: 14px !important;" th:if="${wrapper.numberOfGames == 1}" th:text="${wrapper.numberOfGames} + ' game'"></td>
+                        <td style="padding-top: 14px !important;" th:unless="${wrapper.numberOfGames == 1}" th:text="${wrapper.numberOfGames} + ' games'"></td>
+                         <td style="padding-top: 14px !important;" th:if="${wrapper.numberOfClients == 1}" th:text="${wrapper.numberOfClients} + ' client'"></td>
+                        <td style="padding-top: 14px !important;" th:unless="${wrapper.numberOfClients == 1}" th:text="${wrapper.numberOfClients} + ' clients'"></td>
                         <td class="btn-td">
                             <div class="btn-group pull-right" role="group">
                                 <a type="button" class="btn btn-danger" aria-label=""
-                                   th:href="'/shutdown/' + ${server.key.uuid}">
+                                   th:href="'/shutdown/' + ${wrapper.server.uuid}">
                                     <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                                 </a>
                             </div>
@@ -72,5 +85,12 @@
 </div>
 
 <div th:replace="layout :: scripts"></div>
+<script type="text/javascript">
+    $(document).ready(function(){
+        setInterval(function(){
+            $("#app").load('/ #app');
+        }, 3000);
+    });
+</script>
 </body>
 </html>

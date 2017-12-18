@@ -10,7 +10,9 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,11 +36,25 @@ public class DashboardController
     @RequestMapping("/")
     public String dashboard(ModelMap modelMap)
     {
-        Map<Server, Integer> gamesForEachServer = new HashMap <>(  );
+       List<AppServerWrapper> gamesForEachServer = new ArrayList<>(  );
+
+        Map<Server, Server> dababasesForAppServers = new HashMap <>();
+
+        for (Map.Entry<Server, List<Server>> dbAppList : serverRegister.getServerMapping().entrySet())
+        {
+            for( Server app : dbAppList.getValue())
+            {
+                dababasesForAppServers.put( app, dbAppList.getKey() );
+            }
+        }
 
         for (Server s : serverRegister.getApplicationServers())
         {
-            gamesForEachServer.put( s, serverRegister.getServerGameMapping().get( s.getUuid() ).size() );
+            AppServerWrapper wrapper = new AppServerWrapper( s );
+            wrapper.setNumberOfClients( serverRegister.getClientMapping().get( s ).size() );
+            wrapper.setNumberOfGames( serverRegister.getServerGameMapping().get( s.getUuid() ).size() );
+            wrapper.setDatabase( dababasesForAppServers.get( s ));
+            gamesForEachServer.add( wrapper );
         }
 
         modelMap.put("appservers", gamesForEachServer);
