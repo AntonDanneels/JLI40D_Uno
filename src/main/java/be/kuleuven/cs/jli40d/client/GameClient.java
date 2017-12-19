@@ -11,7 +11,7 @@ import be.kuleuven.cs.jli40d.core.UserHandler;
 import be.kuleuven.cs.jli40d.core.deployer.Server;
 import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
-import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherRunner;
+import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherMain;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -80,7 +80,7 @@ public class GameClient extends Application
             primaryStage.setScene( loginScene );
             primaryStage.show();
 
-            Registry                  dispatcherRegistry  = LocateRegistry.getRegistry( DispatcherRunner.DISPATCHER.getHost(), DispatcherRunner.DISPATCHER.getPort() );
+            Registry                  dispatcherRegistry  = LocateRegistry.getRegistry( DispatcherMain.DISPATCHER.getHost(), DispatcherMain.DISPATCHER.getPort() );
             ServerRegistrationHandler registrationHandler = (ServerRegistrationHandler)dispatcherRegistry.lookup( ServerRegistrationHandler.class.getName() );
 
             uuid = UUID.randomUUID().toString();

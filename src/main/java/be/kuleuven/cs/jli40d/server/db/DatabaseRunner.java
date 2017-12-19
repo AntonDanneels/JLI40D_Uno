@@ -7,7 +7,7 @@ import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.deployer.ServerType;
 import be.kuleuven.cs.jli40d.server.db.service.ClusterService;
 import be.kuleuven.cs.jli40d.server.db.service.UserCommitHandler;
-import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherRunner;
+import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherMain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,11 +44,11 @@ public class DatabaseRunner
         Registry dispatcherRegistry = null;
         try
         {
-            dispatcherRegistry = LocateRegistry.getRegistry( DispatcherRunner.DISPATCHER.getHost(), DispatcherRunner.DISPATCHER.getPort() );
+            dispatcherRegistry = LocateRegistry.getRegistry( DispatcherMain.DISPATCHER.getHost(), DispatcherMain.DISPATCHER.getPort() );
         }
         catch ( RemoteException e )
         {
-            LOGGER.error( "Failed to connect to dispatcher {}. Check these settings.", DispatcherRunner.DISPATCHER );
+            LOGGER.error( "Failed to connect to dispatcher {}. Check these settings.", DispatcherMain.DISPATCHER );
         }
 
 

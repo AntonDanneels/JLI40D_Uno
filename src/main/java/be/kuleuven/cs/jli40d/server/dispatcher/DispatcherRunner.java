@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.IOException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -19,8 +20,6 @@ import java.util.Arrays;
 public class DispatcherRunner
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( DispatcherRunner.class );
-
-    public static final String JAR_NAME = "target/uno-1.0-SNAPSHOT-jar-with-dependencies.jar";
 
     private final ServerRegister serverRegister;
 
@@ -45,11 +44,16 @@ public class DispatcherRunner
         {
             try
             {
-                Runtime.getRuntime().exec( new String[]{ "java", "-cp", JAR_NAME, "be.kuleuven.cs.jli40d.server.db.DBMain" } );
+                String file =  new File(".").getAbsolutePath();
+                file = file.substring( 0, file.length() - 1 ) + "db.jar";
+
+                LOGGER.info( "Launching {}", file );
+
+                Runtime.getRuntime().exec( new String[]{ "java", "-jar", file} );
             }
             catch ( IOException e )
             {
-                LOGGER.error( "Failed to start db jar. filename should be {}", JAR_NAME );
+                LOGGER.error( "Failed to start db jar. filename should be {}", "db.jar" );
             }
         }
     }
