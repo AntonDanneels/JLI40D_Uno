@@ -38,7 +38,7 @@
                 <table class="table">
                     <!--/*@thymesVar id="wrapper" type="be.kuleuven.cs.jli40d.server.dispatcher.controller.AppServerWrapper"*/-->
                     <tr th:each="wrapper : ${appservers}">
-                        <td style="padding-top: 14px !important;">
+                        <td style="padding-top: 14px !important;" th:if="${wrapper.server != null}">
                             <span class="dot green-dot"></span>
                             <span class="label label-default" th:text="${wrapper.server.serverType}"></span>
                             <b th:text="'#' + ${wrapper.server.uuid.substring(0,7)}"></b>
@@ -53,7 +53,7 @@
                         <td style="padding-top: 14px !important;" th:unless="${wrapper.numberOfGames == 1}" th:text="${wrapper.numberOfGames} + ' games'"></td>
                          <td style="padding-top: 14px !important;" th:if="${wrapper.numberOfClients == 1}" th:text="${wrapper.numberOfClients} + ' client'"></td>
                         <td style="padding-top: 14px !important;" th:unless="${wrapper.numberOfClients == 1}" th:text="${wrapper.numberOfClients} + ' clients'"></td>
-                        <td class="btn-td">
+                        <td class="btn-td" th:if="${appservers.size() > 1}">
                             <div class="btn-group pull-right" role="group">
                                 <a type="button" class="btn btn-danger" aria-label=""
                                    th:href="'/shutdown/' + ${wrapper.server.uuid}">
@@ -63,24 +63,15 @@
                         </td>
                     </tr>
                 </table>
+                <div class="panel-footer">
+                    <div class="btn-group" role="group">
+                        <a href="/start/app">
+                            <button type="button" class="btn btn-default">Start application server</button>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
-
-    </div>
-
-    <!-- BOTTOM ROW -->
-    <div class="row">
-
-        <div class="col-md-12">
-            <div class="panel panel-default">
-                <div class="panel-heading"><b>MORE SHIT</b></div>
-
-                <table class="table">
-
-                </table>
-            </div>
-        </div>
-
     </div>
 </div>
 
