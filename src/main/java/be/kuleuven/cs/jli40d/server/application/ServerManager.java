@@ -1,5 +1,6 @@
 package be.kuleuven.cs.jli40d.server.application;
 
+import be.kuleuven.cs.jli40d.core.ResourceHandler;
 import be.kuleuven.cs.jli40d.core.ServerManagementHandler;
 import be.kuleuven.cs.jli40d.core.database.DatabaseGameHandler;
 import be.kuleuven.cs.jli40d.core.deployer.Server;
@@ -10,6 +11,7 @@ import be.kuleuven.cs.jli40d.core.model.PlayerHand;
 import be.kuleuven.cs.jli40d.core.model.exception.GameNotFoundException;
 import be.kuleuven.cs.jli40d.core.model.exception.InvalidGameMoveException;
 import be.kuleuven.cs.jli40d.server.application.service.RemoteGameService;
+import com.sun.org.apache.regexp.internal.RE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +81,11 @@ public class ServerManager extends UnicastRemoteObject implements ServerManageme
                 e.printStackTrace();
             }
         }
+    }
+
+    public void updateCurrentResourcepack( String respack ) throws RemoteException
+    {
+        ResourceManager.CURRENT_RESOURCEPACK = respack;
     }
 
     /**

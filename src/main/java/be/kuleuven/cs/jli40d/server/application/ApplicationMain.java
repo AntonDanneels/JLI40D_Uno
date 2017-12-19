@@ -6,11 +6,19 @@ import be.kuleuven.cs.jli40d.core.database.DatabaseUserHandler;
 import be.kuleuven.cs.jli40d.core.deployer.Server;
 import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.deployer.ServerType;
+import be.kuleuven.cs.jli40d.core.logic.GameLogic;
+import be.kuleuven.cs.jli40d.core.model.Card;
+import be.kuleuven.cs.jli40d.core.model.CardColour;
+import be.kuleuven.cs.jli40d.core.model.CardType;
+import be.kuleuven.cs.jli40d.core.model.Game;
 import be.kuleuven.cs.jli40d.server.application.service.RemoteGameService;
 import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherMain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -44,6 +52,43 @@ public class ApplicationMain
 
         try
         {
+            LOGGER.info( "Testing folders." );
+            File unoDir = new File( System.getProperty( "user.home" ) + "/" + "uno" );
+            if( !unoDir.exists() )
+            {
+                LOGGER.info( "Making uno folder." );
+                unoDir.mkdirs();
+            }
+
+            File serverDir = new File( System.getProperty( "user.home" ) + "/" + "uno"  + "/" + "server_texturepacks" );
+            if( !serverDir.exists() )
+            {
+                LOGGER.info( "Making server folder" );
+                serverDir.mkdir();
+            }
+
+            Game game = new Game( 4 );
+            GameLogic.generateDeck( game );
+            game.getDeck().add( new Card( CardType.PLUS4, CardColour.GREEN ) );
+            game.getDeck().add( new Card( CardType.PLUS4, CardColour.RED ) );
+            game.getDeck().add( new Card( CardType.PLUS4, CardColour.BLUE ) );
+            game.getDeck().add( new Card( CardType.PLUS4, CardColour.YELLOW ) );
+            game.getDeck().add( new Card( CardType.OTHER_COLOUR, CardColour.GREEN ) );
+            game.getDeck().add( new Card( CardType.OTHER_COLOUR, CardColour.RED ) );
+            game.getDeck().add( new Card( CardType.OTHER_COLOUR, CardColour.BLUE ) );
+            game.getDeck().add( new Card( CardType.OTHER_COLOUR, CardColour.YELLOW ) );
+
+            for( Card c : game.getDeck() )
+            {
+                BufferedImage img = ImageIO.read( Thread.currentThread().getContextClassLoader().getResource( "default_texturepack/" + c.getType() + "_" + c.getColour() + ".png" ) );
+                ImageIO.write( img, "png", new File( serverDir, c.getType() + "_" + c.getColour() + ".png" ) );
+            }
+
+            BufferedImage img = ImageIO.read( Thread.currentThread().getContextClassLoader().getResource( "default_texturepack/CARD_BACK.png" ) );
+            ImageIO.write( img, "png", new File( serverDir, "CARD_BACK.png" ) );
+
+            LOGGER.info( "Wrote files to serving folder" );
+
             ServerRegistrationHandler registrationHandler = null;
 
             try

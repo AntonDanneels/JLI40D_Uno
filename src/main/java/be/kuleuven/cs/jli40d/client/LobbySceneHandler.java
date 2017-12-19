@@ -89,6 +89,17 @@ public class LobbySceneHandler
         {
             Utils.createPopup( "An unexpected error occurred" );
             LOGGER.debug( "Remote exception: {}", e.getMessage() );
+
+            try
+            {
+                client.resetConnection( registrationHandler.registerGameClient( client.getUuid() ) );
+                this.createNewGame( gameName, nrOfPlayers);
+            }
+            catch ( RemoteException e1 )
+            {
+                e1.printStackTrace();
+            }
+
         }
         catch ( InvalidTokenException e )
         {
