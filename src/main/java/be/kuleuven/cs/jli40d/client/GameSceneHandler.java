@@ -285,7 +285,6 @@ public class GameSceneHandler extends AnimationTimer
             //if ( gameHandler.myTurn( client.getToken(), game.getGameID() ) )
             if ( game.getCurrentPlayerUsername().equals( client.getUsername() ) )
             {
-                gc.fillText( "It is my turn", 50, 50 );
                 if ( mouseDown )
                 {
                     if ( selectedCardButton == null )
