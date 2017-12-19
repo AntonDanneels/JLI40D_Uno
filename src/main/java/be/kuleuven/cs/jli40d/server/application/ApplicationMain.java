@@ -7,7 +7,7 @@ import be.kuleuven.cs.jli40d.core.deployer.Server;
 import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.deployer.ServerType;
 import be.kuleuven.cs.jli40d.server.application.service.RemoteGameService;
-import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherRunner;
+import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherMain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,34 +26,45 @@ public class ApplicationMain
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( ApplicationMain.class );
 
-    public static boolean IS_RUNNING = false;
+    public static boolean IS_RUNNING       = false;
     public static boolean IS_SHUTTING_DOWN = false;
 
     public static void main( String[] args )
     {
+
+        if ( args.length == 0 )
+        {
+            LOGGER.error( "Launch with java -jar app.jar <ip> <ip-dispatcher>." );
+            System.exit( 1 );
+        }
+
+        Server dispatcher = new Server( args[1], DispatcherMain.DISPATCHER.getPort(), DispatcherMain.DISPATCHER.getServerType(), DispatcherMain.DISPATCHER.getUuid() );
+
+        LOGGER.info( "Launching to dispatcher {} with app server {}", dispatcher, args[0] );
+
         try
         {
             ServerRegistrationHandler registrationHandler = null;
 
             try
             {
-                Registry dispatcherRegistry = LocateRegistry.getRegistry( DispatcherRunner.DISPATCHER.getHost(), DispatcherRunner.DISPATCHER.getPort() );
-                registrationHandler = ( ServerRegistrationHandler )dispatcherRegistry.lookup( ServerRegistrationHandler.class.getName() );
+                Registry dispatcherRegistry = LocateRegistry.getRegistry( dispatcher.getHost(), dispatcher.getPort() );
+                registrationHandler = ( ServerRegistrationHandler ) dispatcherRegistry.lookup( ServerRegistrationHandler.class.getName() );
             }
             catch ( RemoteException e )
             {
-                LOGGER.error( "Failed to connect to dispatcher {}. Check these settings.", DispatcherRunner.DISPATCHER );
+                LOGGER.error( "Failed to connect to dispatcher {}. Check these settings.", dispatcher );
             }
 
 
-            Server me = registrationHandler.obtainPort( "localhost", ServerType.APPLICATION );
+            Server me = registrationHandler.obtainPort( args[0], ServerType.APPLICATION );
 
             Server db = registrationHandler.registerAppServer( me );
 
             //remote db
             Registry            myRegistry          = LocateRegistry.getRegistry( db.getHost(), db.getPort() );
-            DatabaseUserHandler databaseUserHandler = ( DatabaseUserHandler )myRegistry.lookup( DatabaseUserHandler.class.getName() );
-            DatabaseGameHandler databaseGameHandler = ( DatabaseGameHandler )myRegistry.lookup( DatabaseGameHandler.class.getName() );
+            DatabaseUserHandler databaseUserHandler = ( DatabaseUserHandler ) myRegistry.lookup( DatabaseUserHandler.class.getName() );
+            DatabaseGameHandler databaseGameHandler = ( DatabaseGameHandler ) myRegistry.lookup( DatabaseGameHandler.class.getName() );
 
             //services
             CachedUserManager userManager = new CachedUserManager( databaseUserHandler );

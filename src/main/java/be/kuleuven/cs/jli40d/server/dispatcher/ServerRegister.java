@@ -28,7 +28,7 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
 
     private static final int MIN_PORT        = 1101;
     private static final int MAX_PORT        = 1200;
-    private static final int DATABASE_SERVER = 4;
+    static final int DATABASE_SERVER = 2;
 
     private Map <String, Integer> portsOnHosts;
 
