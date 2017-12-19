@@ -22,6 +22,7 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
@@ -55,6 +56,14 @@ public class GameClient extends Application
     @Override
     public void start( Stage primaryStage )
     {
+        File unoDir = new File( System.getProperty( "user.home" ) + "/" + "uno" );
+        if( !unoDir.exists() )
+            unoDir.mkdirs();
+
+        File clientDir = new File( System.getProperty( "user.home" ) + "/" + "uno"  + "/" + "client_texturepacks" );
+        if( !clientDir.exists() )
+            clientDir.mkdir();
+
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle( "Uno" );
         this.primaryStage.getIcons().add(new Image("/icon.png")); //TODO: make this shit working

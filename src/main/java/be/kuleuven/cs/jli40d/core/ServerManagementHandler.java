@@ -26,4 +26,6 @@ public interface ServerManagementHandler extends Remote, Serializable
      *  to properly transfer games to another server.
      * */
     void shutDown() throws RemoteException;
+
+    void updateCurrentResourcepack( String respack ) throws RemoteException;
 }

@@ -300,6 +300,27 @@ public class ServerRegister extends UnicastRemoteObject implements ServerRegistr
         }
     }
 
+    public void updateTexturepack( String respack )
+    {
+        for( Server s : applicationServers )
+        {
+            try
+            {
+                Registry                serverARegistry = LocateRegistry.getRegistry( s.getHost(), s.getPort() );
+                ServerManagementHandler server         = ( ServerManagementHandler ) serverARegistry.lookup( ServerManagementHandler.class.getName() );
+                server.updateCurrentResourcepack( respack );
+            }
+            catch ( RemoteException e )
+            {
+                e.printStackTrace();
+            }
+            catch ( NotBoundException e )
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public void shutdownServer( String serverUuid ) throws Exception
     {
         Server from = null;
