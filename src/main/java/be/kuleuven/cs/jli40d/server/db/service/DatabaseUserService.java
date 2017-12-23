@@ -62,7 +62,7 @@ public class DatabaseUserService extends UnicastRemoteObject implements Database
     @Override
     public synchronized void registerUser( User user ) throws RemoteException, AccountAlreadyExistsException
     {
-        while ( !lock.get() )
+        while ( lock.get() )
         {
             try
             {

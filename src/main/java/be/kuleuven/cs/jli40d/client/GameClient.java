@@ -11,12 +11,9 @@ import be.kuleuven.cs.jli40d.core.UserHandler;
 import be.kuleuven.cs.jli40d.core.deployer.Server;
 import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.model.GameSummary;
-import be.kuleuven.cs.jli40d.core.model.exception.WrongServerException;
-import be.kuleuven.cs.jli40d.server.application.ResourceManager;
 import be.kuleuven.cs.jli40d.server.dispatcher.DispatcherMain;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -25,6 +22,7 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
@@ -48,6 +46,7 @@ public class GameClient extends Application
     private String token;
     private String username;
     private String uuid;
+    private Server server;
 
     public static void main( String[] args )
     {
@@ -57,6 +56,14 @@ public class GameClient extends Application
     @Override
     public void start( Stage primaryStage )
     {
+        File unoDir = new File( System.getProperty( "user.home" ) + "/" + "uno" );
+        if( !unoDir.exists() )
+            unoDir.mkdirs();
+
+        File clientDir = new File( System.getProperty( "user.home" ) + "/" + "uno"  + "/" + "client_texturepacks" );
+        if( !clientDir.exists() )
+            clientDir.mkdir();
+
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle( "Uno" );
         this.primaryStage.getIcons().add(new Image("/icon.png")); //TODO: make this shit working
@@ -79,6 +86,8 @@ public class GameClient extends Application
             uuid = UUID.randomUUID().toString();
 
             Server appServer = registrationHandler.registerGameClient( uuid );
+
+            this.server = appServer;
 
             Registry myRegistry = LocateRegistry.getRegistry( appServer.getHost(), appServer.getPort() );
             LobbyHandler lobbyHandler = ( LobbyHandler )myRegistry.lookup( LobbyHandler.class.getName() );
@@ -165,6 +174,7 @@ public class GameClient extends Application
     {
         try
         {
+            LOGGER.info( "Changing to server: " + server );
             Registry registry = LocateRegistry.getRegistry( server.getHost(), server.getPort() );
 
             LobbyHandler lobbyHandler = ( LobbyHandler )registry.lookup( LobbyHandler.class.getName() );
@@ -180,6 +190,10 @@ public class GameClient extends Application
             spectateSceneHandler.setLobbyHandler( lobbyHandler );
 
             leaderboardSceneHandler.setUserHandler( userManager );
+
+            this.server = server;
+
+            LOGGER.info( "Server change complete" );
         }
         catch ( RemoteException e )
         {
@@ -246,5 +260,10 @@ public class GameClient extends Application
     public String getUuid()
     {
         return uuid;
+    }
+
+    public Server getServer()
+    {
+        return server;
     }
 }

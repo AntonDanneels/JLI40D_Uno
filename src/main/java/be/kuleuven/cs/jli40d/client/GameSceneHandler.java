@@ -8,6 +8,7 @@ import be.kuleuven.cs.jli40d.core.deployer.ServerRegistrationHandler;
 import be.kuleuven.cs.jli40d.core.logic.GameLogic;
 import be.kuleuven.cs.jli40d.core.model.*;
 import be.kuleuven.cs.jli40d.core.model.exception.*;
+import be.kuleuven.cs.jli40d.server.application.service.RemoteGameService;
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -165,11 +166,6 @@ public class GameSceneHandler extends AnimationTimer
                     game = lobbyHandler.joinGame( client.getToken(), gameSummary.getUuid() );
                     enterGameLoop();
                 }
-                catch ( RemoteException e )
-                {
-                    Utils.createPopup( "An unexpected error occured." );
-                    LOGGER.debug( "Unexpected remote exception: {}", e.getMessage() );
-                }
                 catch ( UnableToJoinGameException e )
                 {
                     Utils.createPopup( "Unable to join game." );
@@ -188,7 +184,7 @@ public class GameSceneHandler extends AnimationTimer
                     LOGGER.debug( "Tried to join ended game with id {}: {}", game.getGameID(), e.getMessage() );
                     client.setLobbyScene();
                 }
-                catch ( WrongServerException e )
+                catch ( WrongServerException | RemoteException e )
                 {
                     LOGGER.debug( "Changing server" );
 
@@ -289,7 +285,6 @@ public class GameSceneHandler extends AnimationTimer
             //if ( gameHandler.myTurn( client.getToken(), game.getGameID() ) )
             if ( game.getCurrentPlayerUsername().equals( client.getUsername() ) )
             {
-                gc.fillText( "It is my turn", 50, 50 );
                 if ( mouseDown )
                 {
                     if ( selectedCardButton == null )
@@ -394,6 +389,10 @@ public class GameSceneHandler extends AnimationTimer
 
             try
             {
+                Utils.createPopup( "Changing server..." );
+
+                this.stop();
+
                 Server newServer = registrationHandler.getServer( gameSummary.getUuid() );
                 client.resetConnection( newServer );
                 this.run();
@@ -638,5 +637,10 @@ public class GameSceneHandler extends AnimationTimer
     public void setGameHandler( GameHandler gameHandler )
     {
         this.gameHandler = gameHandler;
+        if( game != null )
+        {
+            this.listenerService.setGameHandler( gameHandler );
+            new Thread( this.listenerService ).start();
+        }
     }
 }

@@ -17,16 +17,15 @@ public class ResourceManager extends UnicastRemoteObject implements ResourceHand
 {
     private static final Logger LOGGER = LoggerFactory.getLogger( ResourceManager.class.getName() );
 
-    private String currentResourcePack;
+    public static String CURRENT_RESOURCEPACK = "default_texturepack";
 
     public ResourceManager() throws RemoteException
     {
-        currentResourcePack = "default_texturepack";
     }
 
     public String getCurrentResourcePackName() throws RemoteException
     {
-        return currentResourcePack;
+        return CURRENT_RESOURCEPACK;
     }
 
     public byte[] getImage( String resourcePackName, String imageName ) throws IOException
@@ -36,8 +35,6 @@ public class ResourceManager extends UnicastRemoteObject implements ResourceHand
         // "src/main/resources/"
         String                dirName = System.getProperty( "user.home" ) + "/uno/server_texturepacks/" + resourcePackName;
         ByteArrayOutputStream baos    = new ByteArrayOutputStream(1000);
-
-        System.out.println( new File(dirName,imageName).getAbsolutePath() );
 
         BufferedImage         img     = ImageIO.read(new File(dirName,imageName));
 

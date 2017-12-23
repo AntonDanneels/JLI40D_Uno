@@ -156,11 +156,6 @@ public class SpectateSceneHandler extends AnimationTimer
                     game = lobbyHandler.spectateGame( client.getToken(), gameSummary.getUuid() );
                     enterGameLoop();
                 }
-                catch ( RemoteException e )
-                {
-                    Utils.createPopup( "An unexpected error occured." );
-                    LOGGER.debug( "Unexpected remote exception: {}", e.getMessage() );
-                }
                 catch ( UnableToJoinGameException e )
                 {
                     Utils.createPopup( "Unable to join game." );
@@ -179,7 +174,7 @@ public class SpectateSceneHandler extends AnimationTimer
                     LOGGER.debug( "Tried to join ended game with id {}: {}", game.getGameID(), e.getMessage() );
                     client.setLobbyScene();
                 }
-                catch ( WrongServerException e )
+                catch ( WrongServerException | RemoteException e )
                 {
                     LOGGER.debug( "Changing server" );
 
@@ -380,5 +375,10 @@ public class SpectateSceneHandler extends AnimationTimer
     public void setGameHandler( GameHandler gameHandler )
     {
         this.gameHandler = gameHandler;
+        if( game != null )
+        {
+            this.listenerService.setGameHandler( gameHandler );
+            new Thread( this.listenerService ).start();
+        }
     }
 }
