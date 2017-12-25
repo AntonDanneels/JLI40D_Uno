@@ -9,3 +9,8 @@ The assignment was to implemented the game Uno in Java using RMI. Clients can pl
 - Gameclient
 - Application server
 - Database server
+
+### Dispatcher
+The dispatcher module is an rmi server, to which clients can connect and request a server ip/port. 
+
+[!img](img/dashboard.png)
