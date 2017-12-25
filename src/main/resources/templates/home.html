@@ -17,7 +17,8 @@
                     <tr th:each="server : ${databases}">
                         <td>
                             <span class="dot green-dot"></span>
-                            <span class="label" th:style="'background-color: #' + ${server.key.uuid.substring(0,3)} " th:text="'DB ' + ${server.key.uuid.substring(0,3)}"></span>
+                            <span class="label" th:style="'background-color: #' + ${server.key.uuid.substring(0,3)} "
+                                  th:text="'DB ' + ${server.key.uuid.substring(0,3)}"></span>
                         </td>
                         <td>
                             <span th:text="${server.key.toString()}"></span>
@@ -44,15 +45,21 @@
                             <b th:text="'#' + ${wrapper.server.uuid.substring(0,7)}"></b>
                         </td>
                         <td style="padding-top: 14px !important;">
-                            <span class="label" th:style="'background-color: #' + ${wrapper.database.uuid.substring(0,3)} " th:text="'DB ' + ${wrapper.database.uuid.substring(0,3)}"></span>
+                            <span class="label"
+                                  th:style="'background-color: #' + ${wrapper.database.uuid.substring(0,3)} "
+                                  th:text="'DB ' + ${wrapper.database.uuid.substring(0,3)}"></span>
                         </td>
                         <td style="padding-top: 14px !important;">
                             <span th:text="${wrapper.server.toString()}"></span>
                         </td>
-                        <td style="padding-top: 14px !important;" th:if="${wrapper.numberOfGames == 1}" th:text="${wrapper.numberOfGames} + ' game'"></td>
-                        <td style="padding-top: 14px !important;" th:unless="${wrapper.numberOfGames == 1}" th:text="${wrapper.numberOfGames} + ' games'"></td>
-                         <td style="padding-top: 14px !important;" th:if="${wrapper.numberOfClients == 1}" th:text="${wrapper.numberOfClients} + ' client'"></td>
-                        <td style="padding-top: 14px !important;" th:unless="${wrapper.numberOfClients == 1}" th:text="${wrapper.numberOfClients} + ' clients'"></td>
+                        <td style="padding-top: 14px !important;" th:if="${wrapper.numberOfGames == 1}"
+                            th:text="${wrapper.numberOfGames} + ' game'"></td>
+                        <td style="padding-top: 14px !important;" th:unless="${wrapper.numberOfGames == 1}"
+                            th:text="${wrapper.numberOfGames} + ' games'"></td>
+                        <td style="padding-top: 14px !important;" th:if="${wrapper.numberOfClients == 1}"
+                            th:text="${wrapper.numberOfClients} + ' client'"></td>
+                        <td style="padding-top: 14px !important;" th:unless="${wrapper.numberOfClients == 1}"
+                            th:text="${wrapper.numberOfClients} + ' clients'"></td>
                         <td class="btn-td" th:if="${appservers.size() > 1}">
                             <div class="btn-group pull-right" role="group">
                                 <a type="button" class="btn btn-danger" aria-label=""
@@ -73,12 +80,35 @@
             </div>
         </div>
     </div>
-</div>
 
+    <!-- BOTTOM ROW -->
+    <div class="row">
+
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading"><b>Update texture pack</b></div>
+
+                <div class="panel-body">
+                    <form class="form-inline" th:method="post" th:action="@{/texturepack/}">
+                        <div class="form-group">
+                            <label class="sr-only" for="texturepack">Texturepack</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="texturepack" name="texturepack"
+                                       placeholder="default_texurepack"/>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update texturepack</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
 <div th:replace="layout :: scripts"></div>
 <script type="text/javascript">
-    $(document).ready(function(){
-        setInterval(function(){
+    $(document).ready(function () {
+        setInterval(function () {
             $("#app").load('/ #app');
         }, 3000);
     });
