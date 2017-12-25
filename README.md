@@ -25,3 +25,5 @@ The application server hosts games. Clients can connect with one of those server
 Because games are only hosted on one server at a time, they can reconstruct those games from the database cluster and host them, if requested  to do so by the dispatcher.
 
 ### Database server
+
+### Client
